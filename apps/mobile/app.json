@@ -1,41 +1,4 @@
 {
-  "expo": {
-    "name": "Hidden Eats",
-    "slug": "hidden-eats",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "scheme": "hiddeneats",
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0f172a"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.hiddeneats.app"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0f172a"
-      },
-      "package": "com.hiddeneats.app",
-      "config": {
-        "googleMaps": {
-          "apiKey": "EXPO_PUBLIC_GOOGLE_MAPS_CLIENT_KEY"
-        }
-      }
-    },
-    "web": {
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router"
-    ]
-  }
+  "name": "hiddeneatsmobile",
+  "displayName": "Hidden Eats"
 }

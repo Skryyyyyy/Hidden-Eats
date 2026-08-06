@@ -1,0 +1,19 @@
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
+  xxxl: 48,
+  
+  // Specific use cases
+  screenPadding: 16,
+  cardPadding: 20,
+  borderRadius: {
+    sm: 8,
+    md: 16,
+    lg: 24,
+    pill: 9999,
+  }
+};

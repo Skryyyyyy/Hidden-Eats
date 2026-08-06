@@ -19,10 +19,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght,wdth,slnt,GRAD,ROND@6..144,1..1000,25..151,-10..0,0..100,0..100&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body className="antialiased text-body bg-[#FAF6F0] text-[#181512]">
+      <body className="antialiased text-body bg-[#e4e4e4] text-[#181512] font-sans">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

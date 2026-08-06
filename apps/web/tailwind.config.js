@@ -22,6 +22,10 @@ module.exports = {
           700: '#334155',
         }
       },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        display: ['Anton', 'sans-serif'],
+      },
     },
   },
   plugins: [],

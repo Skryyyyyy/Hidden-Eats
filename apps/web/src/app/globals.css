@@ -73,23 +73,35 @@
 }
 
 :root {
-  --color-primary: #D62828;
-  --color-primary-hover: #B91C1C;
+  --color-primary: #FF3366;
+  --color-primary-hover: #FF6B6B;
   --color-secondary: #FFB703;
   --color-accent: #F77F00;
-  --color-bg: #FFF8F1;
+  
+  /* Light Mode */
+  --color-bg: #FDFCFB;
   --color-surface: #FFFFFF;
-  --color-surface-alt: #FFF3E8;
-  --color-text-primary: #1F2937;
+  --color-surface-alt: #F3F4F6;
+  --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
-  --color-success: #16A34A;
-  --color-border: rgba(0, 0, 0, 0.08);
+  --color-success: #10B981;
+  --color-border: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --color-bg: #0A0A0A;
+  --color-surface: #141414;
+  --color-surface-alt: #1E1E1E;
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #9CA3AF;
+  --color-border: rgba(255, 255, 255, 0.1);
 }
 
 body {
-  color: #1F2937;
-  background: #FFF8F1;
+  color: var(--color-text-primary);
+  background: var(--color-bg);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom Scrollbar */

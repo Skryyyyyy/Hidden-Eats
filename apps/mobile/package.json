@@ -1,0 +1,8 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "expo-blur": "~12.9.2"
+  }
+}

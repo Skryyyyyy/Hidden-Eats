@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Image, Dimensions, FlatList, TouchableOpacity } from 'react-native';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -17,20 +18,223 @@ interface Props {
 
 // Dummy data highlighting niche street food and small stalls
 const NEARBY_STALLS = [
-  { id: '1', name: 'Raju\'s Midnight Dosa Cart', rating: '4.9', distance: '150m', type: 'Street Cart', image: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=400&q=80', description: 'Legendary crispy dosas served till 3 AM.' },
-  { id: '2', name: 'Amma\'s Filter Coffee', rating: '4.8', distance: '300m', type: 'Tiny Cafe', image: 'https://images.unsplash.com/photo-1621287950201-92582dfd663e?w=400&q=80', description: 'Authentic frothy degree coffee in a brass dabarah.' },
-  { id: '3', name: 'Hidden Biryani Master', rating: '5.0', distance: '450m', type: 'Home Kitchen', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&q=80', description: 'Secret wood-fired biryani behind the post office.' },
+  { id: '1', name: 'Raju\'s Midnight Dosa Cart', rating: '4.9', distance: '150m', type: 'Street Cart', image: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=400&q=80', description: 'Legendary crispy dosas served till 3 AM.', latitude: 34.0522, longitude: -118.2437 },
+  { id: '2', name: 'Amma\'s Filter Coffee', rating: '4.8', distance: '300m', type: 'Tiny Cafe', image: 'https://images.unsplash.com/photo-1621287950201-92582dfd663e?w=400&q=80', description: 'Authentic frothy degree coffee in a brass dabarah.', latitude: 34.0532, longitude: -118.2447 },
+  { id: '3', name: 'Hidden Biryani Master', rating: '5.0', distance: '450m', type: 'Home Kitchen', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&q=80', description: 'Secret wood-fired biryani behind the post office.', latitude: 34.0512, longitude: -118.2427 },
+];
+
+const mapCustomStyle = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#212121"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.icon",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#212121"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.country",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9e9e9e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.land_parcel",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#bdbdbd"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#181818"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#616161"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#1b1b1b"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#2c2c2c"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#8a8a8a"
+      }
+    ]
+  },
+  {
+    "featureType": "road.arterial",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#373737"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#3c3c3c"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway.controlled_access",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#4e4e4e"
+      }
+    ]
+  },
+  {
+    "featureType": "road.local",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#616161"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#000000"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#3d3d3d"
+      }
+    ]
+  }
 ];
 
 export const MapScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      {/* Map Placeholder Image */}
-      <Image 
-        source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80' }} 
+      <MapView
         style={styles.mapBackground}
-        blurRadius={2} // Gives it a premium depth-of-field look behind the UI
-      />
+        provider={PROVIDER_DEFAULT}
+        initialRegion={{
+          latitude: 34.0522,
+          longitude: -118.2437,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+        customMapStyle={mapCustomStyle}
+      >
+        {NEARBY_STALLS.map((stall) => (
+          <Marker 
+            key={stall.id}
+            coordinate={{ latitude: stall.latitude, longitude: stall.longitude }}
+          >
+            <View style={styles.markerContainer}>
+              <View style={styles.markerDot} />
+            </View>
+          </Marker>
+        ))}
+      </MapView>
       <View style={styles.mapOverlay} />
 
       {/* Top Floating Controls */}
@@ -114,6 +318,19 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
+  },
+  markerContainer: {
+    padding: 4,
+    backgroundColor: 'rgba(248, 177, 28, 0.2)',
+    borderRadius: 20,
+  },
+  markerDot: {
+    width: 16,
+    height: 16,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#111',
   },
   mapOverlay: {
     ...StyleSheet.absoluteFillObject,

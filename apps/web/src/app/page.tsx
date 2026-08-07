@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon } from 'lucide-react';
+import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 const CATEGORIES = [
   { name: 'Burgers', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=300&q=80' },
@@ -15,19 +17,33 @@ const CATEGORIES = [
 ];
 
 const RESTAURANTS = [
-  { id: 1, name: 'The Grand Secret Kitchen', rating: 4.8, time: '20-25 mins', cuisines: 'American, Fast Food', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80', offer: '50% OFF up to $10', location: 'Venice Beach' },
-  { id: 2, name: 'Alleyway Street Bakes', rating: 4.6, time: '15-20 mins', cuisines: 'Pizzas, Italian', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80', offer: 'FREE DELIVERY', location: 'Santa Monica' },
-  { id: 3, name: 'Umami Burger Joint', rating: 4.9, time: '30-35 mins', cuisines: 'Burgers, American', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80', offer: '10% OFF', location: 'Downtown LA' },
-  { id: 4, name: 'Tokyo Sushi Bar', rating: 4.7, time: '40-45 mins', cuisines: 'Japanese, Sushi', image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80', offer: '20% OFF above $40', location: 'Little Tokyo' },
-  { id: 5, name: 'Bombay Spice', rating: 4.5, time: '25-30 mins', cuisines: 'North Indian, Biryani', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80', offer: '60% OFF', location: 'Culver City' },
-  { id: 6, name: 'Green Life Salads', rating: 4.4, time: '10-15 mins', cuisines: 'Healthy, Salads', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80', offer: 'Buy 1 Get 1', location: 'Beverly Hills' },
-  { id: 7, name: 'Taco Haven', rating: 4.3, time: '15-25 mins', cuisines: 'Mexican, Tacos', image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=600&q=80', offer: '20% OFF', location: 'West Hollywood' },
-  { id: 8, name: 'Sweet Tooth Bakery', rating: 4.8, time: '30-40 mins', cuisines: 'Desserts, Bakery', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80', offer: 'FREE DESSERT', location: 'Silver Lake' },
+  { id: 1, name: 'Sangeetha Veg Restaurant', rating: 4.8, time: '20-25 mins', cuisines: 'South Indian, Pure Veg', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=2000&q=100', offer: '20% OFF', location: 'T. Nagar, Chennai' },
+  { id: 2, name: 'A2B - Adyar Ananda Bhavan', rating: 4.6, time: '15-20 mins', cuisines: 'Sweets, South Indian', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=2000&q=100', offer: 'FREE DELIVERY', location: 'Adyar, Chennai' },
+  { id: 3, name: 'Murugan Idli Shop', rating: 4.9, time: '30-35 mins', cuisines: 'South Indian, Breakfast', image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=2000&q=100', offer: '10% OFF', location: 'Besant Nagar, Chennai' },
+  { id: 4, name: 'Dindigul Thalappakatti', rating: 4.7, time: '40-45 mins', cuisines: 'Biryani, South Indian', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=2000&q=100', offer: '20% OFF above ₹400', location: 'Nungambakkam' },
+  { id: 5, name: 'Buhari Hotel', rating: 4.5, time: '25-30 mins', cuisines: 'Mughlai, Biryani', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=2000&q=100', offer: '60% OFF', location: 'Mount Road, Chennai' },
+  { id: 6, name: 'Junior Kuppanna', rating: 4.4, time: '10-15 mins', cuisines: 'Kongunadu, South Indian', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=2000&q=100', offer: 'Buy 1 Get 1', location: 'Velachery' },
+  { id: 7, name: 'Ambur Star Briyani', rating: 4.3, time: '15-25 mins', cuisines: 'Biryani, Fast Food', image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=2000&q=100', offer: '20% OFF', location: 'Anna Nagar' },
+  { id: 8, name: 'Saravana Bhavan', rating: 4.8, time: '30-40 mins', cuisines: 'South Indian, Pure Veg', image: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=2000&q=100', offer: 'FREE DESSERT', location: 'Mylapore, Chennai' },
 ];
 
 export default function ResponsiveLandingPage() {
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
+  
+  // Location State
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState('Chennai');
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleUseGPS = () => {
+    setIsLocating(true);
+    setTimeout(() => {
+      setCurrentLocation('123 Current St, SF');
+      setIsLocating(false);
+      setIsLocationModalOpen(false);
+    }, 1500);
+  };
 
   useEffect(() => {
     // Start fading out after 2 seconds
@@ -101,12 +117,19 @@ export default function ResponsiveLandingPage() {
           
           <div className="flex items-center gap-6 xl:gap-16">
             {/* Location (Hidden on mobile) */}
-            <div className="hidden xl:flex gap-8 text-[10px] font-bold text-white uppercase tracking-widest text-left opacity-90">
+            <div 
+              className="hidden xl:flex gap-8 text-[10px] font-bold text-white uppercase tracking-widest text-left opacity-90 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
+              onClick={() => setIsLocationModalOpen(true)}
+            >
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5" />
-                <div>Chennai<br /><span className="opacity-60 lowercase font-normal tracking-normal">Tamil Nadu</span></div>
+                <MapPin className="w-4 h-4 mt-0.5 text-[#f8b11c]" />
+                <div>
+                  <span className="flex items-center gap-1">{currentLocation} <ChevronDown className="w-3 h-3 text-gray-400" /></span>
+                  <br />
+                  <span className="opacity-60 lowercase font-normal tracking-normal">Tamil Nadu</span>
+                </div>
               </div>
-              <div className="leading-relaxed">
+              <div className="leading-relaxed hidden xl:block">
                 Anna Nagar<br />
                 Chennai, TN 600040<br />
                 India
@@ -144,12 +167,16 @@ export default function ResponsiveLandingPage() {
 
             {/* Bottom 3 Cards */}
             <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-4 md:gap-6 mt-12 pb-4 lg:pb-0 scrollbar-hide snap-x w-full scroll-smooth">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-4 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl will-change-transform">
+              {[
+                { name: 'Burger', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=2000&q=100' },
+                { name: 'Pizza', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=2000&q=100' },
+                { name: 'Sushi', img: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=2000&q=100' }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-2 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl overflow-hidden will-change-transform">
                    <img 
-                     src="https://upload.wikimedia.org/wikipedia/commons/1/11/Cheeseburger.png" 
-                     alt="Burger icon" 
-                     className="w-[85%] h-auto object-contain group-hover:scale-110 transition-transform duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-xl will-change-transform" 
+                     src={item.img} 
+                     alt={item.name} 
+                     className="w-full h-full object-cover rounded-[1rem] group-hover:scale-110 transition-transform duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-xl will-change-transform" 
                      loading="lazy"
                    />
                 </div>
@@ -212,11 +239,11 @@ export default function ResponsiveLandingPage() {
                   <div className="flex gap-3">
                      <div className="w-14 h-14 lg:w-16 lg:h-16 bg-white/30 rounded-xl overflow-hidden backdrop-blur-md p-1 shadow-lg group-hover:-translate-y-1 transition-transform duration-[600ms] delay-75 ease-[cubic-bezier(0.23,1,0.32,1)] relative">
                        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=150&q=80" className="w-full h-full rounded-lg object-cover" alt="Side" loading="lazy" />
-                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.8★</div>
+                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.8Γÿà</div>
                      </div>
                      <div className="w-14 h-14 lg:w-16 lg:h-16 bg-white/30 rounded-xl overflow-hidden backdrop-blur-md p-1 shadow-lg group-hover:-translate-y-1 transition-transform duration-[600ms] delay-150 ease-[cubic-bezier(0.23,1,0.32,1)] relative">
                        <img src="https://images.unsplash.com/photo-1564936281291-294551497d81?auto=format&fit=crop&w=150&q=80" className="w-full h-full rounded-lg object-cover" alt="Side 2" loading="lazy" />
-                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.9★</div>
+                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.9Γÿà</div>
                      </div>
                   </div>
                   
@@ -281,7 +308,7 @@ export default function ResponsiveLandingPage() {
           <h3 className="font-display text-2xl md:text-3xl tracking-wide uppercase text-white/90">Top restaurant chains in LA</h3>
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x scroll-smooth">
             {RESTAURANTS.slice(0, 5).map((rest) => (
-              <div key={rest.id} className="w-[280px] md:w-[320px] shrink-0 snap-center group cursor-pointer space-y-4 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform">
+              <Link href={`/restaurant/${rest.id}`} key={rest.id} className="w-[280px] md:w-[320px] shrink-0 snap-center group cursor-pointer space-y-4 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
                 <div className="w-full aspect-[4/3] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative shadow-lg group-hover:shadow-2xl group-hover:shadow-black/50 transition-shadow duration-[600ms]">
                   <img src={rest.image} alt={rest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
@@ -298,7 +325,7 @@ export default function ResponsiveLandingPage() {
                   </div>
                   <p className="text-gray-400 text-xs md:text-sm mt-1 truncate">{rest.cuisines}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -308,30 +335,113 @@ export default function ResponsiveLandingPage() {
           <h3 className="font-display text-2xl md:text-3xl tracking-wide uppercase text-white/90 border-b border-white/10 pb-4">Restaurants to explore right now</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {RESTAURANTS.map((rest) => (
-              <div key={rest.id} className="group cursor-pointer space-y-3 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform">
+              <Link href={`/restaurant/${rest.id}`} key={rest.id} className="group cursor-pointer space-y-3 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
                 <div className="w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden relative shadow-md group-hover:shadow-2xl group-hover:shadow-black/50 transition-shadow duration-[600ms]">
                   <img src={rest.image} alt={rest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-[400ms]"></div>
+                  
+                  {/* Overlay content */}
+                  <div className="absolute top-4 left-4">
+                     <span className="bg-black/50 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">{rest.time}</span>
+                  </div>
                   <div className="absolute bottom-4 left-4 right-4">
-                     <span className="font-display text-xl uppercase tracking-tight text-white drop-shadow-md">{rest.offer}</span>
+                     <span className="font-display text-xl md:text-2xl uppercase tracking-tighter text-[#f8b11c] drop-shadow-md">{rest.offer}</span>
                   </div>
                 </div>
+                
                 <div className="px-1">
-                  <h4 className="font-bold text-base md:text-lg truncate group-hover:text-[#f8b11c] transition-colors duration-[400ms]">{rest.name}</h4>
-                  <div className="flex items-center gap-2 mt-1 text-xs md:text-sm font-medium">
-                    <span className="flex items-center gap-1 bg-green-600 text-white px-1.5 py-0.5 rounded-md text-[10px]"><Star className="w-3 h-3 fill-white" /> {rest.rating}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-                    <span className="text-gray-300">{rest.time}</span>
+                  <div className="flex justify-between items-start gap-2">
+                    <h4 className="font-bold text-base md:text-lg truncate group-hover:text-white transition-colors duration-[400ms] text-white/90">{rest.name}</h4>
+                    <span className="flex items-center gap-1 bg-green-700/20 text-green-400 px-1.5 py-0.5 rounded text-xs shrink-0 mt-0.5">
+                      <Star className="w-3 h-3 fill-green-400" /> {rest.rating}
+                    </span>
                   </div>
-                  <p className="text-gray-400 text-xs md:text-sm mt-1 truncate">{rest.cuisines}</p>
-                  <p className="text-gray-500 text-xs md:text-sm truncate">{rest.location}</p>
+                  <p className="text-gray-400 text-xs md:text-sm mt-1 truncate">{rest.cuisines} • {rest.location}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
 
       </div>
+
+      {/* 
+        =========================================================================
+        LOCATION PICKER MODAL (WEB)
+        ========================================================================= 
+      */}
+      <AnimatePresence>
+        {isLocationModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-[#111] rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl relative p-6 md:p-8"
+            >
+              <button 
+                onClick={() => setIsLocationModalOpen(false)}
+                className="absolute top-6 right-6 z-50 hover:bg-white/10 p-2 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+
+              <h2 className="font-display text-2xl uppercase tracking-wider font-bold mb-6">Select Location</h2>
+
+              <div className="relative mb-6">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search for area, street name..." 
+                  className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#f8b11c] transition-colors"
+                />
+              </div>
+
+              <button 
+                onClick={handleUseGPS}
+                disabled={isLocating}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#f8b11c]/10 hover:bg-[#f8b11c]/20 transition-colors mb-6 text-left group"
+              >
+                <div className="p-3 bg-[#f8b11c]/20 rounded-full group-hover:scale-110 transition-transform">
+                  <MapPin className="w-5 h-5 text-[#f8b11c]" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#f8b11c]">{isLocating ? 'Locating...' : 'Use Current Location'}</h4>
+                  <p className="text-xs text-[#f8b11c]/70 mt-1">Using GPS</p>
+                </div>
+              </button>
+
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-gray-500 tracking-widest uppercase">Saved Addresses</p>
+                
+                {[
+                  { icon: <Home className="w-5 h-5" />, title: 'Home', desc: 'Block D, Anna Nagar East, Chennai' },
+                  { icon: <Briefcase className="w-5 h-5" />, title: 'Work', desc: 'Tidel Park, Taramani, Chennai' }
+                ].map((addr, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => { setCurrentLocation(addr.title); setIsLocationModalOpen(false); }}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:bg-white/5 cursor-pointer transition-colors"
+                  >
+                    <div className="text-gray-400">{addr.icon}</div>
+                    <div>
+                      <h4 className="font-bold">{addr.title}</h4>
+                      <p className="text-xs text-gray-400 mt-1">{addr.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '../context/ThemeContext';
+import { CartProvider } from '../context/CartContext';
 
 export const metadata: Metadata = {
   title: 'Hidden Eats — Food Discovery & Partner Dashboard',
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -22,8 +23,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body className="antialiased text-body bg-[#e4e4e4] text-[#181512] font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="antialiased text-body font-sans">
+        <ThemeProvider>
+          <CartProvider>{children}</CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

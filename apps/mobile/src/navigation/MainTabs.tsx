@@ -5,6 +5,8 @@ import { MainTabParamList } from './types';
 import { theme } from '../theme';
 import Icon from 'react-native-vector-icons/Feather';
 
+import { BlurView } from 'expo-blur';
+
 // Import our new Screens
 import { HomeScreen } from '../screens/HomeScreen';
 import { MapScreen } from '../screens/MapScreen';
@@ -25,11 +27,18 @@ export const MainTabs = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#111111',
-          borderTopColor: 'rgba(255,255,255,0.05)',
-          paddingTop: 8,
+          position: 'absolute',
+          backgroundColor: 'rgba(10, 10, 10, 0.65)',
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 85,
+          paddingBottom: 25,
+          paddingTop: 10,
         },
-        tabBarActiveTintColor: theme.colors.secondary,
+        tabBarBackground: () => (
+          <BlurView tint="dark" intensity={80} style={{ flex: 1 }} />
+        ),
+        tabBarActiveTintColor: theme.colors.primary, // using our neon primary
         tabBarInactiveTintColor: theme.colors.textMuted.dark,
         tabBarShowLabel: false,
       }}

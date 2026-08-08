@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { useTheme } from '@/context/ThemeContext';
-import { Building2, ArrowRight } from 'lucide-react';
+import { Building2, ArrowRight, Sun, Moon } from 'lucide-react';
 import { HiddenEatsLogo } from '@/components/Sidebar';
 
 export default function PartnerLoginPage() {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const isLight = theme === 'light';
 
   const [email, setEmail] = useState('');
@@ -69,7 +69,7 @@ export default function PartnerLoginPage() {
 
   return (
     <div className={`min-h-screen flex flex-col justify-between p-6 sm:p-12 font-sans antialiased text-body transition-colors duration-500 selection:bg-black selection:text-white ${
-      isLight ? 'bg-[#FAFAFA] text-[#111111]' : 'bg-[#0A0A0A] text-[#FAFAFA]'
+      isLight ? 'bg-[#F4F4F5] text-[#18181B]' : 'bg-[#0A0A0A] text-[#FAFAFA]'
     }`}>
       {/* Dynamic Background Pattern */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden flex justify-center z-0">
@@ -79,11 +79,13 @@ export default function PartnerLoginPage() {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between max-w-6xl mx-auto w-full animate-fade-in">
         <HiddenEatsLogo />
-        <Link href="/login" className={`text-label text-[11px] uppercase tracking-widest font-bold flex items-center gap-2 transition-colors px-5 py-2.5 rounded-full border hover-lift ${
-          isLight ? 'text-[#111111] bg-white border-black/5 hover:border-black/15 shadow-sm' : 'text-white bg-[#111111] border-white/5 hover:border-white/15'
-        }`}>
-          Switch Access Role <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className={`text-label text-[11px] uppercase tracking-widest font-bold flex items-center gap-2 transition-colors px-5 py-2.5 rounded-full border hover-lift ${
+            isLight ? 'text-[#111111] bg-white border-black/5 hover:border-black/15 shadow-sm' : 'text-white bg-[#111111] border-white/5 hover:border-white/15'
+          }`}>
+            Switch Access Role <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </header>
 
       {/* Main Content */}

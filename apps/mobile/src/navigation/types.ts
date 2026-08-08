@@ -4,7 +4,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   MainTabs: undefined;
   GenericScreen: { title: string };
-  RestaurantDetails: { id: string; name: string; image: string; cuisines: string; rating: string };
+  RestaurantDetails: { id: string };
   Cart: undefined;
   OrderTracking: undefined;
   Reviews: { restaurantId: string };

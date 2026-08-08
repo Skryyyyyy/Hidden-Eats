@@ -30,7 +30,6 @@ export const RootNavigator = () => {
         options={{ animation: 'slide_from_bottom' }} 
       />
       <Stack.Screen 
-      <Stack.Screen 
         name="OrderTracking" 
         component={OrderTrackingScreen} 
         options={{ animation: 'fade' }} 

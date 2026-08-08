@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '../context/ThemeContext';
 import { CartProvider } from '../context/CartContext';
+import FlashcardSplash from '../components/FlashcardSplash';
+
+import GlobalThemeToggle from '../components/GlobalThemeToggle';
 
 export const metadata: Metadata = {
   title: 'Hidden Eats — Food Discovery & Partner Dashboard',
@@ -24,8 +27,12 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased text-body font-sans">
+        <FlashcardSplash />
         <ThemeProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            {children}
+            <GlobalThemeToggle />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

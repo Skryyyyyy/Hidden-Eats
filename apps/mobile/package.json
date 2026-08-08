@@ -2,7 +2,28 @@
   "name": "mobile",
   "version": "1.0.0",
   "private": true,
+  "main": "index.js",
   "dependencies": {
-    "expo-blur": "~12.9.2"
+    "@react-navigation/bottom-tabs": "^7.18.16",
+    "@react-navigation/native": "^7.3.16",
+    "@react-navigation/native-stack": "^7.18.8",
+    "babel-preset-expo": "~54.0.10",
+    "expo": "~54.0.0",
+    "expo-blur": "*",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "*",
+    "react-native-maps": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-screens": "*",
+    "react-native-svg": "*",
+    "react-native-vector-icons": "*"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-class-properties": "^7.29.7",
+    "@babel/plugin-transform-private-methods": "^7.29.7",
+    "@babel/plugin-transform-private-property-in-object": "^7.29.7",
+    "@expo/cli": "^54.0.0"
   }
 }

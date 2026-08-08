@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { RestaurantService, Restaurant } from '@hidden-eats/shared';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, Modal } from 'react-native';
 import Animated, { FadeIn, FadeInDown, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,12 +17,7 @@ const CATEGORIES = [
   { id: '4', name: 'Sweets', icon: 'https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?w=200&q=80' },
 ];
 
-const HIDDEN_GEMS = [
-  { id: '1', name: 'Sangeetha Veg', rating: '4.8', distance: '1.2km', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=100' },
-  { id: '2', name: 'A2B - Adyar Ananda Bhavan', rating: '4.6', distance: '2.5km', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=100' },
-  { id: '3', name: 'Murugan Idli Shop', rating: '4.9', distance: '3.1km', image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=1200&q=100' },
-  { id: '4', name: 'Dindigul Thalappakatti', rating: '4.7', distance: '4.5km', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=1200&q=100' },
-];
+
 
 const QUICK_ACTIONS = [
   { id: 'menu', title: 'Menu', icon: 'book-open' },
@@ -38,6 +34,22 @@ export const HomeScreen = () => {
   const [activeDiet, setActiveDiet] = useState('All');
   const [currentLocation, setCurrentLocation] = useState('Anna Nagar, Chennai');
   const [isLocating, setIsLocating] = useState(false);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await RestaurantService.getRestaurants();
+        setRestaurants(data);
+      } catch (err) {
+        console.error("Failed to load restaurants", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const handleUseGPS = () => {
     setIsLocating(true);
@@ -153,29 +165,38 @@ export const HomeScreen = () => {
           <View style={styles.sectionHeader}>
             <Typography variant="h2" color={theme.colors.text.dark}>Nearby Hidden Gems</Typography>
           </View>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={HIDDEN_GEMS}
-            keyExtractor={item => item.id}
-            contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, gap: theme.spacing.lg, paddingBottom: 40 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.gemCard}>
-                <Image source={{ uri: item.image }} style={styles.gemImage} />
-                <View style={styles.gemGradient} />
-                <View style={styles.gemInfo}>
-                  <Typography variant="h3" color={theme.colors.text.dark}>{item.name}</Typography>
-                  <View style={styles.gemMeta}>
-                    <View style={styles.gemRating}>
-                      <Icon name="star" size={12} color="#111" />
-                      <Typography variant="caption" color="#111" style={{ fontWeight: 'bold', marginLeft: 4 }}>{item.rating}</Typography>
+          {loading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Typography color={theme.colors.textMuted.dark}>Loading restaurants...</Typography>
+            </View>
+          ) : (
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={restaurants}
+              keyExtractor={item => item.id}
+              contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, gap: theme.spacing.lg, paddingBottom: 40 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  style={styles.gemCard}
+                  onPress={() => rootNavigation.navigate('RestaurantDetails', { id: item.id })}
+                >
+                  <Image source={{ uri: item.image }} style={styles.gemImage} />
+                  <View style={styles.gemGradient} />
+                  <View style={styles.gemInfo}>
+                    <Typography variant="h3" color={theme.colors.text.dark}>{item.name}</Typography>
+                    <View style={styles.gemMeta}>
+                      <View style={styles.gemRating}>
+                        <Icon name="star" size={12} color="#111" />
+                        <Typography variant="caption" color="#111" style={{ fontWeight: 'bold', marginLeft: 4 }}>{item.rating}</Typography>
+                      </View>
+                      <Typography variant="caption" color={theme.colors.textMuted.dark}>{item.time}</Typography>
                     </View>
-                    <Typography variant="caption" color={theme.colors.textMuted.dark}>{item.distance}</Typography>
                   </View>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+                </TouchableOpacity>
+              )}
+            />
+          )}
         </Animated.View>
 
       </ScrollView>

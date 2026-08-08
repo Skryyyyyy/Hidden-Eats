@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X } from 'lucide-react';
+import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X, Compass, Radio, Clapperboard, Bookmark, Settings, User, CreditCard, History, Heart, Moon, Bell, MessageSquare, LogOut, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useTheme } from '@/context/ThemeContext';
+import GlobalThemeToggle from '@/components/GlobalThemeToggle';
 
 const CATEGORIES = [
   { name: 'Burgers', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=300&q=80' },
@@ -28,6 +30,9 @@ const RESTAURANTS = [
 ];
 
 export default function ResponsiveLandingPage() {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
   
@@ -35,6 +40,7 @@ export default function ResponsiveLandingPage() {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('Chennai');
   const [isLocating, setIsLocating] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleUseGPS = () => {
     setIsLocating(true);
@@ -73,27 +79,8 @@ export default function ResponsiveLandingPage() {
   return (
     <div className="min-h-screen flex flex-col items-center font-sans overflow-x-hidden relative bg-[#111111]">
       
-      {/* 
-        =========================================================================
-        WEB SPLASH SCREEN OVERLAY
-        ========================================================================= 
-      */}
-      {showSplash && (
-        <div 
-          className={`fixed inset-0 z-[9999] bg-[#E93B3B] flex flex-col items-center justify-center transition-opacity duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] ${fadeSplash ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-        >
-          <div className="text-white text-center flex flex-col items-center gap-6">
-            <h1 className="font-display text-5xl md:text-7xl font-black tracking-[0.15em] uppercase drop-shadow-xl animate-pulse">
-              Hidden Eats
-            </h1>
-            <p className="text-white/90 font-medium tracking-[0.2em] uppercase text-xs md:text-sm">
-              Skip the chains. Eat like a local.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Splash screen is now handled by FlashcardSplash in layout.tsx */}
 
-      
       {/* 
         =========================================================================
         HERO SECTION (Full Desktop Resolution & Perfect Alignment)
@@ -106,39 +93,136 @@ export default function ResponsiveLandingPage() {
           <div className="flex items-center gap-8 xl:gap-16">
             <div className="text-2xl font-black tracking-tighter text-white">Hidden Eats</div>
             
-            {/* Desktop Links */}
-            <div className="hidden lg:flex gap-8 text-[11px] font-bold text-white uppercase tracking-widest">
-              <a href="#menu" onClick={scrollToMenu} className="hover:opacity-80 transition-opacity">Menu</a>
-              <a href="#" className="hover:opacity-80 transition-opacity">About</a>
-              <a href="#" className="hover:opacity-80 transition-opacity">Gift Card</a>
-              <a href="#" className="hover:opacity-80 transition-opacity">Discount</a>
+            {/* Desktop Links - Updated to match new features */}
+            <div className="hidden xl:flex items-center bg-black/20 backdrop-blur-md p-1.5 rounded-full border border-white/10 ml-4 lg:ml-8">
+              <a href="#menu" onClick={scrollToMenu} className="flex items-center gap-2 bg-[#f8b11c] text-black px-5 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest shadow-lg">
+                <Compass className="w-3.5 h-3.5" /> Explore Spots
+              </a>
+              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+                <MapPin className="w-3.5 h-3.5" /> In-App Map
+              </a>
+              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+                <Radio className="w-3.5 h-3.5" /> Live Radar
+              </a>
+              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+                <Clapperboard className="w-3.5 h-3.5" /> Foodie Reels
+              </a>
+              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+                <Bookmark className="w-3.5 h-3.5" /> Collections
+              </a>
             </div>
           </div>
           
           <div className="flex items-center gap-6 xl:gap-16">
             {/* Location (Hidden on mobile) */}
             <div 
-              className="hidden xl:flex gap-8 text-[10px] font-bold text-white uppercase tracking-widest text-left opacity-90 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
+              className="hidden xl:flex items-start gap-6 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
               onClick={() => setIsLocationModalOpen(true)}
             >
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 text-[#f8b11c]" />
-                <div>
-                  <span className="flex items-center gap-1">{currentLocation} <ChevronDown className="w-3 h-3 text-gray-400" /></span>
-                  <br />
-                  <span className="opacity-60 lowercase font-normal tracking-normal">Tamil Nadu</span>
+              {/* Icon and City/State */}
+              <div className="flex items-start gap-2.5 mt-0.5">
+                <MapPin className="w-4 h-4 text-[#f8b11c] shrink-0" />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 font-bold text-[11px] text-white uppercase tracking-widest">
+                    {currentLocation} <ChevronDown className="w-3 h-3 text-white/50" strokeWidth={3} />
+                  </div>
+                  <div className="text-[10px] text-white/50 tracking-wide font-medium mt-0.5">
+                    Tamil Nadu
+                  </div>
                 </div>
               </div>
-              <div className="leading-relaxed hidden xl:block">
-                Anna Nagar<br />
-                Chennai, TN 600040<br />
-                India
+              
+              {/* Detailed Address */}
+              <div className="hidden xl:flex flex-col text-[10px] font-bold text-white/90 uppercase tracking-widest leading-[1.4]">
+                <span>ANNA NAGAR</span>
+                <span>CHENNAI, TN 600040</span>
+                <span>INDIA</span>
               </div>
             </div>
             
-            <button className="hidden md:flex bg-white text-black px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider items-center gap-2 hover:bg-gray-100 transition-colors shadow-lg">
-              Book Appointment <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-            </button>
+            <div className="hidden md:flex items-center gap-4">
+              <Link href="/login" className="text-white text-[11px] font-bold uppercase tracking-widest hover:text-[#f8b11c] transition-colors">
+                Log In
+              </Link>
+              <Link href="/login" className="bg-[#f8b11c] text-black px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-[#e0a019] transition-colors shadow-lg">
+                Sign Up
+              </Link>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                  className={`transition-colors p-2.5 rounded-full border border-white/10 ${
+                    isSettingsOpen ? 'bg-[#f8b11c] text-black border-[#f8b11c]' : 'text-white/80 hover:text-[#f8b11c] bg-white/5 hover:bg-white/10'
+                  }`}
+                  aria-label="Settings"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isSettingsOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-3 w-72 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
+                    >
+                      {/* Section 1: Account */}
+                      <div className="p-2 border-b border-white/10">
+                        <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account & Profile</div>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <User className="w-4 h-4" /> Personal Info
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <MapPin className="w-4 h-4" /> Saved Addresses
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <CreditCard className="w-4 h-4" /> Payment Methods
+                        </button>
+                      </div>
+
+                      {/* Section 2: Orders */}
+                      <div className="p-2 border-b border-white/10">
+                        <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Orders & Activity</div>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <History className="w-4 h-4" /> Order History
+                        </button>
+                        <button className="w-full flex items-center justify-between px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <div className="flex items-center gap-3"><Heart className="w-4 h-4" /> Favorites</div>
+                          <span className="bg-[#f8b11c]/20 text-[#f8b11c] px-2 py-0.5 rounded text-[10px] font-bold">12</span>
+                        </button>
+                      </div>
+
+                      {/* Section 3: Preferences */}
+                      <div className="p-2 border-b border-white/10">
+                        <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">App Preferences</div>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <Bell className="w-4 h-4" /> Notifications
+                        </button>
+                      </div>
+
+                      {/* Section 4: Hidden Eats Exclusives */}
+                      <div className="p-2 border-b border-white/10">
+                        <div className="px-3 py-2 text-[10px] font-bold text-[#f8b11c] uppercase tracking-widest">Hidden Eats VIP</div>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[#f8b11c]/80 hover:text-[#f8b11c] hover:bg-[#f8b11c]/10 rounded-xl transition-colors text-xs font-medium text-left">
+                          <Award className="w-4 h-4" /> My Unlocked Spots
+                        </button>
+                      </div>
+
+                      {/* Section 5: Support & Logout */}
+                      <div className="p-2 bg-black/40">
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <MessageSquare className="w-4 h-4" /> Help & Support
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors text-xs font-medium text-left">
+                          <LogOut className="w-4 h-4" /> Log Out
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
             
             {/* Mobile Menu Icon */}
             <button className="md:hidden text-white p-2">
@@ -220,7 +304,10 @@ export default function ResponsiveLandingPage() {
              </div>
              
              {/* Yellow Card */}
-             <div className="min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden">
+             <div 
+               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
+               className="min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
+             >
                 {/* Decorative background circle */}
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
 
@@ -262,10 +349,14 @@ export default function ResponsiveLandingPage() {
         SWIGGY-STYLE FOOD ORDERING SECTION
         ========================================================================= 
       */}
-      <div id="menu" className="w-full bg-[#111111] text-white px-6 py-12 md:px-12 md:py-24 flex flex-col gap-12 relative z-40">
+      <div id="menu" className={`w-full px-6 py-12 md:px-12 md:py-24 flex flex-col gap-12 relative z-40 transition-colors duration-500 ${
+        isLight ? 'bg-[#FAFAFA] text-black' : 'bg-[#111111] text-white'
+      }`}>
         
         {/* Sticky Search & Filter Bar */}
-        <div className="sticky top-0 z-50 bg-[#111111]/95 backdrop-blur-xl py-4 -mx-6 px-6 md:-mx-12 md:px-12 flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-8 border-b border-white/10">
+        <div className={`sticky top-0 z-50 py-4 -mx-6 px-6 md:-mx-12 md:px-12 flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-8 border-b transition-colors duration-500 backdrop-blur-xl ${
+          isLight ? 'bg-[#FAFAFA]/95 border-black/10' : 'bg-[#111111]/95 border-white/10'
+        }`}>
           <h2 className="font-display text-3xl md:text-4xl tracking-wide uppercase w-full lg:w-auto text-center lg:text-left">Cravings?</h2>
           
           <div className="flex-1 w-full max-w-3xl relative">
@@ -273,15 +364,21 @@ export default function ResponsiveLandingPage() {
             <input 
               type="text" 
               placeholder="Search for restaurants, cuisines, or dishes..." 
-              className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-14 pr-6 text-sm focus:outline-none focus:border-[#f8b11c] focus:bg-white/10 transition-colors placeholder:text-gray-500"
+              className={`w-full border rounded-full py-4 pl-14 pr-6 text-sm focus:outline-none transition-colors ${
+                isLight ? 'bg-black/5 border-black/10 focus:border-[#f8b11c] focus:bg-white placeholder:text-gray-500 text-black' : 'bg-white/5 border-white/10 focus:border-[#f8b11c] focus:bg-white/10 placeholder:text-gray-500 text-white'
+              }`}
             />
           </div>
 
           <div className="w-full lg:w-auto flex justify-center lg:justify-end gap-3">
-            <button className="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold tracking-widest uppercase transition-colors">
+            <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
+              isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+            }`}>
               <Filter className="w-4 h-4" /> Filters
             </button>
-            <button className="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold tracking-widest uppercase transition-colors">
+            <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
+              isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+            }`}>
               <SlidersHorizontal className="w-4 h-4" /> Sort
             </button>
           </div>
@@ -289,15 +386,19 @@ export default function ResponsiveLandingPage() {
 
         {/* Categories: What's on your mind? */}
         <section className="space-y-6">
-          <h3 className="font-display text-2xl md:text-3xl tracking-wide uppercase text-white/90">What's on your mind?</h3>
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>What's on your mind?</h3>
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x scroll-smooth">
             {CATEGORIES.map((cat, idx) => (
               <div key={idx} className="flex flex-col items-center gap-3 shrink-0 snap-center group cursor-pointer w-24 md:w-32">
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#1A1A1A] border border-white/5 overflow-hidden group-hover:border-white/30 transition-colors duration-[400ms] relative shadow-lg">
+                <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full border overflow-hidden transition-colors duration-[400ms] relative shadow-lg ${
+                  isLight ? 'bg-white border-black/10 group-hover:border-black/30' : 'bg-[#1A1A1A] border-white/5 group-hover:border-white/30'
+                }`}>
                   <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-[400ms]"></div>
                 </div>
-                <span className="text-xs md:text-sm font-bold tracking-wider uppercase text-gray-400 group-hover:text-white transition-colors duration-[400ms] text-center">{cat.name}</span>
+                <span className={`text-xs md:text-sm font-bold tracking-wider uppercase transition-colors duration-[400ms] text-center ${
+                  isLight ? 'text-gray-600 group-hover:text-black' : 'text-gray-400 group-hover:text-white'
+                }`}>{cat.name}</span>
               </div>
             ))}
           </div>
@@ -305,7 +406,7 @@ export default function ResponsiveLandingPage() {
 
         {/* Top Chains Carousel */}
         <section className="space-y-6">
-          <h3 className="font-display text-2xl md:text-3xl tracking-wide uppercase text-white/90">Top restaurant chains in LA</h3>
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>Top restaurant chains in LA</h3>
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x scroll-smooth">
             {RESTAURANTS.slice(0, 5).map((rest) => (
               <Link href={`/restaurant/${rest.id}`} key={rest.id} className="w-[280px] md:w-[320px] shrink-0 snap-center group cursor-pointer space-y-4 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
@@ -317,13 +418,15 @@ export default function ResponsiveLandingPage() {
                   </div>
                 </div>
                 <div className="px-1 md:px-2">
-                  <h4 className="font-bold text-base md:text-lg truncate group-hover:text-white transition-colors duration-[400ms] text-white/90">{rest.name}</h4>
+                  <h4 className={`font-bold text-base md:text-lg truncate transition-colors duration-[400ms] ${
+                    isLight ? 'text-black/90 group-hover:text-black' : 'text-white/90 group-hover:text-white'
+                  }`}>{rest.name}</h4>
                   <div className="flex items-center gap-2 mt-1 text-xs md:text-sm font-medium">
                     <span className="flex items-center gap-1 bg-green-700/20 text-green-400 px-2 py-0.5 rounded"><Star className="w-3 h-3 fill-green-400" /> {rest.rating}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-                    <span className="flex items-center gap-1 text-gray-300"><Clock className="w-3.5 h-3.5" /> {rest.time}</span>
+                    <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                    <span className={`flex items-center gap-1 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}><Clock className="w-3.5 h-3.5" /> {rest.time}</span>
                   </div>
-                  <p className="text-gray-400 text-xs md:text-sm mt-1 truncate">{rest.cuisines}</p>
+                  <p className={`text-xs md:text-sm mt-1 truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>{rest.cuisines}</p>
                 </div>
               </Link>
             ))}
@@ -332,7 +435,9 @@ export default function ResponsiveLandingPage() {
 
         {/* All Restaurants Grid */}
         <section className="space-y-6">
-          <h3 className="font-display text-2xl md:text-3xl tracking-wide uppercase text-white/90 border-b border-white/10 pb-4">Restaurants to explore right now</h3>
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase border-b pb-4 ${
+            isLight ? 'text-black/90 border-black/10' : 'text-white/90 border-white/10'
+          }`}>Restaurants to explore right now</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {RESTAURANTS.map((rest) => (
               <Link href={`/restaurant/${rest.id}`} key={rest.id} className="group cursor-pointer space-y-3 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
@@ -351,12 +456,14 @@ export default function ResponsiveLandingPage() {
                 
                 <div className="px-1">
                   <div className="flex justify-between items-start gap-2">
-                    <h4 className="font-bold text-base md:text-lg truncate group-hover:text-white transition-colors duration-[400ms] text-white/90">{rest.name}</h4>
+                    <h4 className={`font-bold text-base md:text-lg truncate transition-colors duration-[400ms] ${
+                      isLight ? 'text-black/90 group-hover:text-black' : 'text-white/90 group-hover:text-white'
+                    }`}>{rest.name}</h4>
                     <span className="flex items-center gap-1 bg-green-700/20 text-green-400 px-1.5 py-0.5 rounded text-xs shrink-0 mt-0.5">
                       <Star className="w-3 h-3 fill-green-400" /> {rest.rating}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-xs md:text-sm mt-1 truncate">{rest.cuisines} • {rest.location}</p>
+                  <p className={`text-xs md:text-sm mt-1 truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>{rest.cuisines} • {rest.location}</p>
                 </div>
               </Link>
             ))}

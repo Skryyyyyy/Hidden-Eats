@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { RestaurantService, Restaurant, MenuItem } from '@hidden-eats/shared';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
 import Animated, { FadeIn, FadeInUp, SlideInDown, useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,26 +20,41 @@ interface Props {
   route: DetailsScreenRouteProp;
 }
 
-const MENU_DATA = [
-  {
-    category: 'Recommended',
-    items: [
-      { id: '1', name: 'Special Butter Podi Dosa', desc: 'Crispy dosa smothered in ghee and spicy gunpowder.', price: 80, img: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=200&q=80' },
-      { id: '2', name: 'Filter Kaapi', desc: 'Strong, frothy, midnight fuel.', price: 30, img: 'https://images.unsplash.com/photo-1510431198580-7727c9fa1e3a?w=200&q=80' }
-    ]
-  },
-  {
-    category: 'Mains',
-    items: [
-      { id: '3', name: 'Onion Rava Dosa', desc: 'Thin semolina crepe loaded with onions.', price: 70, img: 'https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?w=200&q=80' },
-      { id: '4', name: 'Idli Vada Set', desc: 'Soft idlis with a crispy medu vada.', price: 50, img: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=200&q=80' }
-    ]
-  }
-];
 
-export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
+
+export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { id } = route.params || { id: '1' };
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [resData, menuData] = await Promise.all([
+          RestaurantService.getRestaurantById(id),
+          RestaurantService.getMenu(id)
+        ]);
+        setRestaurant(resData);
+        setMenuItems(menuData);
+      } catch (err) {
+        console.error("Failed to load restaurant data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  const groupedMenu = [
+    {
+      category: 'Recommended',
+      items: menuItems
+    }
+  ];
+
   const [activeTab, setActiveTab] = useState('Recommended');
-  const [cartState, setCartState] = useState<Record<string, number>>({'1': 1, '2': 1}); // pre-filled for demo
+  const [cartState, setCartState] = useState<Record<string, number>>({}); 
 
   const updateCart = (id: string, delta: number) => {
     setCartState(prev => {
@@ -52,8 +68,8 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const totalItems = Object.values(cartState).reduce((a, b) => a + b, 0);
-  const totalPrice = Object.entries(cartState).reduce((acc, [id, qty]) => {
-    const item = MENU_DATA.flatMap(c => c.items).find(i => i.id === id);
+  const totalPrice = Object.entries(cartState).reduce((acc, [cartId, qty]) => {
+    const item = menuItems.find(i => i.id === cartId);
     return acc + (item ? item.price * qty : 0);
   }, 0);
   const scrollY = useSharedValue(0);
@@ -95,10 +111,10 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
         onScroll={scrollHandler}
         scrollEventThrottle={1}
       >
-        {/* Large Hero Image Gallery (Placeholder for one large image) */}
+        {/* Large Hero Image Gallery */}
         <Animated.View entering={FadeIn.duration(800)} style={[styles.heroContainer, heroAnimatedStyle]}>
           <Image 
-            source={{ uri: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=800&q=80' }} 
+            source={{ uri: restaurant?.image || 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=800&q=80' }} 
             style={styles.heroImage} 
           />
           <View style={styles.heroOverlay}>
@@ -120,25 +136,25 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
         <Animated.View entering={FadeInUp.delay(200).springify()} style={styles.contentContainer}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <Typography variant="h1" color={theme.colors.text.dark}>Raju's Midnight Dosa Cart</Typography>
-              <Typography variant="caption" color={theme.colors.primary} style={{ marginTop: 4, fontWeight: 'bold' }}>
-                STREET CART • SOUTH INDIAN
+              <Typography variant="h1" color={theme.colors.text.dark}>{restaurant?.name || 'Loading...'}</Typography>
+              <Typography variant="caption" color={theme.colors.primary} style={{ marginTop: 4, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                {restaurant?.cuisines?.join(' • ') || ''}
               </Typography>
             </View>
             <View style={styles.ratingBadge}>
               <Icon name="star" size={16} color="#111" />
-              <Typography variant="h3" color="#111" style={{ marginLeft: 4 }}>4.9</Typography>
+              <Typography variant="h3" color="#111" style={{ marginLeft: 4 }}>{restaurant?.rating || '0.0'}</Typography>
             </View>
           </View>
 
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Icon name="clock" size={16} color={theme.colors.textMuted.dark} />
-              <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginLeft: 6 }}>10:00 PM - 3:00 AM</Typography>
+              <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginLeft: 6 }}>{restaurant?.time || '-- mins'}</Typography>
             </View>
             <View style={styles.metaItem}>
               <Icon name="map-pin" size={16} color={theme.colors.textMuted.dark} />
-              <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginLeft: 6 }}>Anna Nagar East</Typography>
+              <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginLeft: 6 }}>{restaurant?.location?.address || 'Unknown Location'}</Typography>
             </View>
             <View style={styles.metaItem}>
               <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ fontWeight: 'bold' }}>₹ (Budget)</Typography>
@@ -150,7 +166,7 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
           {/* Description */}
           <Typography variant="h3" color={theme.colors.text.dark} style={{ marginBottom: 8 }}>The Vibe</Typography>
           <Typography variant="body" color={theme.colors.textMuted.dark} style={{ lineHeight: 24 }}>
-            A true hidden gem known only to locals. Raju sets up his cart at 10 PM sharp, serving the crispiest, butter-drenched dosas on the pavement. The signature "Podi Masala Dosa" is legendary. No seating, just pure authentic street food magic under the streetlights.
+            {restaurant?.about || 'Loading...'}
           </Typography>
 
           <View style={styles.divider} />
@@ -158,7 +174,7 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
           {/* Must Try */}
           {/* Category Tabs */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -theme.spacing.lg, paddingHorizontal: theme.spacing.lg, marginBottom: 16 }}>
-            {MENU_DATA.map(cat => (
+            {groupedMenu.map(cat => (
               <TouchableOpacity 
                 key={cat.category}
                 style={[styles.categoryTab, activeTab === cat.category && styles.categoryTabActive]}
@@ -172,16 +188,21 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
           </ScrollView>
 
           {/* Menu Items for Active Tab */}
-          {MENU_DATA.find(c => c.category === activeTab)?.items.map(item => (
-            <View key={item.id} style={styles.dishCard}>
-              <View style={styles.dishInfo}>
-                <Icon name="stop-circle" size={12} color={theme.colors.success} style={{ marginBottom: 4 }} />
-                <Typography variant="body" color={theme.colors.text.dark} style={{ fontWeight: 'bold' }}>{item.name}</Typography>
-                <Typography variant="body" color={theme.colors.text.dark} style={{ fontWeight: 'bold', marginTop: 4 }}>₹{item.price}</Typography>
-                <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginTop: 8 }} numberOfLines={2}>{item.desc}</Typography>
-              </View>
-              <View style={styles.dishImageContainer}>
-                <Image source={{ uri: item.img }} style={styles.dishImage} />
+          {loading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Typography color={theme.colors.textMuted.dark}>Loading menu...</Typography>
+            </View>
+          ) : (
+            groupedMenu.find(c => c.category === activeTab)?.items.map(item => (
+              <View key={item.id} style={styles.dishCard}>
+                <View style={styles.dishInfo}>
+                  <Icon name="stop-circle" size={12} color={theme.colors.success} style={{ marginBottom: 4 }} />
+                  <Typography variant="body" color={theme.colors.text.dark} style={{ fontWeight: 'bold' }}>{item.name}</Typography>
+                  <Typography variant="body" color={theme.colors.text.dark} style={{ fontWeight: 'bold', marginTop: 4 }}>₹{item.price}</Typography>
+                  <Typography variant="caption" color={theme.colors.textMuted.dark} style={{ marginTop: 8 }} numberOfLines={2}>{item.description}</Typography>
+                </View>
+                <View style={styles.dishImageContainer}>
+                  <Image source={{ uri: item.image }} style={styles.dishImage} />
                 <View style={styles.addButtonContainer}>
                   {cartState[item.id] ? (
                     <View style={styles.counterControl}>
@@ -203,8 +224,9 @@ export const RestaurantDetailsScreen: React.FC<Props> = ({ navigation }) => {
                   )}
                 </View>
               </View>
-            </View>
-          ))}
+              </View>
+            ))
+          )}
 
         </Animated.View>
       </Animated.ScrollView>

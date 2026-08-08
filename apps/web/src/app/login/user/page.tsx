@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { useTheme } from '@/context/ThemeContext';
-import { Compass, Check } from 'lucide-react';
+import { Compass, Check, Sun, Moon } from 'lucide-react';
 import { HiddenEatsLogo } from '@/components/Sidebar';
 
 export default function DinerLoginPage() {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const isLight = theme === 'light';
 
   const [email, setEmail] = useState('');
@@ -69,16 +69,18 @@ export default function DinerLoginPage() {
 
   return (
     <div className={`min-h-screen flex flex-col justify-between p-6 sm:p-10 font-sans antialiased text-body transition-colors ${
-      isLight ? 'bg-[#FFF8F1] text-[#1F2937]' : 'bg-[#05070D] text-white'
+      isLight ? 'bg-[#F4F4F5] text-[#18181B]' : 'bg-[#05070D] text-white'
     }`}>
       {/* Header */}
       <header className="flex items-center justify-between max-w-5xl mx-auto w-full animate-fade-in">
         <HiddenEatsLogo />
-        <Link href="/login" className={`text-label text-xs transition-colors ${
-          isLight ? 'text-[#6B7280] hover:text-[#D62828]' : 'text-[#888888] hover:text-[#FFB703]'
-        }`}>
-          ← Switch Access Role
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className={`font-sans font-bold text-xs uppercase tracking-widest transition-colors ${
+            isLight ? 'text-black/60 hover:text-black' : 'text-white/60 hover:text-white'
+          }`}>
+            ← Switch Access Role
+          </Link>
+        </div>
       </header>
 
       {/* Main Content */}

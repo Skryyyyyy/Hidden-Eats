@@ -10,27 +10,14 @@ export function HiddenEatsLogo({ href = '/dashboard' }: { href?: string }) {
   const isLight = theme === 'light';
 
   return (
-    <Link href={href} className="flex items-center gap-3 group">
-      <div className={`w-10 h-10 rounded-xl overflow-hidden border shadow-sm group-hover:scale-105 transition-transform shrink-0 ${
-        isLight ? 'border-black/10 bg-white' : 'border-white/10 bg-[#111111]'
-      }`}>
-        <img
-          src="/logo.png"
-          alt="Hidden Eats Logo"
-          className="w-full h-full object-cover"
-        />
+    <Link href={href} className="flex flex-col gap-2 group mb-4">
+      <div className={`text-4xl md:text-5xl font-display uppercase tracking-widest leading-none ${
+        isLight ? 'text-black group-hover:text-[#E93B3B]' : 'text-white group-hover:text-[#f8b11c]'
+      } transition-colors duration-300`}>
+        HIDDEN EATS
       </div>
-      <div className="flex flex-col">
-        <span className={`text-card-title text-[15px] transition-colors leading-none tracking-tight ${
-          isLight ? 'text-[#111111] group-hover:text-black' : 'text-white group-hover:text-[#FAFAFA]'
-        }`}>
-          HIDDEN EATS
-        </span>
-        <span className={`text-label text-[9px] tracking-[0.15em] uppercase mt-1 font-bold ${
-          isLight ? 'text-[#666666]' : 'text-[#888888]'
-        }`}>
-          Secret Food Discovery
-        </span>
+      <div className="font-sans font-black text-xs uppercase tracking-[0.2em] opacity-80">
+        Secret Food Discovery
       </div>
     </Link>
   );
@@ -42,61 +29,70 @@ export default function Sidebar() {
   const isLight = theme === 'light';
 
   const navItems = [
-    { href: '/dashboard', label: 'Overview', icon: '✦' },
-    { href: '/dashboard/menu', label: 'Secret Menu', icon: '❖' },
-    { href: '/dashboard/bookings', label: 'Reservations', icon: '🗓' },
-    { href: '/dashboard/reviews', label: 'Live Reviews', icon: '★' },
-    { href: '/dashboard/analytics', label: 'Demand Predictor', icon: '📈' },
-    { href: '/dashboard/settings', label: 'Partner Settings', icon: '⚙' },
+    { href: '/dashboard', label: 'OVERVIEW' },
+    { href: '/dashboard/menu', label: 'SECRET MENU' },
+    { href: '/dashboard/bookings', label: 'RESERVATIONS' },
+    { href: '/dashboard/reviews', label: 'LIVE REVIEWS' },
+    { href: '/dashboard/analytics', label: 'DEMAND PREDICTOR' },
+    { href: '/dashboard/settings', label: 'PARTNER SETTINGS' },
   ];
 
   return (
-    <aside className={`w-[260px] border-r p-6 flex flex-col justify-between hidden md:flex min-h-screen transition-colors duration-500 ${
-      isLight ? 'bg-[#FAFAFA] border-black/5 text-[#111111]' : 'bg-[#0A0A0A] border-white/5 text-white'
+    <aside className={`w-[320px] border-r-4 p-8 flex flex-col justify-between hidden md:flex min-h-screen transition-colors duration-500 ${
+      isLight ? 'bg-white border-black text-black' : 'bg-[#111111] border-[#222] text-white'
     }`}>
-      <div className="space-y-10">
-        <div className="px-2">
+      <div className="space-y-12">
+        <div>
           <HiddenEatsLogo href="/dashboard" />
         </div>
 
-        <nav className="space-y-1.5">
+        <nav className="space-y-4">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-[14px] text-label text-[13px] font-bold transition-all ${
+                className={`block px-6 py-4 border-2 font-display uppercase tracking-wider text-2xl transition-all duration-300 ${
                   isActive
                     ? isLight
-                      ? 'bg-[#111111] text-white shadow-md shadow-black/10 hover:shadow-black/20'
-                      : 'bg-white text-black shadow-md shadow-white/10 hover:shadow-white/20'
+                      ? 'bg-[#E93B3B] text-white border-black shadow-[4px_4px_0_0_#000] -translate-y-1'
+                      : 'bg-[#f8b11c] text-black border-white shadow-[4px_4px_0_0_#fff] -translate-y-1'
                     : isLight
-                    ? 'text-[#666666] hover:text-[#111111] hover:bg-black/5'
-                    : 'text-[#888888] hover:text-white hover:bg-white/5'
+                    ? 'border-transparent text-black/70 hover:text-black hover:border-black/20 hover:bg-black/5'
+                    : 'border-transparent text-white/70 hover:text-white hover:border-white/20 hover:bg-white/5'
                 }`}
               >
-                <span className={`text-[15px] ${isActive ? 'opacity-100' : 'opacity-60'}`}>{item.icon}</span>
-                <span>{item.label}</span>
+                {item.label}
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className={`p-5 rounded-2xl border space-y-1.5 shadow-sm transition-colors ${
-        isLight ? 'bg-white border-black/5' : 'bg-[#111111] border-white/5'
-      }`}>
-        <span className={`text-label text-[10px] uppercase tracking-widest font-bold ${isLight ? 'text-[#666666]' : 'text-[#888888]'}`}>
-          PARTNER KITCHEN
-        </span>
-        <p className={`text-card-title text-[14px] leading-snug ${isLight ? 'text-[#111111]' : 'text-white'}`}>
-          Grand Secret Kitchen
-        </p>
-        <div className="flex items-center gap-1.5 pt-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-          <p className="text-label text-[10px] text-[#10b981] font-bold">FSSAI Verified</p>
+      <div className="space-y-6">
+        <div className={`p-6 border-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] ${
+          isLight ? 'bg-white border-black' : 'bg-[#E93B3B] border-black text-white'
+        }`}>
+          <span className="font-sans font-black text-xs uppercase tracking-widest opacity-90 block mb-2">
+            PARTNER KITCHEN
+          </span>
+          <p className="font-display text-3xl uppercase tracking-wider leading-none mb-4">
+            Grand Secret Kitchen
+          </p>
+          <div className="flex items-center gap-2 border-t-2 border-current pt-4">
+            <div className={`w-3 h-3 rounded-full border-2 border-current ${isLight ? 'bg-[#10b981]' : 'bg-[#f8b11c]'}`} />
+            <p className="font-sans font-bold text-sm uppercase tracking-widest">Verified</p>
+          </div>
         </div>
+
+        <Link href="/" className={`block w-full text-center py-4 border-2 font-display uppercase tracking-wider text-xl transition-all duration-300 ${
+          isLight
+            ? 'bg-black text-white border-black shadow-[4px_4px_0_0_#000] hover:-translate-y-1'
+            : 'bg-white text-black border-white shadow-[4px_4px_0_0_#fff] hover:-translate-y-1'
+        }`}>
+          BACK TO FOOD APP
+        </Link>
       </div>
     </aside>
   );

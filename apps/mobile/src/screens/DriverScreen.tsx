@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { Typography } from '../components/Typography';
 import { theme } from '../theme';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

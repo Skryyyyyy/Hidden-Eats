@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
 import { theme } from '../theme';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather';
 
 import { BlurView } from 'expo-blur';
 

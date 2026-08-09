@@ -11,7 +11,7 @@ import Animated, {
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { Typography } from '../components/Typography';
 import { theme } from '../theme';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = width * 0.3;

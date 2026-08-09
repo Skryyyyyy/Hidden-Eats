@@ -1,4 +1,9 @@
 {
   "name": "hiddeneatsmobile",
-  "displayName": "Hidden Eats"
+  "displayName": "Hidden Eats",
+  "expo": {
+    "name": "Hidden Eats",
+    "slug": "hidden-eats",
+    "newArchEnabled": false
+  }
 }

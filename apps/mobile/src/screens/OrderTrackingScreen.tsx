@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Typography } from '../components/Typography';
 import { theme } from '../theme';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 
 const { height } = Dimensions.get('window');

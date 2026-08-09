@@ -5,7 +5,7 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import { Typography } from '../components/Typography';
 import { theme } from '../theme';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather';
 
 const { width } = Dimensions.get('window');
 

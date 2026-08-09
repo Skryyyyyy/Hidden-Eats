@@ -4,6 +4,7 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.18.16",
     "@react-navigation/native": "^7.3.16",
     "@react-navigation/native-stack": "^7.18.8",
@@ -17,8 +18,7 @@
     "react-native-reanimated": "*",
     "react-native-safe-area-context": "*",
     "react-native-screens": "*",
-    "react-native-svg": "*",
-    "react-native-vector-icons": "*"
+    "react-native-svg": "*"
   },
   "devDependencies": {
     "@babel/plugin-transform-class-properties": "^7.29.7",

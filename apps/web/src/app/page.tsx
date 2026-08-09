@@ -42,6 +42,16 @@ export default function ResponsiveLandingPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Synthetic Search Results Logic
+  const searchResults = searchQuery.trim() === '' ? [] : [
+    ...RESTAURANTS.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.cuisines.toLowerCase().includes(searchQuery.toLowerCase())),
+    ...CATEGORIES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => ({ id: `cat-${c.name}`, name: c.name, type: 'category', image: c.image }))
+  ].slice(0, 6);
+
   const handleUseGPS = () => {
     setIsLocating(true);
     setTimeout(() => {
@@ -98,6 +108,9 @@ export default function ResponsiveLandingPage() {
               <a href="#menu" onClick={scrollToMenu} className="flex items-center gap-2 bg-[#f8b11c] text-black px-5 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest shadow-lg">
                 <Compass className="w-3.5 h-3.5" /> Explore Spots
               </a>
+              <Link href="/driver" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+                <Briefcase className="w-3.5 h-3.5" /> Driver Portal
+              </Link>
               <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <MapPin className="w-3.5 h-3.5" /> In-App Map
               </a>
@@ -364,10 +377,64 @@ export default function ResponsiveLandingPage() {
             <input 
               type="text" 
               placeholder="Search for restaurants, cuisines, or dishes..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               className={`w-full border rounded-full py-4 pl-14 pr-6 text-sm focus:outline-none transition-colors ${
                 isLight ? 'bg-black/5 border-black/10 focus:border-[#f8b11c] focus:bg-white placeholder:text-gray-500 text-black' : 'bg-white/5 border-white/10 focus:border-[#f8b11c] focus:bg-white/10 placeholder:text-gray-500 text-white'
               }`}
             />
+
+            {/* Autocomplete Popup */}
+            <AnimatePresence>
+              {isSearchFocused && searchQuery.trim() !== '' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className={`absolute top-full left-0 right-0 mt-2 rounded-2xl shadow-2xl border overflow-hidden z-50 ${
+                    isLight ? 'bg-white border-black/10' : 'bg-[#1a1a1a] border-white/10'
+                  }`}
+                >
+                  {searchResults.length > 0 ? (
+                    <div className="py-2">
+                      {searchResults.map((result: any, idx: number) => (
+                        <Link 
+                          href={result.type === 'category' ? '#' : `/restaurant/${result.id}`} 
+                          key={result.id || idx}
+                          onClick={() => setIsSearchFocused(false)}
+                          className={`flex items-center gap-4 px-5 py-3 transition-colors ${
+                            isLight ? 'hover:bg-black/5' : 'hover:bg-white/5'
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                            <img src={result.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100&q=80'} alt={result.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-bold text-sm truncate ${isLight ? 'text-black' : 'text-white'}`}>{result.name}</h4>
+                            <p className={`text-xs truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {result.type === 'category' ? 'Category' : `${result.cuisines} • ${result.location}`}
+                            </p>
+                          </div>
+                          {result.type !== 'category' && (
+                            <div className="flex items-center gap-1 bg-green-700/20 text-green-400 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                              <Star className="w-2.5 h-2.5 fill-green-400" /> {result.rating}
+                            </div>
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <Search className={`w-8 h-8 mx-auto mb-3 opacity-20 ${isLight ? 'text-black' : 'text-white'}`} />
+                      <p className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>No results found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="w-full lg:w-auto flex justify-center lg:justify-end gap-3">

@@ -3,6 +3,9 @@ import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } fro
 import Animated, { FadeInUp, FadeInDown, Layout } from 'react-native-reanimated';
 import { Typography } from '../components/Typography';
 import { theme } from '../theme';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 import Icon from 'react-native-vector-icons/Feather';
 
 const { width } = Dimensions.get('window');
@@ -15,6 +18,8 @@ const ACHIEVEMENTS = [
 ];
 
 export const ProfileScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
@@ -112,6 +117,19 @@ export const ProfileScreen = () => {
                 <Icon name="bookmark" size={20} color={theme.colors.text.dark} />
               </View>
               <Typography variant="h3" color={theme.colors.text.dark} style={{ marginLeft: 16 }}>Saved Collections</Typography>
+            </View>
+            <Icon name="chevron-right" size={20} color={theme.colors.textMuted.dark} />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Switch to Driver Mode Link */}
+        <Animated.View entering={FadeInUp.delay(800).springify()} style={[styles.sectionContainer, { marginTop: theme.spacing.md }]}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => navigation.navigate('DriverScreen' as any)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={[styles.menuIconWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
+                <Icon name="truck" size={20} color={theme.colors.secondary} />
+              </View>
+              <Typography variant="h3" color={theme.colors.text.dark} style={{ marginLeft: 16 }}>Switch to Driver Mode</Typography>
             </View>
             <Icon name="chevron-right" size={20} color={theme.colors.textMuted.dark} />
           </TouchableOpacity>

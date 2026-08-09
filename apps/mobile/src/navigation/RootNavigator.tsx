@@ -8,6 +8,7 @@ import { RestaurantDetailsScreen } from '../screens/RestaurantDetailsScreen';
 import { GenericScreen } from '../screens/GenericScreen';
 import { CartScreen } from '../screens/CartScreen';
 import { OrderTrackingScreen } from '../screens/OrderTrackingScreen';
+import { DriverScreen } from '../screens/DriverScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,6 +39,11 @@ export const RootNavigator = () => {
         name="RestaurantDetails" 
         component={RestaurantDetailsScreen} 
         options={{ animation: 'slide_from_bottom' }} // Apple-style modal slide
+      />
+      <Stack.Screen 
+        name="DriverScreen" 
+        component={DriverScreen as any} 
+        options={{ animation: 'fade' }} 
       />
     </Stack.Navigator>
   );

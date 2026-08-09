@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { HiddenEatsLogo } from '@/components/Sidebar';
 import { useTheme } from '@/context/ThemeContext';
-import { Compass, Building2, ArrowRight } from 'lucide-react';
+import { Compass, Building2, ArrowRight, Truck } from 'lucide-react';
 
 export default function LoginRoleChooserPage() {
   const { theme } = useTheme();
@@ -39,7 +39,7 @@ export default function LoginRoleChooserPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Card 1: Food Explorer / Diner */}
           <Link
             href="/login/user"
@@ -107,6 +107,41 @@ export default function LoginRoleChooserPage() {
               isLight ? 'border-black/10 text-black group-hover:text-black/70' : 'border-white/10 text-[#E93B3B] group-hover:text-[#c42f2f]'
             }`}>
               Sign In as Partner →
+            </div>
+          </Link>
+
+          {/* Card 3: Delivery Partner / Driver */}
+          <Link
+            href="/driver"
+            className={`rounded-2xl p-8 border transition-all group cursor-pointer ${
+              isLight ? 'bg-white border-black/10 hover:border-black/30' : 'bg-[#1c1c1c] border-white/10 hover:border-[#10B981]/50'
+            }`}
+          >
+            <div className={`w-14 h-14 rounded flex items-center justify-center mb-8 border ${
+              isLight ? 'bg-black/5 border-black/10 text-black' : 'bg-[#10B981]/10 border-[#10B981]/20 text-[#10B981]'
+            }`}>
+              <Truck className="w-7 h-7" />
+            </div>
+
+            <span className={`font-sans text-[10px] uppercase font-bold tracking-widest block mb-2 ${
+              isLight ? 'text-black/60' : 'text-[#10B981]'
+            }`}>
+              FOR DRIVERS & COURIERS
+            </span>
+            <h2 className={`font-display text-2xl md:text-3xl tracking-wide uppercase mb-3 flex items-center justify-between ${isLight ? 'text-black/90' : 'text-white/90'}`}>
+              <span>Delivery Partner</span>
+              <ArrowRight className={`w-6 h-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all ${
+                isLight ? 'text-black' : 'text-[#10B981]'
+              }`} />
+            </h2>
+            <p className={`font-sans text-sm font-medium leading-relaxed mb-8 ${isLight ? 'text-black/70' : 'text-white/70'}`}>
+              Manage deliveries, track your earnings, and navigate to restaurants and diners seamlessly.
+            </p>
+
+            <div className={`pt-5 border-t flex items-center font-sans font-bold text-xs uppercase tracking-wider transition-colors ${
+              isLight ? 'border-black/10 text-black group-hover:text-black/70' : 'border-white/10 text-[#10B981] group-hover:text-[#059669]'
+            }`}>
+              Sign In as Driver →
             </div>
           </Link>
         </div>

@@ -82,3 +82,17 @@ We welcome contributions! Please open an issue or submit a pull request with you
 ## 📄 License
 
 © 2026 Hidden Eats. All rights reserved.
+
+## 📸 Screenshots
+
+### Hero Section
+![Hero Section](apps/web/public/screenshots/media__1786424531138.png)
+
+### How It Works
+![How It Works](apps/web/public/screenshots/media__1786424531052.png)
+
+### Why Choose Us
+![Why Choose Us](apps/web/public/screenshots/media__1786424531085.png)
+
+### Partner with Us
+![Partner with Us](apps/web/public/screenshots/media__1786424531116.png)

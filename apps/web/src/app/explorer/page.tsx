@@ -5,742 +5,237 @@ import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import ExplorerNav from '@/components/ExplorerNav';
 import {
-  Compass,
-  Search,
-  Flame,
-  Star,
-  MapPin,
-  Calendar,
-  Navigation,
-  Check,
-  Mic,
-  Clock,
-  Users,
-  Copy,
-  ShoppingBag,
-  UtensilsCrossed,
-  Sparkles,
-  ChevronRight,
+  Compass, Search, Star, Clock, Filter, SlidersHorizontal, MapPin
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const CRAVING_CHIPS = [
-  'All',
-  'Biryani',
-  'Pizza',
-  'Burger',
-  'Dosa',
-  'Street Food',
-  'Budget Meals',
-  'Date Night',
-  'Midnight Cravings',
-  'Hidden Gems',
+const CATEGORIES = [
+  { name: 'Idli', image: '/img/idli.png' },
+  { name: 'Dosa', image: '/img/dosa.png' },
+  { name: 'Biryani', image: '/img/biryani.png' },
+  { name: 'Meals', image: '/img/food_general.png' },
+  { name: 'Sweets', image: '/img/desserts.png' },
+  { name: 'Snacks', image: '/img/food_general.png' },
+  { name: 'Chaat', image: '/img/food_general.png' },
+  { name: 'Coffee', image: '/img/coffee.png' },
 ];
 
-interface FoodDish {
-  dishName: string;
-  price: number;
-  description: string;
-  isSecret: boolean;
-  prepTime: string;
-  category: string;
-}
-
-interface RestaurantSpot {
-  id: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-  rating: number;
-  gemScore: number;
-  tags: string[];
-  priceLevel: number;
-  image: string;
-  hasSecretMenu: boolean;
-  dishes: FoodDish[];
-}
-
-const MOCK_EXPLORER_SPOTS: RestaurantSpot[] = [
-  {
-    id: 'res-1',
-    name: 'Grand Secret Kitchen',
-    address: '12-A Secret Alley, Off Brigade Road',
-    lat: 12.9716,
-    lng: 77.5946,
-    rating: 4.8,
-    gemScore: 9.4,
-    tags: ['Biryani', 'Hidden Gems', 'Midnight Cravings', 'Mutton', 'Pizza'],
-    priceLevel: 2,
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop',
-    hasSecretMenu: true,
-    dishes: [
-      {
-        dishName: "Chef's Secret Smoked Mutton Biryani",
-        price: 340,
-        description: 'Slow-cooked wood-smoked mutton biryani with secret spices.',
-        isSecret: true,
-        prepTime: '20 mins',
-        category: 'Biryani',
-      },
-      {
-        dishName: 'Midnight Chili Garlic Wings',
-        price: 220,
-        description: 'Crispy fried wings tossed in secret chili garlic sauce.',
-        isSecret: true,
-        prepTime: '15 mins',
-        category: 'Wings',
-      },
-      {
-        dishName: 'Woodfired Secret Peperoni Pizza',
-        price: 380,
-        description: 'Crispy sourdough woodfired pizza with secret smoked cheese.',
-        isSecret: true,
-        prepTime: '18 mins',
-        category: 'Pizza',
-      },
-    ],
-  },
-  {
-    id: 'res-2',
-    name: 'Alleyway Street Bakes',
-    address: '44 Corner Lane, Indiranagar',
-    lat: 12.978,
-    lng: 77.605,
-    rating: 4.6,
-    gemScore: 8.9,
-    tags: ['Street Food', 'Budget Meals', 'Burger', 'Dosa', 'Pizza'],
-    priceLevel: 1,
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop',
-    hasSecretMenu: true,
-    dishes: [
-      {
-        dishName: 'Secret Cheese Smash Burger',
-        price: 180,
-        description: 'Double smashed patty with melted secret cheese sauce.',
-        isSecret: true,
-        prepTime: '12 mins',
-        category: 'Burger',
-      },
-      {
-        dishName: 'Crispy Mysore Masala Dosa',
-        price: 110,
-        description: 'Golden crispy butter dosa served with red spicy chutney.',
-        isSecret: false,
-        prepTime: '10 mins',
-        category: 'Dosa',
-      },
-      {
-        dishName: 'Mini Cheese Burst Pocket Pizza',
-        price: 160,
-        description: 'Stuffed street-style mini pizza bursting with molten cheese.',
-        isSecret: true,
-        prepTime: '10 mins',
-        category: 'Pizza',
-      },
-    ],
-  },
-  {
-    id: 'res-3',
-    name: 'Café De Quietude',
-    address: '88 Peace Haven, Koramangala',
-    lat: 12.965,
-    lng: 77.588,
-    rating: 4.9,
-    gemScore: 9.1,
-    tags: ['Date Night', 'Cafe to Work', 'Coffee', 'Pizza'],
-    priceLevel: 2,
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&auto=format&fit=crop',
-    hasSecretMenu: false,
-    dishes: [
-      {
-        dishName: 'Truffle Mushroom Artisan Pizza',
-        price: 390,
-        description: 'Hand-tossed sourdough pizza topped with truffle oil.',
-        isSecret: false,
-        prepTime: '18 mins',
-        category: 'Pizza',
-      },
-      {
-        dishName: 'Hazelnut Cold Brew Espresso',
-        price: 190,
-        description: '18-hour cold steeped coffee with hazelnut cream.',
-        isSecret: true,
-        prepTime: '5 mins',
-        category: 'Coffee',
-      },
-    ],
-  },
+const RESTAURANTS = [
+  { id: 1, name: 'Sangeetha Veg Restaurant', rating: 4.8, time: '20-25 mins', cuisines: 'South Indian, Pure Veg', image: '/img/dosa.png', offer: '20% OFF', location: 'T. Nagar, Chennai' },
+  { id: 2, name: 'A2B - Adyar Ananda Bhavan', rating: 4.6, time: '15-20 mins', cuisines: 'Sweets, South Indian', image: '/img/desserts.png', offer: 'FREE DELIVERY', location: 'Adyar, Chennai' },
+  { id: 3, name: 'Murugan Idli Shop', rating: 4.9, time: '30-35 mins', cuisines: 'South Indian, Breakfast', image: '/img/idli.png', offer: '10% OFF', location: 'Besant Nagar, Chennai' },
+  { id: 4, name: 'Dindigul Thalappakatti', rating: 4.7, time: '40-45 mins', cuisines: 'Biryani, South Indian', image: '/img/biryani.png', offer: '20% OFF above ₹400', location: 'Nungambakkam' },
+  { id: 5, name: 'Buhari Hotel', rating: 4.5, time: '25-30 mins', cuisines: 'Mughlai, Biryani', image: '/img/biryani.png', offer: '60% OFF', location: 'Mount Road, Chennai' },
+  { id: 6, name: 'Junior Kuppanna', rating: 4.4, time: '10-15 mins', cuisines: 'Kongunadu, South Indian', image: '/img/food_general.png', offer: 'Buy 1 Get 1', location: 'Velachery' },
+  { id: 7, name: 'Ambur Star Briyani', rating: 4.3, time: '15-25 mins', cuisines: 'Biryani, Fast Food', image: '/img/biryani.png', offer: '20% OFF', location: 'Anna Nagar' },
+  { id: 8, name: 'Saravana Bhavan', rating: 4.8, time: '30-40 mins', cuisines: 'South Indian, Pure Veg', image: '/img/dosa.png', offer: 'FREE DESSERT', location: 'Mylapore, Chennai' },
 ];
 
-function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 10) / 10;
-}
-
-export default function ExplorerWorkspacePage() {
+export default function ExplorerPage() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
-  const [selectedTag, setSelectedTag] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-
-  // Pre-Order Modal State
-  const [preOrderDish, setPreOrderDish] = useState<{ spotName: string; dish: FoodDish } | null>(null);
-  const [preOrderSuccess, setPreOrderSuccess] = useState(false);
-
-  // Squad Voting Modal
-  const [squadModal, setSquadModal] = useState(false);
-  const [squadCopied, setSquadCopied] = useState(false);
-
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationName, setLocationName] = useState<string>('Detecting Live Location...');
-  const [bookingModalSpot, setBookingModalSpot] = useState<RestaurantSpot | null>(null);
-  const [partySize, setPartySize] = useState('2');
-  const [bookingTime, setBookingTime] = useState('Tonight at 8:30 PM');
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [userLocation, setUserLocation] = useState('Fetching Location...');
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-          setLocationName(`Live GPS (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`);
-        },
-        () => {
-          setUserLocation({ lat: 12.9716, lng: 77.5946 });
-          setLocationName('Brigade Road, Bangalore');
-        }
-      );
+    const lat = localStorage.getItem('userLat');
+    const lng = localStorage.getItem('userLng');
+    if (lat && lng) {
+      setUserLocation(`Location: ${Number(lat).toFixed(3)}, ${Number(lng).toFixed(3)}`);
+    } else {
+      setUserLocation('Default Location');
     }
   }, []);
 
-  const handleVoiceSearch = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'en-US';
-      setIsListening(true);
-      recognition.start();
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setSearchQuery(transcript);
-        setIsListening(false);
-      };
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
-    } else {
-      setIsListening(true);
-      setTimeout(() => {
-        setSearchQuery('Pizza');
-        setIsListening(false);
-      }, 1500);
-    }
-  };
-
-  const handleConfirmPreOrder = () => {
-    setPreOrderSuccess(true);
-    setTimeout(() => {
-      setPreOrderSuccess(false);
-      setPreOrderDish(null);
-    }, 2000);
-  };
-
-  const handleBookTable = () => {
-    setBookingSuccess(true);
-    setTimeout(() => {
-      setBookingSuccess(false);
-      setBookingModalSpot(null);
-    }, 2000);
-  };
-
-  const spotsWithDistance = MOCK_EXPLORER_SPOTS.map((spot) => {
-    const distanceKm = userLocation
-      ? getDistanceKm(userLocation.lat, userLocation.lng, spot.lat, spot.lng)
-      : 1.2;
-    return { ...spot, distanceKm };
-  }).sort((a, b) => a.distanceKm - b.distanceKm);
-
-  const query = searchQuery.toLowerCase().trim();
-
-  const filteredSpots = spotsWithDistance.filter((spot) => {
-    const matchesTag =
-      selectedTag === 'All' ||
-      spot.tags.includes(selectedTag) ||
-      (selectedTag === 'Hidden Gems' && spot.gemScore >= 8.0);
-
-    const matchesSearch =
-      !query ||
-      spot.name.toLowerCase().includes(query) ||
-      spot.tags.some((t) => t.toLowerCase().includes(query)) ||
-      spot.dishes.some(
-        (d) =>
-          d.dishName.toLowerCase().includes(query) ||
-          d.description.toLowerCase().includes(query) ||
-          d.category.toLowerCase().includes(query)
-      );
-
-    return matchesTag && matchesSearch;
-  });
-
-  const popularTopics = ['Pizza', 'Biryani', 'Burger', 'Dosa', 'Secret Wings', 'Cold Brew Coffee'];
-  const matchingTopics = popularTopics.filter((t) => !query || t.toLowerCase().includes(query));
+  const searchResults = searchQuery.trim() === '' ? [] : [
+    ...RESTAURANTS.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.cuisines.toLowerCase().includes(searchQuery.toLowerCase())),
+    ...CATEGORIES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => ({ id: `cat-${c.name}`, name: c.name, type: 'category', image: c.image }))
+  ].slice(0, 6);
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased text-body transition-colors ${
-      isLight ? 'bg-[#FFF8F1] text-[#1F2937]' : 'bg-[#05070D] text-white'
+      isLight ? 'bg-[#FAFAFA] text-black' : 'bg-[#111111] text-white'
     }`}>
       <ExplorerNav />
-
-      <main className="max-w-7xl mx-auto w-full p-6 sm:p-10 space-y-8 flex-1 animate-fade-in">
-        {/* Header & Instant Search Bar */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`text-label text-[10px] uppercase tracking-widest ${
-                  isLight ? 'text-[#D62828]' : 'text-[#FFB703]'
-                }`}>
-                  FOOD & HOTEL SEARCH ENGINE
-                </span>
-                <span className={`text-label text-[10px] px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
-                  isLight
-                    ? 'bg-[#DCFCE7] text-[#16A34A] border-[#86EFAC]'
-                    : 'bg-[#092615] text-[#10b981] border-[#0f4424]'
-                }`}>
-                  <Navigation className="w-3 h-3 animate-pulse" /> {locationName}
-                </span>
-              </div>
-              <h1 className={`text-section-heading text-3xl ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>
-                Nearby Hotels & Secret Dish Results
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSquadModal(true)}
-                className={`px-4 py-2.5 rounded-2xl border text-label text-xs shadow-sm transition-colors flex items-center gap-1.5 hover-lift ${
-                  isLight
-                    ? 'bg-white border-black/8 text-[#1F2937] hover:bg-[#FFF3E8]'
-                    : 'bg-[#131A2C] border-[#23314a] text-white hover:bg-[#05070D]'
-                }`}
-              >
-                <Users className={`w-3.5 h-3.5 ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`} /> Squad Vote
-              </button>
-
-              <Link
-                href="/explorer/map"
-                className={`px-4 py-2.5 rounded-2xl text-label text-xs shadow-lg transition-all flex items-center gap-1.5 hover-lift ${
-                  isLight
-                    ? 'bg-[#D62828] hover:bg-[#B91C1C] text-white shadow-[#D62828]/25'
-                    : 'bg-[#FFB703] hover:bg-[#d97706] text-black font-bold shadow-[#FFB703]/25'
-                }`}
-              >
-                <span>🗺️</span> In-App Map
-              </Link>
-            </div>
+      <div id="menu" className="w-full px-6 py-12 md:px-12 md:py-12 flex flex-col gap-12 relative z-40 transition-colors duration-500">
+        
+        {/* Sticky Search & Filter Bar */}
+        <div className={`sticky top-0 z-50 py-4 -mx-6 px-6 md:-mx-12 md:px-12 flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-8 border-b transition-colors duration-500 backdrop-blur-xl ${
+          isLight ? 'bg-[#FAFAFA]/95 border-black/10' : 'bg-[#111111]/95 border-white/10'
+        }`}>
+          <div className="flex flex-col items-center lg:items-start">
+            <h2 className="font-display text-3xl md:text-4xl tracking-wide uppercase">Cravings?</h2>
+            {userLocation && <span className="text-xs text-[#f8b11c] font-bold mt-1 tracking-widest uppercase">{userLocation}</span>}
           </div>
+          
+          <div className="flex-1 w-full max-w-3xl relative">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search for restaurants, cuisines, or dishes..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              className={`w-full border rounded-full py-4 pl-14 pr-6 text-sm focus:outline-none transition-colors ${
+                isLight ? 'bg-black/5 border-black/10 focus:border-[#f8b11c] focus:bg-white placeholder:text-gray-500 text-black' : 'bg-white/5 border-white/10 focus:border-[#f8b11c] focus:bg-white/10 placeholder:text-gray-500 text-white'
+              }`}
+            />
 
-          {/* Search Input Bar */}
-          <div className="relative max-w-2xl">
-            <div className="relative flex items-center">
-              <Search className="w-4 h-4 opacity-50 absolute left-4" />
-              <input
-                type="text"
-                value={searchQuery}
-                onFocus={() => setShowSearchDropdown(true)}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSearchDropdown(true);
-                }}
-                placeholder={isListening ? 'Listening for dish name...' : 'Search food (e.g. Pizza, Biryani, Burger, Dosa) or Voice Search 🎙️'}
-                className={`w-full rounded-2xl border pl-11 pr-12 py-3.5 text-body text-xs outline-none transition-all shadow-sm ${
-                  isListening
-                    ? 'bg-red-500/10 border-red-500 text-red-500 font-bold placeholder-red-400 animate-pulse'
-                    : isLight
-                    ? 'bg-white border-black/8 text-[#1F2937] placeholder-[#6B7280] focus:border-[#D62828]'
-                    : 'bg-[#131A2C] border-[#23314a] text-white placeholder-[#888888] focus:border-[#FFB703]'
-                }`}
-              />
-              <button
-                onClick={handleVoiceSearch}
-                className={`absolute right-2.5 p-2 rounded-xl transition-all ${
-                  isListening
-                    ? 'bg-red-500 text-white animate-bounce'
-                    : isLight
-                    ? 'bg-[#FFF3E8] text-[#D62828] hover:bg-[#FFEBE0]'
-                    : 'bg-[#05070D] text-[#FFB703] hover:bg-[#131A2C]'
-                }`}
-                title="Voice Search"
-              >
-                <Mic className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Instant Craving Topics Dropdown Popup */}
-            {showSearchDropdown && query && (
-              <div className={`absolute top-full left-0 right-0 mt-2 border rounded-2xl p-3.5 z-30 shadow-2xl space-y-2 animate-scale-in ${
-                isLight ? 'bg-white border-black/8 text-[#1F2937]' : 'bg-[#131A2C] border-[#23314a] text-white'
-              }`}>
-                <div className={`flex items-center justify-between px-2 pb-1 border-b ${isLight ? 'border-black/5' : 'border-[#23314a]'}`}>
-                  <span className={`text-label text-[10px] uppercase flex items-center gap-1 ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`}>
-                    <Sparkles className="w-3 h-3" /> Instant Craving Topics
-                  </span>
-                  <button
-                    onClick={() => setShowSearchDropdown(false)}
-                    className="text-body text-[10px] opacity-70 hover:opacity-100"
-                  >
-                    Close ✕
-                  </button>
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {matchingTopics.map((topic) => (
-                    <button
-                      key={topic}
-                      onClick={() => {
-                        setSearchQuery(topic);
-                        setShowSearchDropdown(false);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-label text-xs flex items-center gap-1 transition-colors ${
-                        isLight
-                          ? 'bg-[#FFF3E8] border-black/5 text-[#1F2937] hover:border-[#D62828] hover:text-[#D62828]'
-                          : 'bg-[#05070D] border-[#23314a] text-white hover:border-[#FFB703] hover:text-[#FFB703]'
-                      }`}
-                    >
-                      <span>🍕 {topic}</span>
-                      <ChevronRight className={`w-3 h-3 ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Craving Chips Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {CRAVING_CHIPS.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-4 py-2 rounded-2xl text-label text-xs whitespace-nowrap transition-all ${
-                  selectedTag === tag
-                    ? isLight
-                      ? 'bg-[#D62828] text-white shadow-md shadow-[#D62828]/25 scale-105'
-                      : 'bg-[#FFB703] text-black font-bold shadow-md shadow-[#FFB703]/25 scale-105'
-                    : isLight
-                    ? 'bg-white border border-black/8 text-[#6B7280] hover:text-[#1F2937] hover:bg-[#FFF3E8]'
-                    : 'bg-[#131A2C] border border-[#23314a] text-[#888888] hover:text-white hover:bg-[#05070D]'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Restaurant & Dish Listing Feed */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className={`text-card-title text-lg ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>
-              Nearby Hotels & Secret Dish Results {query && `for "${query}"`} ({filteredSpots.length})
-            </h2>
-            <span className="text-body text-xs opacity-60">Sorted dynamically by live GPS proximity</span>
-          </div>
-
-          <div className="space-y-6">
-            {filteredSpots.map((spot) => {
-              const matchingDishes = query
-                ? spot.dishes.filter(
-                    (d) =>
-                      d.dishName.toLowerCase().includes(query) ||
-                      d.description.toLowerCase().includes(query) ||
-                      d.category.toLowerCase().includes(query)
-                  )
-                : spot.dishes;
-
-              const displayDishes = matchingDishes.length > 0 ? matchingDishes : spot.dishes;
-
-              return (
-                <div
-                  key={spot.id}
-                  className={`border rounded-3xl p-6 transition-all shadow-sm hover:shadow-md ${
-                    isLight ? 'bg-white border-black/8' : 'bg-[#131A2C] border-[#23314a]'
+            {/* Autocomplete Popup */}
+            <AnimatePresence>
+              {isSearchFocused && searchQuery.trim() !== '' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className={`absolute top-full left-0 right-0 mt-2 rounded-2xl shadow-2xl border overflow-hidden z-50 ${
+                    isLight ? 'bg-white border-black/10' : 'bg-[#1a1a1a] border-white/10'
                   }`}
                 >
-                  {/* Hotel Header Info */}
-                  <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b ${
-                    isLight ? 'border-black/5' : 'border-[#23314a]'
-                  }`}>
-                    <div className="flex items-center gap-4">
-                      <Link href={`/explorer/restaurant/${spot.id}`}>
-                        <img
-                          src={spot.image}
-                          alt={spot.name}
-                          className="w-16 h-16 rounded-2xl object-cover hover:scale-105 transition-transform border border-black/8"
-                        />
-                      </Link>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/explorer/restaurant/${spot.id}`}>
-                            <h3 className={`text-card-title text-base hover:text-[#D62828] dark:hover:text-[#FFB703] transition-colors ${
-                              isLight ? 'text-[#1F2937]' : 'text-white'
-                            }`}>
-                              {spot.name}
-                            </h3>
-                          </Link>
-                          <span className={`text-label text-[10px] px-2.5 py-0.5 rounded-full border ${
-                            isLight
-                              ? 'bg-[#FFF3E8] text-[#D62828] border-[#D62828]/20'
-                              : 'bg-[#261c07] text-[#FFB703] border-[#3a2c0c]'
-                          }`}>
-                            💎 {spot.gemScore} GEM
-                          </span>
-                        </div>
-                        <p className="text-body text-xs text-[#6B7280] dark:text-[#aaaaaa] mt-0.5">{spot.address}</p>
-                        <div className="flex items-center gap-3 text-xs mt-1">
-                          <span className="text-[#FFB703] text-label">★ {spot.rating} Google</span>
-                          <span className="text-[#2563EB] text-label flex items-center gap-1">
-                            <Navigation className="w-3 h-3" /> {spot.distanceKm} km away
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setBookingModalSpot(spot)}
-                        className={`px-4 py-2.5 text-label text-xs rounded-2xl transition-colors flex items-center gap-1.5 shadow-sm hover-lift ${
-                          isLight
-                            ? 'bg-[#D62828] hover:bg-[#B91C1C] text-white shadow-[#D62828]/20'
-                            : 'bg-[#FFB703] hover:bg-[#d97706] text-black font-bold shadow-[#FFB703]/20'
-                        }`}
-                      >
-                        <Calendar className="w-3.5 h-3.5" /> Book Table
-                      </button>
-                      <Link
-                        href={`/explorer/map?spot=${spot.id}`}
-                        className={`px-4 py-2.5 rounded-2xl border text-label text-xs transition-colors hover-lift ${
-                          isLight
-                            ? 'bg-[#FFF8F1] border-black/8 text-[#1F2937] hover:bg-[#FFF3E8]'
-                            : 'bg-[#05070D] border-[#23314a] text-white hover:bg-[#131A2C]'
-                        }`}
-                      >
-                        📍 In-App Map
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Dish Items Grid under Hotel */}
-                  <div className="pt-4 space-y-3">
-                    <span className="text-label text-[10px] uppercase tracking-wider opacity-70 flex items-center gap-1">
-                      <UtensilsCrossed className={`w-3 h-3 ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`} /> Available Dishes & Secret Specials ({displayDishes.length})
-                    </span>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      {displayDishes.map((dish, dIdx) => (
-                        <div
-                          key={dIdx}
-                          className={`p-4 rounded-2xl border flex justify-between items-start transition-all ${
-                            dish.isSecret
-                              ? isLight
-                                ? 'bg-[#FFF3E8] border-[#D62828]/20'
-                                : 'bg-[#1e1708] border-[#382607]'
-                              : isLight
-                              ? 'bg-[#FFF8F1] border-black/5'
-                              : 'bg-[#05070D] border-[#23314a]'
+                  {searchResults.length > 0 ? (
+                    <div className="py-2">
+                      {searchResults.map((result: any, idx: number) => (
+                        <Link 
+                          href={result.type === 'category' ? '#' : `/restaurant/${result.id}`} 
+                          key={result.id || idx}
+                          onClick={() => setIsSearchFocused(false)}
+                          className={`flex items-center gap-4 px-5 py-3 transition-colors ${
+                            isLight ? 'hover:bg-black/5' : 'hover:bg-white/5'
                           }`}
                         >
-                          <div>
-                            {dish.isSecret && (
-                              <span className={`text-label text-[9px] uppercase flex items-center gap-1 mb-1 ${
-                                isLight ? 'text-[#D62828]' : 'text-[#FFB703]'
-                              }`}>
-                                <Flame className="w-3 h-3 fill-current" /> SECRET OFF-MENU ITEM
-                              </span>
-                            )}
-                            <h4 className={`text-card-title text-xs ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{dish.dishName}</h4>
-                            <p className="text-body text-[11px] opacity-70 mt-1">{dish.description}</p>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className="text-price text-xs text-[#16A34A] dark:text-[#10b981]">₹{dish.price}</span>
-                              <span className="text-body text-[10px] opacity-70 flex items-center gap-1">
-                                <Clock className={`w-3 h-3 ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`} /> Prep: {dish.prepTime}
-                              </span>
-                            </div>
+                          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                            <img src={result.image || '/img/food_general.png'} alt={result.name} className="w-full h-full object-cover" />
                           </div>
-
-                          <button
-                            onClick={() => setPreOrderDish({ spotName: spot.name, dish })}
-                            className={`px-3.5 py-2 text-label text-[11px] rounded-xl transition-colors flex items-center gap-1 shrink-0 shadow-sm hover-lift ${
-                              isLight
-                                ? 'bg-[#D62828] hover:bg-[#B91C1C] text-white'
-                                : 'bg-[#FFB703] hover:bg-[#d97706] text-black font-bold'
-                            }`}
-                          >
-                            <ShoppingBag className="w-3 h-3" /> Pre-Order
-                          </button>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-bold text-sm truncate ${isLight ? 'text-black' : 'text-white'}`}>{result.name}</h4>
+                            <p className={`text-xs truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {result.type === 'category' ? 'Category' : `${result.cuisines} • ${result.location}`}
+                            </p>
+                          </div>
+                          {result.type !== 'category' && (
+                            <div className="flex items-center gap-1 bg-green-700/20 text-green-400 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                              <Star className="w-2.5 h-2.5 fill-green-400" /> {result.rating}
+                            </div>
+                          )}
+                        </Link>
                       ))}
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  ) : (
+                    <div className="p-8 text-center">
+                      <Search className={`w-8 h-8 mx-auto mb-3 opacity-20 ${isLight ? 'text-black' : 'text-white'}`} />
+                      <p className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>No results found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="w-full lg:w-auto flex justify-center lg:justify-end gap-3">
+            <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
+              isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+            }`}>
+              <Filter className="w-4 h-4" /> Filters
+            </button>
+            <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
+              isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+            }`}>
+              <SlidersHorizontal className="w-4 h-4" /> Sort
+            </button>
           </div>
         </div>
-      </main>
 
-      {/* Pre-Order Modal */}
-      {preOrderDish && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-scale-in">
-          <div className={`w-full max-w-md border rounded-3xl p-6 space-y-4 shadow-2xl ${
-            isLight ? 'bg-white border-black/8 text-[#1F2937]' : 'bg-[#131A2C] border-[#23314a] text-white'
-          }`}>
-            {preOrderSuccess ? (
-              <div className="text-center py-6 space-y-3">
-                <div className={`w-12 h-12 rounded-full border flex items-center justify-center mx-auto text-xl text-label ${
-                  isLight ? 'bg-[#DCFCE7] border-[#86EFAC] text-[#16A34A]' : 'bg-[#092615] border-[#0f4424] text-[#10b981]'
+        {/* Categories */}
+        <section className="space-y-6">
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>What's on your mind?</h3>
+          <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x scroll-smooth">
+            {CATEGORIES.map((cat, idx) => (
+              <div key={idx} className="flex flex-col items-center gap-3 shrink-0 snap-center group cursor-pointer w-24 md:w-32">
+                <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full border overflow-hidden transition-colors duration-[400ms] relative shadow-lg ${
+                  isLight ? 'bg-white border-black/10 group-hover:border-black/30' : 'bg-[#1A1A1A] border-white/5 group-hover:border-white/30'
                 }`}>
-                  ✓
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-[400ms]"></div>
                 </div>
-                <h3 className="text-card-title text-lg">Dish Pre-Ordered Successfully! 🛒</h3>
-                <p className="text-body text-xs opacity-70">
-                  Your order for {preOrderDish.dish.dishName} (₹{preOrderDish.dish.price}) at {preOrderDish.spotName} has been sent to the kitchen.
-                </p>
+                <span className={`text-xs md:text-sm font-bold tracking-wider uppercase transition-colors duration-[400ms] text-center ${
+                  isLight ? 'text-gray-600 group-hover:text-black' : 'text-gray-400 group-hover:text-white'
+                }`}>{cat.name}</span>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className={`flex items-center justify-between border-b pb-3.5 ${isLight ? 'border-black/5' : 'border-[#23314a]'}`}>
-                  <div>
-                    <span className={`text-label text-[10px] uppercase ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`}>PRE-ORDER DISH</span>
-                    <h3 className="text-card-title text-base">{preOrderDish.dish.dishName}</h3>
-                  </div>
-                  <button onClick={() => setPreOrderDish(null)} className="text-body text-sm opacity-70">
-                    ✕
-                  </button>
-                </div>
-
-                <div className={`p-3.5 border rounded-2xl flex items-center justify-between ${
-                  isLight ? 'bg-[#FFF8F1] border-black/5' : 'bg-[#05070D] border-[#23314a]'
-                }`}>
-                  <span className="text-body text-xs opacity-70">Total Amount</span>
-                  <span className="text-price text-base text-[#16A34A] dark:text-[#10b981]">₹{preOrderDish.dish.price}</span>
-                </div>
-
-                <button
-                  onClick={handleConfirmPreOrder}
-                  className={`w-full py-3.5 text-label text-xs rounded-2xl shadow-lg hover-lift ${
-                    isLight
-                      ? 'bg-[#D62828] hover:bg-[#B91C1C] text-white shadow-[#D62828]/20'
-                      : 'bg-[#FFB703] hover:bg-[#d97706] text-black font-bold shadow-[#FFB703]/20'
-                  }`}
-                >
-                  Confirm Pre-Order Dish
-                </button>
-              </div>
-            )}
+            ))}
           </div>
-        </div>
-      )}
+        </section>
 
-      {/* Table Booking Modal */}
-      {bookingModalSpot && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-scale-in">
-          <div className={`w-full max-w-md border rounded-3xl p-6 space-y-4 shadow-2xl ${
-            isLight ? 'bg-white border-black/8 text-[#1F2937]' : 'bg-[#131A2C] border-[#23314a] text-white'
-          }`}>
-            {bookingSuccess ? (
-              <div className="text-center py-6 space-y-3">
-                <div className={`w-12 h-12 rounded-full border flex items-center justify-center mx-auto text-xl text-label ${
-                  isLight ? 'bg-[#DCFCE7] border-[#86EFAC] text-[#16A34A]' : 'bg-[#092615] border-[#0f4424] text-[#10b981]'
-                }`}>
-                  ✓
-                </div>
-                <h3 className="text-card-title text-lg">Table Reservation Requested! 🎉</h3>
-                <p className="text-body text-xs opacity-70">
-                  Your request for {partySize} guests at {bookingModalSpot.name} is pending confirmation from the restaurant.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className={`flex items-center justify-between border-b pb-3.5 ${isLight ? 'border-black/5' : 'border-[#23314a]'}`}>
-                  <div>
-                    <span className={`text-label text-[10px] uppercase ${isLight ? 'text-[#D62828]' : 'text-[#FFB703]'}`}>TABLE RESERVATION</span>
-                    <h3 className="text-card-title text-base">{bookingModalSpot.name}</h3>
-                  </div>
-                  <button onClick={() => setBookingModalSpot(null)} className="text-body text-sm opacity-70">
-                    ✕
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-label text-[11px] opacity-70 uppercase mb-1.5">
-                    Party Size (Guests)
-                  </label>
-                  <div className="flex gap-2">
-                    {['1', '2', '4', '6', '8+'].map((num) => (
-                      <button
-                        key={num}
-                        onClick={() => setPartySize(num)}
-                        className={`flex-1 py-2 rounded.xl text-label text-xs border transition-colors ${
-                          partySize === num
-                            ? isLight
-                              ? 'bg-[#D62828] text-white border-[#D62828]'
-                              : 'bg-[#FFB703] text-black border-[#FFB703] font-bold'
-                            : isLight
-                            ? 'bg-[#FFF8F1] border-black/8 text-[#6B7280]'
-                            : 'bg-[#05070D] border-[#23314a] text-[#aaaaaa]'
-                        }`}
-                      >
-                        {num}
-                      </button>
-                    ))}
+        {/* Top Chains Carousel */}
+        <section className="space-y-6">
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>Top restaurant chains near you</h3>
+          <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x scroll-smooth">
+            {RESTAURANTS.slice(0, 5).map((rest) => (
+              <Link href={`/restaurant/${rest.id}`} key={rest.id} className="w-[280px] md:w-[320px] shrink-0 snap-center group cursor-pointer space-y-4 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
+                <div className="w-full aspect-[4/3] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative shadow-lg group-hover:shadow-2xl group-hover:shadow-black/50 transition-shadow duration-[600ms]">
+                  <img src={rest.image} alt={rest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                  <div className="absolute bottom-4 left-5 right-5 flex justify-between items-end">
+                     <span className="font-display text-xl md:text-2xl uppercase tracking-tighter text-[#f8b11c] drop-shadow-md">{rest.offer}</span>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-label text-[11px] opacity-70 uppercase mb-1">
-                    Preferred Time Slot
-                  </label>
-                  <input
-                    type="text"
-                    value={bookingTime}
-                    onChange={(e) => setBookingTime(e.target.value)}
-                    className={`w-full border rounded-2xl px-3.5 py-2.5 text-body text-xs outline-none ${
-                      isLight
-                        ? 'bg-[#FFF8F1] border-black/8 text-[#1F2937]'
-                        : 'bg-[#05070D] border-[#23314a] text-white'
-                    }`}
-                  />
+                <div className="px-1 md:px-2">
+                  <h4 className={`font-bold text-base md:text-lg truncate transition-colors duration-[400ms] ${
+                    isLight ? 'text-black/90 group-hover:text-black' : 'text-white/90 group-hover:text-white'
+                  }`}>{rest.name}</h4>
+                  <div className="flex items-center gap-2 mt-1 text-xs md:text-sm font-medium">
+                    <span className="flex items-center gap-1 bg-green-700/20 text-green-400 px-2 py-0.5 rounded"><Star className="w-3 h-3 fill-green-400" /> {rest.rating}</span>
+                    <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                    <span className={`flex items-center gap-1 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}><Clock className="w-3.5 h-3.5" /> {rest.time}</span>
+                  </div>
+                  <p className={`text-xs md:text-sm mt-1 truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>{rest.cuisines}</p>
                 </div>
-
-                <button
-                  onClick={handleBookTable}
-                  className={`w-full py-3.5 text-label text-xs rounded-2xl shadow-lg hover-lift ${
-                    isLight
-                      ? 'bg-[#D62828] hover:bg-[#B91C1C] text-white shadow-[#D62828]/20'
-                      : 'bg-[#FFB703] hover:bg-[#d97706] text-black font-bold shadow-[#FFB703]/20'
-                  }`}
-                >
-                  Confirm Reservation Request
-                </button>
-              </div>
-            )}
+              </Link>
+            ))}
           </div>
-        </div>
-      )}
+        </section>
+
+        {/* All Restaurants Grid */}
+        <section className="space-y-6">
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase border-b pb-4 ${
+            isLight ? 'text-black/90 border-black/10' : 'text-white/90 border-white/10'
+          }`}>Restaurants to explore right now</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            {RESTAURANTS.map((rest) => (
+              <Link href={`/restaurant/${rest.id}`} key={rest.id} className="group cursor-pointer space-y-3 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
+                <div className="w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden relative shadow-md group-hover:shadow-2xl group-hover:shadow-black/50 transition-shadow duration-[600ms]">
+                  <img src={rest.image} alt={rest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-[400ms]"></div>
+                  
+                  {/* Overlay content */}
+                  <div className="absolute top-4 left-4">
+                     <span className="bg-black/50 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">{rest.time}</span>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                     <span className="font-display text-xl md:text-2xl uppercase tracking-tighter text-[#f8b11c] drop-shadow-md">{rest.offer}</span>
+                  </div>
+                </div>
+                
+                <div className="px-1">
+                  <div className="flex justify-between items-start gap-2">
+                    <h4 className={`font-bold text-base md:text-lg truncate transition-colors duration-[400ms] ${
+                      isLight ? 'text-black/90 group-hover:text-black' : 'text-white/90 group-hover:text-white'
+                    }`}>{rest.name}</h4>
+                    <span className="flex items-center gap-1 bg-green-700/20 text-green-400 px-1.5 py-0.5 rounded text-xs shrink-0 mt-0.5">
+                      <Star className="w-3 h-3 fill-green-400" /> {rest.rating}
+                    </span>
+                  </div>
+                  <p className={`text-xs md:text-sm mt-1 truncate ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>{rest.cuisines} • {rest.location}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 }

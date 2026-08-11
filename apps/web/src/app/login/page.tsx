@@ -112,7 +112,7 @@ export default function LoginRoleChooserPage() {
 
           {/* Card 3: Delivery Partner / Driver */}
           <Link
-            href="/driver"
+            href="/login/driver"
             className={`rounded-2xl p-8 border transition-all group cursor-pointer ${
               isLight ? 'bg-white border-black/10 hover:border-black/30' : 'bg-[#1c1c1c] border-white/10 hover:border-[#10B981]/50'
             }`}

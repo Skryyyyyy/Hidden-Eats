@@ -15,6 +15,7 @@ export default function DinerLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [mobile, setMobile] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -32,7 +33,7 @@ export default function DinerLoginPage() {
         email,
         password,
         options: {
-          data: { username: username || email.split('@')[0], role: 'explorer' },
+          data: { username: username || email.split('@')[0], role: 'explorer', mobile },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
@@ -117,24 +118,45 @@ export default function DinerLoginPage() {
 
           <form className="space-y-5" onSubmit={handleAuth}>
             {isSignUp && (
-              <div>
-                <label className={`block text-label text-[11px] uppercase tracking-wider mb-1.5 ${
-                  isLight ? 'text-[#6B7280]' : 'text-[#888888]'
-                }`}>
-                  Explorer Username
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="foodie_explorer"
-                  className={`block w-full rounded-2xl px-4 py-3 text-body text-sm outline-none transition-all ${
-                    isLight 
-                      ? 'bg-[#FFF8F1] border border-black/8 text-[#1F2937] focus:border-[#D62828]' 
-                      : 'bg-[#05070D] border border-[#23314a] text-white focus:border-[#FFB703]'
-                  }`}
-                />
+              <div className="space-y-5">
+                <div>
+                  <label className={`block text-label text-[11px] uppercase tracking-wider mb-1.5 ${
+                    isLight ? 'text-[#6B7280]' : 'text-[#888888]'
+                  }`}>
+                    Explorer Username
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="foodie_explorer"
+                    className={`block w-full rounded-2xl px-4 py-3 text-body text-sm outline-none transition-all ${
+                      isLight 
+                        ? 'bg-[#FFF8F1] border border-black/8 text-[#1F2937] focus:border-[#D62828]' 
+                        : 'bg-[#05070D] border border-[#23314a] text-white focus:border-[#FFB703]'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-label text-[11px] uppercase tracking-wider mb-1.5 ${
+                    isLight ? 'text-[#6B7280]' : 'text-[#888888]'
+                  }`}>
+                    Mobile Number
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className={`block w-full rounded-2xl px-4 py-3 text-body text-sm outline-none transition-all ${
+                      isLight 
+                        ? 'bg-[#FFF8F1] border border-black/8 text-[#1F2937] focus:border-[#D62828]' 
+                        : 'bg-[#05070D] border border-[#23314a] text-white focus:border-[#FFB703]'
+                    }`}
+                  />
+                </div>
               </div>
             )}
 

@@ -32,6 +32,7 @@ export default function Sidebar() {
     { href: '/dashboard', label: 'OVERVIEW' },
     { href: '/dashboard/menu', label: 'SECRET MENU' },
     { href: '/dashboard/bookings', label: 'RESERVATIONS' },
+    { href: '/dashboard/orders', label: 'ORDERS' },
     { href: '/dashboard/reviews', label: 'LIVE REVIEWS' },
     { href: '/dashboard/analytics', label: 'DEMAND PREDICTOR' },
     { href: '/dashboard/settings', label: 'PARTNER SETTINGS' },

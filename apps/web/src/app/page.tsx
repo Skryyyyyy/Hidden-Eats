@@ -572,10 +572,10 @@ export default function ResponsiveLandingPage() {
           <div>
             <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-6">Company</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">About Us</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Careers</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Contact</a></li>
+              <li><Link href="/about" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">About Us</Link></li>
+              <li><Link href="/careers" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Careers</Link></li>
+              <li><Link href="/blog" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Blog</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Contact</Link></li>
             </ul>
           </div>
           <div>

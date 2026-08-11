@@ -1,5 +1,7 @@
 # Hidden Eats 🍔🥘
 
+![Hidden Eats Landing Page](apps/web/public/landing_screenshot.png)
+
 **Discovering and delivering the best local culinary secrets across Tamil Nadu. Fast, reliable, and always hot.**
 
 Hidden Eats is a modern food discovery and delivery platform dedicated to uncovering the hidden gems of local cuisine. We connect food lovers with authentic, hard-to-find eateries that aren't on traditional platforms.

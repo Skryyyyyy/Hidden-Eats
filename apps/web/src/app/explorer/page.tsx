@@ -21,14 +21,14 @@ const CATEGORIES = [
 ];
 
 const RESTAURANTS = [
-  { id: 1, name: 'Sangeetha Veg Restaurant', rating: 4.8, time: '20-25 mins', cuisines: 'South Indian, Pure Veg', image: '/img/dosa.png', offer: '20% OFF', location: 'T. Nagar, Chennai' },
-  { id: 2, name: 'A2B - Adyar Ananda Bhavan', rating: 4.6, time: '15-20 mins', cuisines: 'Sweets, South Indian', image: '/img/desserts.png', offer: 'FREE DELIVERY', location: 'Adyar, Chennai' },
-  { id: 3, name: 'Murugan Idli Shop', rating: 4.9, time: '30-35 mins', cuisines: 'South Indian, Breakfast', image: '/img/idli.png', offer: '10% OFF', location: 'Besant Nagar, Chennai' },
-  { id: 4, name: 'Dindigul Thalappakatti', rating: 4.7, time: '40-45 mins', cuisines: 'Biryani, South Indian', image: '/img/biryani.png', offer: '20% OFF above ₹400', location: 'Nungambakkam' },
-  { id: 5, name: 'Buhari Hotel', rating: 4.5, time: '25-30 mins', cuisines: 'Mughlai, Biryani', image: '/img/biryani.png', offer: '60% OFF', location: 'Mount Road, Chennai' },
-  { id: 6, name: 'Junior Kuppanna', rating: 4.4, time: '10-15 mins', cuisines: 'Kongunadu, South Indian', image: '/img/food_general.png', offer: 'Buy 1 Get 1', location: 'Velachery' },
-  { id: 7, name: 'Ambur Star Briyani', rating: 4.3, time: '15-25 mins', cuisines: 'Biryani, Fast Food', image: '/img/biryani.png', offer: '20% OFF', location: 'Anna Nagar' },
-  { id: 8, name: 'Saravana Bhavan', rating: 4.8, time: '30-40 mins', cuisines: 'South Indian, Pure Veg', image: '/img/dosa.png', offer: 'FREE DESSERT', location: 'Mylapore, Chennai' },
+  { id: 1, name: 'Sangeetha Veg Restaurant', rating: 4.8, time: '20-25 mins', cuisines: 'South Indian, Pure Veg', image: '/img/restaurants/sangeetha.jpg', offer: '20% OFF', location: 'T. Nagar, Chennai' },
+  { id: 2, name: 'A2B - Adyar Ananda Bhavan', rating: 4.6, time: '15-20 mins', cuisines: 'Sweets, South Indian', image: '/img/restaurants/a2b_sweets.png', offer: 'FREE DELIVERY', location: 'Adyar, Chennai' },
+  { id: 3, name: 'Murugan Idli Shop', rating: 4.9, time: '30-35 mins', cuisines: 'South Indian, Breakfast', image: '/img/restaurants/murugan_idli.png', offer: '10% OFF', location: 'Besant Nagar, Chennai' },
+  { id: 4, name: 'Dindigul Thalappakatti', rating: 4.7, time: '40-45 mins', cuisines: 'Biryani, South Indian', image: '/img/restaurants/dindigul_biryani.png', offer: '20% OFF above ₹400', location: 'Nungambakkam' },
+  { id: 5, name: 'Buhari Hotel', rating: 4.5, time: '25-30 mins', cuisines: 'Mughlai, Biryani', image: '/img/restaurants/buhari_biryani.png', offer: '60% OFF', location: 'Mount Road, Chennai' },
+  { id: 6, name: 'Junior Kuppanna', rating: 4.4, time: '10-15 mins', cuisines: 'Kongunadu, South Indian', image: '/img/restaurants/junior_kuppanna.png', offer: 'Buy 1 Get 1', location: 'Velachery' },
+  { id: 7, name: 'Ambur Star Briyani', rating: 4.3, time: '15-25 mins', cuisines: 'Biryani, Fast Food', image: '/img/restaurants/ambur_biryani.png', offer: '20% OFF', location: 'Anna Nagar' },
+  { id: 8, name: 'Saravana Bhavan', rating: 4.8, time: '30-40 mins', cuisines: 'South Indian, Pure Veg', image: '/img/restaurants/saravana_bhavan.png', offer: 'FREE DESSERT', location: 'Mylapore, Chennai' },
 ];
 
 export default function ExplorerPage() {

@@ -297,7 +297,16 @@ export default function ResponsiveLandingPage() {
              
              {/* Yellow Card */}
              <div 
-               onClick={() => window.location.href = '/explorer'}
+               onClick={async () => {
+                 const { createClient } = await import('@/lib/supabase');
+                 const supabase = createClient();
+                 const { data: { session } } = await supabase.auth.getSession();
+                 if (session) {
+                   window.location.href = '/explorer';
+                 } else {
+                   window.location.href = '/login?callbackUrl=/explorer';
+                 }
+               }}
                className="min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
              >
                 {/* Decorative background circle */}

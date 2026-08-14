@@ -63,7 +63,7 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#671212', // Maroon to match the web landing page
+    backgroundColor: '#111111', // Deep black to match web
   },
   backgroundContainer: {
     position: 'absolute',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   maroonBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#671212',
+    backgroundColor: '#111111',
   },
   heroImage: {
     width: width * 1.5,
@@ -82,12 +82,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -height * 0.05,
     right: -width * 0.25,
-    opacity: 0.8,
+    opacity: 0.6, // Darkened slightly for contrast
     transform: [{ rotate: '-10deg' }],
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(103, 18, 18, 0.4)', // Maroon tint overlay
+    backgroundColor: 'rgba(17, 17, 17, 0.6)', // Dark tint overlay
   },
   contentContainer: {
     flex: 1,

@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   gemRating: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,

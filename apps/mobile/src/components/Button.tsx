@@ -60,7 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
       default:
         return {
           container: { backgroundColor: theme.colors.primary },
-          text: '#FFFFFF',
+          text: '#111111', // Black text on yellow button
         };
     }
   };

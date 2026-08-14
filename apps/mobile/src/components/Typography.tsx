@@ -21,17 +21,17 @@ export const Typography: React.FC<TypographyProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'hero':
-        return { fontSize: theme.typography.size.hero, fontWeight: theme.typography.weight.black };
+        return { fontSize: theme.typography.size.hero, fontWeight: theme.typography.weight.black, letterSpacing: 4, textTransform: 'uppercase' as const };
       case 'display':
-        return { fontSize: theme.typography.size.display, fontWeight: theme.typography.weight.bold };
+        return { fontSize: theme.typography.size.display, fontWeight: theme.typography.weight.bold, letterSpacing: 3, textTransform: 'uppercase' as const };
       case 'h1':
-        return { fontSize: theme.typography.size.xxl, fontWeight: theme.typography.weight.bold };
+        return { fontSize: theme.typography.size.xxl, fontWeight: theme.typography.weight.bold, letterSpacing: 2, textTransform: 'uppercase' as const };
       case 'h2':
-        return { fontSize: theme.typography.size.xl, fontWeight: theme.typography.weight.bold };
+        return { fontSize: theme.typography.size.xl, fontWeight: theme.typography.weight.bold, letterSpacing: 1.5, textTransform: 'uppercase' as const };
       case 'h3':
-        return { fontSize: theme.typography.size.lg, fontWeight: theme.typography.weight.semibold };
+        return { fontSize: theme.typography.size.lg, fontWeight: theme.typography.weight.semibold, letterSpacing: 1, textTransform: 'uppercase' as const };
       case 'button':
-        return { fontSize: theme.typography.size.md, fontWeight: theme.typography.weight.bold, textTransform: 'uppercase' as const };
+        return { fontSize: theme.typography.size.md, fontWeight: theme.typography.weight.bold, letterSpacing: 1.5, textTransform: 'uppercase' as const };
       case 'caption':
         return { fontSize: theme.typography.size.xs, fontWeight: theme.typography.weight.regular };
       case 'body':

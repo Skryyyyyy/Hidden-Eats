@@ -1,22 +1,22 @@
 export const colors = {
   // Base
-  primary: '#FF3366', // Neon vibrant red/pink
-  secondary: '#FFB703', // Warm Gold
+  primary: '#f8b11c', // Yellow Accent
+  secondary: '#FF3366', // Pink (relegated to secondary/accent if needed)
   background: {
     light: '#FDFCFB', // Very soft warm white
-    dark: '#0A0A0A', // Deep OLED black
+    dark: '#111111', // Deep black (matching website)
   },
   surface: {
     light: '#FFFFFF',
-    dark: '#141414', // Slightly lighter than background
+    dark: '#1A1A1A', // Slightly lighter than background
   },
   surfaceAlt: {
     light: '#F3F4F6',
-    dark: '#1E1E1E',
+    dark: '#222222',
   },
   surfaceGlass: {
     light: 'rgba(255, 255, 255, 0.75)',
-    dark: 'rgba(10, 10, 10, 0.75)',
+    dark: 'rgba(17, 17, 17, 0.75)',
   },
   text: {
     light: '#111827',
@@ -38,6 +38,6 @@ export const colors = {
   info: '#3B82F6',
 
   // Gradients
-  gradientPrimary: ['#FF3366', '#FF6B6B'],
-  gradientDark: ['#1A1A1A', '#0A0A0A'],
+  gradientPrimary: ['#f8b11c', '#f59e0b'],
+  gradientDark: ['#1A1A1A', '#111111'],
 };

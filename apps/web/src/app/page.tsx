@@ -90,18 +90,18 @@ export default function ResponsiveLandingPage() {
               <Link href="/driver" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <Briefcase className="w-3.5 h-3.5" /> Driver Portal
               </Link>
-              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <MapPin className="w-3.5 h-3.5" /> In-App Map
-              </a>
-              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </Link>
+              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <Radio className="w-3.5 h-3.5" /> Live Radar
-              </a>
-              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </Link>
+              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <Clapperboard className="w-3.5 h-3.5" /> Foodie Reels
-              </a>
-              <a href="#" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </Link>
+              <Link href="/dashboard" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
                 <Bookmark className="w-3.5 h-3.5" /> Collections
-              </a>
+              </Link>
             </div>
           </div>
           
@@ -588,21 +588,22 @@ export default function ResponsiveLandingPage() {
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-6">Legal</h4>
+            <h4 className="font-display text-xl uppercase tracking-widest text-white mb-6">Legal</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Cookie Policy</a></li>
+              <li><Link href="/legal/terms" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Terms of Service</Link></li>
+              <li><Link href="/legal/privacy" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="/legal/cookies" className="text-gray-400 hover:text-[#f8b11c] transition-colors text-sm">Cookie Policy</Link></li>
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10">
-          <p className="text-gray-500 text-xs tracking-wide">© 2026 Hidden Eats. All rights reserved.</p>
-          <div className="flex gap-6 mt-6 md:mt-0">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">Twitter</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">Instagram</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">LinkedIn</a>
-          </div>
+        
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-gray-500 text-sm">© 2026 Hidden Eats. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="https://twitter.com/hiddeneats" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">Twitter</a>
+            <a href="https://instagram.com/hiddeneats" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">Instagram</a>
+            <a href="https://linkedin.com/company/hiddeneats" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-sm font-medium">LinkedIn</a>
+          </div> 
         </div>
       </footer>
 

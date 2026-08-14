@@ -1,6 +1,5 @@
 # Hidden Eats 🍔🥘
 
-![Hidden Eats Landing Page](apps/web/public/landing_screenshot.png)
 
 **Discovering and delivering the best local culinary secrets across Tamil Nadu. Fast, reliable, and always hot.**
 

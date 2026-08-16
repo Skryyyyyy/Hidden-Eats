@@ -1,0 +1,17 @@
+{
+  "short_name": "Hidden Eats",
+  "name": "Hidden Eats — Secret Food Discovery & Delivery",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/explorer",
+  "background_color": "#000000",
+  "theme_color": "#f8b11c",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "Discover and deliver the best local culinary secrets across Tamil Nadu."
+}

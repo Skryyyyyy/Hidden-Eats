@@ -199,3 +199,62 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* ==========================================================================
+   Google Translate Widget Styling & 40px Top Banner Suppression
+   ========================================================================== */
+
+/* Suppress Google top iframe banner so layout doesn't shift down by 40px */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-banner,
+.VIpgJd-y6tV-iT2dbf-haAfa-ofvI5e {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+/* Hide Google attribution popups and hover highlights */
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-text-highlight {
+  display: none !important;
+  visibility: hidden !important;
+  box-shadow: none !important;
+}
+
+/* Custom dark glassmorphism styling for Google Translate widget */
+.goog-te-gadget-simple {
+  background-color: transparent !important;
+  border: none !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+}
+
+.goog-te-gadget-simple span {
+  color: #ffffff !important;
+}
+
+.goog-te-gadget-simple img {
+  display: none !important;
+}
+
+.goog-te-menu-value {
+  color: #ffffff !important;
+  font-family: inherit !important;
+}
+
+.goog-te-menu-value span {
+  color: #ffffff !important;
+}
+

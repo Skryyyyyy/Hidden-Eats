@@ -13,15 +13,20 @@ import {
   Clapperboard
 } from 'lucide-react';
 
+import MultiLangSwitcher from '@/components/MultiLangSwitcher';
+import GoogleTranslateWidget from '@/components/GoogleTranslateWidget';
+import { useLanguage } from '@/context/LanguageContext';
+
 export default function ExplorerNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const explorerNavItems = [
-    { href: '/explorer', label: 'EXPLORE SPOTS', icon: Compass },
-    { href: '/explorer/map', label: 'IN-APP MAP', icon: MapPin },
-    { href: '/explorer/radar', label: 'LIVE RADAR', icon: Radio },
-    { href: '/explorer/reels', label: 'FOODIE REELS', icon: Clapperboard },
-    { href: '/explorer/collections', label: 'COLLECTIONS', icon: Bookmark },
+    { href: '/explorer', label: t('exploreSpots'), icon: Compass },
+    { href: '/explorer/map', label: t('inAppMap'), icon: MapPin },
+    { href: '/explorer/radar', label: t('liveRadar'), icon: Radio },
+    { href: '/explorer/reels', label: t('foodieReels'), icon: Clapperboard },
+    { href: '/explorer/collections', label: t('collections'), icon: Bookmark },
   ];
 
   return (
@@ -49,12 +54,11 @@ export default function ExplorerNav() {
         </Link>
       </div>
 
-      {/* Right Group: Nav Pill + Settings Icon near Collections */}
+      {/* Right Group: Nav Pill + Prominent Multi-Language Switcher + Settings Icon */}
       <div className="hidden xl:flex items-center gap-3">
         <div className="flex items-center bg-black/20 rounded-full p-1 border border-black/20">
           {explorerNavItems.map((item) => {
             const Icon = item.icon;
-            // Consider /explorer the active tab if it's exactly /explorer or if pathname doesn't match others
             const isActive = pathname === item.href || (pathname === '/' && item.href === '/explorer');
 
             return (
@@ -73,6 +77,9 @@ export default function ExplorerNav() {
             );
           })}
         </div>
+
+        {/* Prominent Global Multi-Language Switcher Dropdown */}
+        <MultiLangSwitcher />
 
         {/* Settings Link on the right side next to Collections */}
         <Link 

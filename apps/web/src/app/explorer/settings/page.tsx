@@ -4,9 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import ExplorerNav from '@/components/ExplorerNav';
 import { useTheme } from '@/context/ThemeContext';
+import MultiLangSwitcher from '@/components/MultiLangSwitcher';
+import GoogleTranslateWidget from '@/components/GoogleTranslateWidget';
+import BitmojiAvatarStudio, { BitmojiConfig } from '@/components/BitmojiAvatarStudio';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   User,
   MapPin,
+  Globe,
   Bell,
   Palette,
   Map,
@@ -30,6 +35,8 @@ import {
   ExternalLink,
   HelpCircle,
   AlertTriangle,
+  Camera,
+  Upload,
 } from 'lucide-react';
 
 function ToggleSwitch({
@@ -58,10 +65,12 @@ function ToggleSwitch({
 
 export default function ComprehensiveUserSettingsPage() {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLanguage();
   const isLight = theme === 'light';
 
   const [activeTab, setActiveTab] = useState<
     | 'account'
+    | 'language'
     | 'location'
     | 'notifications'
     | 'appearance'
@@ -75,11 +84,28 @@ export default function ComprehensiveUserSettingsPage() {
     | 'about'
   >('account');
 
-  // Account State
+  // Language & Regional State
+  const [preferredCurrency, setPreferredCurrency] = useState<'INR' | 'USD' | 'EUR'>('INR');
+
+  // Account State & Profile Avatar
   const [fullName, setFullName] = useState('Rahul Sharma');
   const [username, setUsername] = useState('foodie_explorer');
   const [email, setEmail] = useState('explorer@hiddeneats.com');
   const [mobile, setMobile] = useState('+91 98765 43210');
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
+  const [bitmojiConfig, setBitmojiConfig] = useState<BitmojiConfig | undefined>(undefined);
+  const [showBitmojiStudio, setShowBitmojiStudio] = useState(false);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Location State
   const [searchRadius, setSearchRadius] = useState<'2km' | '5km' | '10km' | '20km'>('5km');
@@ -119,18 +145,19 @@ export default function ComprehensiveUserSettingsPage() {
   };
 
   const navCategories = [
-    { id: 'account', label: 'Account & Profile', icon: User, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
-    { id: 'location', label: 'Location & Radius', icon: MapPin, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-    { id: 'notifications', label: 'Push Notifications', icon: Bell, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-    { id: 'appearance', label: 'Appearance & Theme', icon: Palette, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
-    { id: 'maps', label: 'Maps & Navigation', icon: Map, color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' },
-    { id: 'payments', label: 'Payments & History', icon: CreditCard, color: 'text-green-400 bg-green-500/10 border-green-500/20' },
-    { id: 'rewards', label: 'Rewards & Passport', icon: Gift, color: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
-    { id: 'social', label: 'Friends & Social', icon: Users, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' },
-    { id: 'privacy', label: 'Privacy & Security', icon: Lock, color: 'text-red-400 bg-red-500/10 border-red-500/20' },
-    { id: 'support', label: 'Support & Feedback', icon: MessageSquare, color: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' },
-    { id: 'legal', label: 'Legal (Govt Norms)', icon: FileText, color: 'text-slate-300 bg-slate-500/10 border-slate-500/20' },
-    { id: 'about', label: 'About Hidden Eats', icon: Info, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
+    { id: 'account', label: t('accountProfile'), icon: User, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+    { id: 'language', label: t('langRegional'), icon: Globe, color: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' },
+    { id: 'location', label: t('locRadius'), icon: MapPin, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+    { id: 'notifications', label: t('pushNotifications'), icon: Bell, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+    { id: 'appearance', label: t('appearanceTheme'), icon: Palette, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
+    { id: 'maps', label: t('mapsNav'), icon: Map, color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' },
+    { id: 'payments', label: t('paymentsHist'), icon: CreditCard, color: 'text-green-400 bg-green-500/10 border-green-500/20' },
+    { id: 'rewards', label: t('rewardsPassport'), icon: Gift, color: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
+    { id: 'social', label: t('socialFriends'), icon: Users, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' },
+    { id: 'privacy', label: t('privacySecurity'), icon: Lock, color: 'text-red-400 bg-red-500/10 border-red-500/20' },
+    { id: 'support', label: t('supportFeedback'), icon: MessageSquare, color: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' },
+    { id: 'legal', label: t('legalNorms'), icon: FileText, color: 'text-slate-300 bg-slate-500/10 border-slate-500/20' },
+    { id: 'about', label: t('aboutEats'), icon: Info, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
   ];
 
   return (
@@ -140,10 +167,10 @@ export default function ComprehensiveUserSettingsPage() {
       <main className="max-w-7xl mx-auto w-full p-4 sm:p-8 space-y-6 flex-1">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#f59e0b] block mb-1">
-            DINER WORKSPACE CONFIGURATION
+            {t('settingsSub')}
           </span>
           <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-            Settings & Profile Controls
+            {t('settingsTitle')}
           </h1>
         </div>
 
@@ -189,20 +216,72 @@ export default function ComprehensiveUserSettingsPage() {
               {/* 1. Account & Profile */}
               {activeTab === 'account' && (
                 <div className="space-y-4">
-                  <div className={`border rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-5 ${
+                  <div className={`border rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-5 ${
                     isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-[#1c1c1c]'
                   }`}>
-                    <div className="w-16 h-16 rounded-full bg-[#f59e0b] text-black font-extrabold text-2xl flex items-center justify-center shadow-lg shadow-[#f59e0b]/20">
-                      FE
-                    </div>
-                    <div className="flex-1 text-center sm:text-left">
-                      <div className="flex items-center justify-center sm:justify-start gap-2">
-                        <h2 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>@{username}</h2>
-                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30 font-bold">
-                          🧭 Food Explorer Profile
-                        </span>
+                    <div className="flex flex-col sm:flex-row items-center gap-5">
+                      <div className="relative group">
+                        {profileAvatar ? (
+                          <img
+                            src={profileAvatar}
+                            alt="Profile Avatar"
+                            className="w-20 h-20 rounded-full object-cover border-2 border-[#f59e0b] shadow-xl shadow-[#f59e0b]/20"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#f59e0b] to-[#d97706] text-black font-extrabold text-2xl flex items-center justify-center shadow-xl shadow-[#f59e0b]/20 border-2 border-[#f59e0b]">
+                            FE
+                          </div>
+                        )}
+                        <label
+                          htmlFor="avatar-upload"
+                          className="absolute bottom-0 right-0 p-1.5 rounded-full bg-black border border-white/20 text-white hover:bg-[#f59e0b] hover:text-black transition-colors cursor-pointer shadow-md"
+                          title="Upload Custom Photo"
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                        </label>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
                       </div>
-                      <p className="text-xs text-[#777777] mt-1">{email} • 12 Reviews Posted</p>
+
+                      <div className="text-center sm:text-left">
+                        <div className="flex items-center justify-center sm:justify-start gap-2">
+                          <h2 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>@{username}</h2>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30 font-bold">
+                            🧭 Food Explorer Profile
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#777777] mt-1">{email} • 12 Reviews Posted</p>
+                      </div>
+                    </div>
+
+                    {/* Avatar Creation Actions */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <label
+                        htmlFor="avatar-upload-btn"
+                        className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-[#f59e0b]" /> Upload Photo
+                      </label>
+                      <input
+                        id="avatar-upload-btn"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => setShowBitmojiStudio(true)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-black font-bold text-xs shadow-lg shadow-[#f59e0b]/20 flex items-center gap-1.5 transition-all"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> 3D Bitmoji Studio
+                      </button>
                     </div>
                   </div>
 
@@ -250,6 +329,57 @@ export default function ComprehensiveUserSettingsPage() {
                           onChange={(e) => setMobile(e.target.value)}
                           className={`w-full rounded-xl px-3.5 py-2.5 text-xs outline-none ${isLight ? 'bg-slate-50 border border-slate-200 text-slate-900' : 'bg-[#121212] border border-[#222222] text-white'}`}
                         />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Language & Regional Preferences */}
+              {activeTab === 'language' && (
+                <div className={`border rounded-2xl p-6 space-y-6 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-[#1c1c1c]'}`}>
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    🌐 {t('langRegional')}
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-xl border-[#222222] bg-[#121212] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div>
+                        <span className="text-xs font-bold text-white block">{t('primaryLangLabel')}</span>
+                        <span className="text-[11px] text-[#777777]">{t('primaryLangSub')}</span>
+                      </div>
+                      <MultiLangSwitcher />
+                    </div>
+
+                    <div className="p-4 border rounded-xl border-[#222222] bg-[#121212] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div>
+                        <span className="text-xs font-bold text-white block">{t('autoGoogleLabel')}</span>
+                        <span className="text-[11px] text-[#777777]">{t('autoGoogleSub')}</span>
+                      </div>
+                      <GoogleTranslateWidget />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-[#777777] uppercase mb-2">{t('currencyDisplay')}</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { id: 'INR', label: 'Indian Rupee (₹ INR)', symbol: '₹' },
+                          { id: 'USD', label: 'US Dollar ($ USD)', symbol: '$' },
+                          { id: 'EUR', label: 'Euro (€ EUR)', symbol: '€' },
+                        ].map((curr) => (
+                          <button
+                            key={curr.id}
+                            type="button"
+                            onClick={() => setPreferredCurrency(curr.id as any)}
+                            className={`py-3 rounded-xl text-xs font-bold border transition-colors ${
+                              preferredCurrency === curr.id
+                                ? 'bg-[#f59e0b] text-black border-[#f59e0b]'
+                                : 'bg-[#121212] border-[#222222] text-[#888888]'
+                            }`}
+                          >
+                            {curr.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -589,12 +719,25 @@ export default function ComprehensiveUserSettingsPage() {
                 type="submit"
                 className="px-6 py-3 bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs rounded-xl shadow-lg shadow-[#f59e0b]/20 transition-all"
               >
-                Save All Settings & Preferences
+                {t('saveSettings')}
               </button>
             </form>
           </div>
         </div>
       </main>
+
+      {/* Bitmoji SVG 3D Avatar Creator Studio Modal */}
+      {showBitmojiStudio && (
+        <BitmojiAvatarStudio
+          initialConfig={bitmojiConfig}
+          onClose={() => setShowBitmojiStudio(false)}
+          onSave={(avatarSvg, config) => {
+            setProfileAvatar(avatarSvg);
+            setBitmojiConfig(config);
+            setShowBitmojiStudio(false);
+          }}
+        />
+      )}
     </div>
   );
 }

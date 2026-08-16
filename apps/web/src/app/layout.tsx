@@ -7,6 +7,8 @@ import FlashcardSplash from '../components/FlashcardSplash';
 import GlobalThemeToggle from '../components/GlobalThemeToggle';
 import SmoothFollower from '../components/SmoothFollower';
 
+import { LanguageProvider } from '../context/LanguageContext';
+
 export const metadata: Metadata = {
   title: 'Hidden Eats — Food Discovery & Partner Dashboard',
   description: 'Discover hidden gems, off-menu secrets, and curated culinary collections.',
@@ -30,12 +32,14 @@ export default function RootLayout({
       <body className="antialiased text-body font-sans">
         <FlashcardSplash />
         <SmoothFollower />
-        <ThemeProvider>
-          <CartProvider>
-            {children}
-            <GlobalThemeToggle />
-          </CartProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <CartProvider>
+              {children}
+              <GlobalThemeToggle />
+            </CartProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

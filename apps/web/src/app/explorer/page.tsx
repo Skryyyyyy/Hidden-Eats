@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 import ExplorerNav from '@/components/ExplorerNav';
 import {
   Compass, Search, Star, Clock, Filter, SlidersHorizontal, MapPin
@@ -33,21 +34,16 @@ const RESTAURANTS = [
 
 export default function ExplorerPage() {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const isLight = theme === 'light';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [userLocation, setUserLocation] = useState('Fetching Location...');
+  const [userLocation, setUserLocation] = useState<string | null>(null);
 
   useEffect(() => {
-    const lat = localStorage.getItem('userLat');
-    const lng = localStorage.getItem('userLng');
-    if (lat && lng) {
-      setUserLocation(`Location: ${Number(lat).toFixed(3)}, ${Number(lng).toFixed(3)}`);
-    } else {
-      setUserLocation('Default Location');
-    }
-  }, []);
+    setUserLocation(t('defaultLocation'));
+  }, [t]);
 
   const searchResults = searchQuery.trim() === '' ? [] : [
     ...RESTAURANTS.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.cuisines.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -66,7 +62,7 @@ export default function ExplorerPage() {
           isLight ? 'bg-[#FAFAFA]/95 border-black/10' : 'bg-[#111111]/95 border-white/10'
         }`}>
           <div className="flex flex-col items-center lg:items-start">
-            <h2 className="font-display text-3xl md:text-4xl tracking-wide uppercase">Cravings?</h2>
+            <h2 className="font-display text-3xl md:text-4xl tracking-wide uppercase">{t('cravings')}</h2>
             {userLocation && <span className="text-xs text-[#f8b11c] font-bold mt-1 tracking-widest uppercase">{userLocation}</span>}
           </div>
           
@@ -74,7 +70,7 @@ export default function ExplorerPage() {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search for restaurants, cuisines, or dishes..." 
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
@@ -139,19 +135,19 @@ export default function ExplorerPage() {
             <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
               isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
             }`}>
-              <Filter className="w-4 h-4" /> Filters
+              <Filter className="w-4 h-4" /> {t('filters')}
             </button>
             <button className={`flex items-center gap-2 px-5 py-3 rounded-full border text-xs font-bold tracking-widest uppercase transition-colors ${
               isLight ? 'border-black/10 bg-black/5 hover:bg-black/10 text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
             }`}>
-              <SlidersHorizontal className="w-4 h-4" /> Sort
+              <SlidersHorizontal className="w-4 h-4" /> {t('sort')}
             </button>
           </div>
         </div>
 
         {/* Categories */}
         <section className="space-y-6">
-          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>What's on your mind?</h3>
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>{t('whatsOnMind')}</h3>
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x scroll-smooth">
             {CATEGORIES.map((cat, idx) => (
               <div key={idx} className="flex flex-col items-center gap-3 shrink-0 snap-center group cursor-pointer w-24 md:w-32">
@@ -163,7 +159,7 @@ export default function ExplorerPage() {
                 </div>
                 <span className={`text-xs md:text-sm font-bold tracking-wider uppercase transition-colors duration-[400ms] text-center ${
                   isLight ? 'text-gray-600 group-hover:text-black' : 'text-gray-400 group-hover:text-white'
-                }`}>{cat.name}</span>
+                }`}>{t(`cat_${cat.name}`)}</span>
               </div>
             ))}
           </div>
@@ -171,7 +167,7 @@ export default function ExplorerPage() {
 
         {/* Top Chains Carousel */}
         <section className="space-y-6">
-          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>Top restaurant chains near you</h3>
+          <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase ${isLight ? 'text-black/90' : 'text-white/90'}`}>{t('topRestaurants')}</h3>
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x scroll-smooth">
             {RESTAURANTS.slice(0, 5).map((rest) => (
               <Link href={`/restaurant/${rest.id}`} key={rest.id} className="w-[280px] md:w-[320px] shrink-0 snap-center group cursor-pointer space-y-4 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">
@@ -202,7 +198,7 @@ export default function ExplorerPage() {
         <section className="space-y-6">
           <h3 className={`font-display text-2xl md:text-3xl tracking-wide uppercase border-b pb-4 ${
             isLight ? 'text-black/90 border-black/10' : 'text-white/90 border-white/10'
-          }`}>Restaurants to explore right now</h3>
+          }`}>{t('restaurantsExplore')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {RESTAURANTS.map((rest) => (
               <Link href={`/restaurant/${rest.id}`} key={rest.id} className="group cursor-pointer space-y-3 hover:-translate-y-2 transition-transform duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block">

@@ -3,10 +3,7 @@ import './globals.css';
 import { ThemeProvider } from '../context/ThemeContext';
 import { CartProvider } from '../context/CartContext';
 import FlashcardSplash from '../components/FlashcardSplash';
-
 import GlobalThemeToggle from '../components/GlobalThemeToggle';
-import SmoothFollower from '../components/SmoothFollower';
-
 import { LanguageProvider } from '../context/LanguageContext';
 
 export const metadata: Metadata = {
@@ -31,7 +28,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased text-body font-sans">
         <FlashcardSplash />
-        <SmoothFollower />
         <LanguageProvider>
           <ThemeProvider>
             <CartProvider>

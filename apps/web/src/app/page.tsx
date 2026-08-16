@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X, Compass, Radio, Clapperboard, Bookmark, Settings, User, CreditCard, History, Heart, Moon, Bell, MessageSquare, LogOut, Award, Smartphone, Zap, ShieldCheck, ChevronRight, Download, HelpCircle, Truck, Package, ChevronUp, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from '@studio-freight/lenis';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import GlobalThemeToggle from '@/components/GlobalThemeToggle';
@@ -22,6 +25,8 @@ const ParallaxComponent = dynamic(
   () => import('@/components/ui/parallax-scrolling').then((mod) => mod.ParallaxComponent),
   { ssr: false }
 );
+
+import InteractiveFeatures from '@/components/ui/InteractiveFeatures';
 
 
 export default function ResponsiveLandingPage() {
@@ -98,7 +103,82 @@ export default function ResponsiveLandingPage() {
     };
   }, []);
 
+  // GSAP Animations
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
 
+    let lenis: Lenis | null = null;
+    try {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+      lenis.on('scroll', ScrollTrigger.update);
+      const updateRaf = (time: number) => lenis?.raf(time * 1000);
+      gsap.ticker.add(updateRaf);
+      gsap.ticker.lagSmoothing(0);
+    } catch (e) {
+      console.warn("Lenis init deferred", e);
+    }
+
+    // Hero Section
+    const heroTl = gsap.timeline();
+    heroTl.fromTo('.hero-title', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' })
+          .fromTo('.hero-subtitle', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=0.6')
+          .fromTo('.hero-card', { opacity: 0, scale: 0.8, y: 50 }, { opacity: 1, scale: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'back.out(1.5)' }, '-=0.4');
+
+    gsap.to('.hero-title', {
+      y: -100,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero-section',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+
+    // How It Works
+    gsap.fromTo('.how-it-works-card', 
+      { opacity: 0, y: 100, rotation: 5 }, 
+      { opacity: 1, y: 0, rotation: 0, duration: 1, stagger: 0.2, ease: 'power3.out', scrollTrigger: {
+        trigger: '.how-it-works-section',
+        start: 'top 75%',
+      }}
+    );
+
+    // Partner Section
+    gsap.to('.partner-bg', {
+      scale: 1.2,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.partner-section',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+    
+    gsap.to('.ride-bg', {
+      scale: 1.2,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.partner-section',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+
+    // FAQ GSAP logic replaced with Framer Motion
+
+    return () => {
+      const updateRaf = (time: number) => lenis?.raf(time * 1000);
+      gsap.ticker.remove(updateRaf);
+      ScrollTrigger.getAll().forEach(st => st.kill());
+      lenis?.destroy();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center font-sans overflow-x-hidden relative bg-[#111111]">
@@ -110,52 +190,14 @@ export default function ResponsiveLandingPage() {
         HERO SECTION (Full Desktop Resolution & Perfect Alignment)
         ========================================================================= 
       */}
-      <div className="w-full min-h-screen bg-[#671212] flex flex-col relative overflow-hidden">
+      <div className="hero-section w-full min-h-screen bg-[#671212] flex flex-col relative overflow-hidden">
         
         {/* Navigation */}
         <nav className="flex justify-between items-center p-6 md:px-12 md:py-8 relative z-40">
           <div className="flex items-center gap-8 xl:gap-16">
             <div className="text-2xl font-black tracking-tighter text-white">Hidden Eats</div>
             
-            {/* Desktop Links - Updated to match new features */}
-            <div className="hidden xl:flex items-center bg-black/20 backdrop-blur-md p-1.5 rounded-full border border-white/10 ml-4 lg:ml-8">
-              <button 
-                onClick={() => handleProtectedNav('/explorer')} 
-                className="flex items-center gap-2 bg-[#f8b11c] text-black px-5 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#e0a019] transition-colors"
-              >
-                <Compass className="w-3.5 h-3.5" /> Explore Spots
-              </button>
-              <button 
-                onClick={() => handleProtectedNav('/driver')} 
-                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
-              >
-                <Briefcase className="w-3.5 h-3.5" /> Driver Portal
-              </button>
-              <button 
-                onClick={() => handleProtectedNav('/explorer/map')} 
-                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
-              >
-                <MapPin className="w-3.5 h-3.5" /> In-App Map
-              </button>
-              <button 
-                onClick={() => handleProtectedNav('/explorer/radar')} 
-                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
-              >
-                <Radio className="w-3.5 h-3.5" /> Live Radar
-              </button>
-              <button 
-                onClick={() => handleProtectedNav('/explorer/reels')} 
-                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
-              >
-                <Clapperboard className="w-3.5 h-3.5" /> Foodie Reels
-              </button>
-              <button 
-                onClick={() => handleProtectedNav('/explorer/collections')} 
-                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
-              >
-                <Bookmark className="w-3.5 h-3.5" /> Collections
-              </button>
-            </div>
+            {/* Desktop Links (Moved to protected routes) */}
           </div>
           
           <div className="flex items-center gap-6 xl:gap-16">
@@ -283,12 +325,12 @@ export default function ResponsiveLandingPage() {
           <div className="flex flex-col justify-between h-full relative z-20">
             {/* Text Block - Fixed Line Heights */}
             <div className="space-y-4 md:space-y-6 pt-4">
-              <h1 className="font-display text-[5rem] sm:text-[7rem] md:text-[9rem] lg:text-[10rem] xl:text-[12.5rem] leading-[0.95] text-white tracking-tighter drop-shadow-md m-0 p-0">
+              <h1 className="hero-title font-display text-[5rem] sm:text-[7rem] md:text-[9rem] lg:text-[10rem] xl:text-[12.5rem] leading-[0.95] text-white tracking-tighter drop-shadow-md m-0 p-0">
                 DESIGN<br />
                 BEYOND<br />
                 LIMITS.
               </h1>
-              <h2 className="font-display text-4xl sm:text-5xl md:text-[4.5rem] xl:text-[5.5rem] text-white leading-[1.1] tracking-tight drop-shadow-sm max-w-2xl m-0 p-0">
+              <h2 className="hero-subtitle font-display text-4xl sm:text-5xl md:text-[4.5rem] xl:text-[5.5rem] text-white leading-[1.1] tracking-tight drop-shadow-sm max-w-2xl m-0 p-0">
                 WHERE EVERY BITE<br className="hidden md:block" />
                 HITS DIFFERENT
               </h2>
@@ -301,7 +343,7 @@ export default function ResponsiveLandingPage() {
                 { name: 'Pizza', img: '/img/pizza.png' },
                 { name: 'Sushi', img: '/img/sushi.png' }
               ].map((item, idx) => (
-                <div key={idx} className="bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-2 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl overflow-hidden will-change-transform">
+                <div key={idx} className="hero-card bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-2 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl overflow-hidden will-change-transform">
                    <img 
                      src={item.img} 
                      alt={item.name} 
@@ -316,7 +358,7 @@ export default function ResponsiveLandingPage() {
           {/* Right Column (Stacked Cards) */}
           <div className="flex flex-col gap-6 relative z-10 h-full justify-between">
              {/* Tall Card */}
-             <div className="flex-1 min-h-[350px] lg:min-h-0 bg-black rounded-[2rem] overflow-hidden relative group cursor-pointer shadow-2xl hover:shadow-black/50 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform">
+             <div className="hero-card flex-1 min-h-[350px] lg:min-h-0 bg-black rounded-[2rem] overflow-hidden relative group cursor-pointer shadow-2xl hover:shadow-black/50 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform">
                 <img 
                   src="/img/chicken_crunch.png" 
                   alt="Chicken Crunch" 
@@ -360,7 +402,7 @@ export default function ResponsiveLandingPage() {
                    window.location.href = '/login?callbackUrl=/explorer';
                  }
                }}
-               className="min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
+               className="hero-card min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
              >
                 {/* Decorative background circle */}
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
@@ -403,7 +445,7 @@ export default function ResponsiveLandingPage() {
         HOW IT WORKS (Linear Modal Expandable Cards)
         ========================================================================= 
       */}
-      <div className="w-full bg-[#FAFAFA] text-black py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative overflow-hidden">
+      <div className="how-it-works-section w-full bg-[#FAFAFA] text-black py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#f8b11c]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-900/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
@@ -461,7 +503,7 @@ export default function ResponsiveLandingPage() {
                 style={{
                   borderRadius: '24px',
                 }}
-                className="relative flex w-full flex-col overflow-hidden border border-black/10 bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl group text-left"
+                className="how-it-works-card relative flex w-full flex-col overflow-hidden border border-black/10 bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl group text-left"
               >
                 <div className="relative w-full h-56 overflow-hidden bg-black/5 flex items-center justify-center">
                   <div className="absolute top-4 left-4 z-20 text-4xl font-display font-black text-black/20 group-hover:scale-110 transition-transform">
@@ -571,68 +613,16 @@ export default function ResponsiveLandingPage() {
         APP FEATURES SECTION
         ========================================================================= 
       */}
-      <div className="w-full bg-[#111111] py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative border-t border-white/5">
-        <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          
-          <div className="space-y-12">
-            <div>
-              <span className="text-[#f8b11c] font-bold tracking-widest uppercase text-sm mb-4 block">Why Choose Us</span>
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-tight font-black leading-[1.1]">
-                More Than Just<br />Delivery.
-              </h2>
-            </div>
-            
-            <div className="space-y-8">
-              {[
-                { icon: <Zap className="w-6 h-6 text-[#f8b11c]" />, title: 'Lightning Fast', desc: 'Average delivery time of 25 minutes. We take hot food seriously.' },
-                { icon: <MapPin className="w-6 h-6 text-[#f8b11c]" />, title: 'Live Tracking', desc: 'Watch your order travel from the kitchen straight to your door in real-time.' },
-                { icon: <ShieldCheck className="w-6 h-6 text-[#f8b11c]" />, title: 'No Minimum Order', desc: 'Craving just a coffee? We\'ve got you covered. No hidden fees.' }
-              ].map((feat, idx) => (
-                <div key={idx} className="flex gap-6 group">
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#f8b11c]/20 group-hover:border-[#f8b11c]/50 transition-colors duration-300">
-                    {feat.icon}
-                  </div>
-                  <div>
-                    <h4 className="text-white font-bold text-xl mb-2">{feat.title}</h4>
-                    <p className="text-gray-400 text-sm leading-relaxed">{feat.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative hidden md:block">
-             <div className="w-full aspect-square bg-[#f8b11c] rounded-full blur-[120px] opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-             <div className="relative z-10 w-full h-[600px] rounded-[3rem] overflow-hidden border-8 border-[#1a1a1a] shadow-2xl">
-               <img src="/img/pizza.png" alt="App interface" className="w-full h-full object-cover" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-               <div className="absolute bottom-8 left-8 right-8 bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl">
-                 <div className="flex items-center gap-4 mb-4">
-                   <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                     <Truck className="w-6 h-6 text-white" />
-                   </div>
-                   <div>
-                     <h5 className="text-white font-bold text-lg">Out for Delivery</h5>
-                     <p className="text-green-400 text-sm font-medium">Arriving in 12 mins</p>
-                   </div>
-                 </div>
-                 <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                   <div className="w-2/3 h-full bg-green-500 rounded-full"></div>
-                 </div>
-               </div>
-             </div>
-          </div>
-        </div>
-      </div>
+      <InteractiveFeatures />
 
       {/* 
         =========================================================================
         PARTNER / RIDE SECTION (Enhanced)
         ========================================================================= 
       */}
-      <div className="w-full grid grid-cols-1 lg:grid-cols-2 z-20 relative">
+      <div className="partner-section w-full grid grid-cols-1 lg:grid-cols-2 z-20 relative">
         <div className="relative p-12 md:p-24 min-h-[400px] lg:min-h-[500px] flex flex-col justify-center items-start group overflow-hidden">
-          <img src="/img/burger.png" alt="Restaurant Partner" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]" />
+          <img src="/img/burger.png" alt="Restaurant Partner" className="partner-bg absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/30 group-hover:from-black group-hover:to-black/50 transition-colors duration-500"></div>
           
           <h2 className="font-display text-4xl md:text-6xl text-white uppercase font-black mb-6 relative z-10 leading-[1.1]">Grow your<br />Business</h2>
@@ -643,7 +633,7 @@ export default function ResponsiveLandingPage() {
         </div>
         
         <div className="relative p-12 md:p-24 min-h-[400px] lg:min-h-[500px] flex flex-col justify-center items-start group overflow-hidden">
-          <img src="/img/sushi.png" alt="Delivery Rider" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]" />
+          <img src="/img/sushi.png" alt="Delivery Rider" className="ride-bg absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#f8b11c]/95 via-[#f8b11c]/90 to-[#f8b11c]/40 group-hover:from-[#f8b11c] group-hover:to-[#f8b11c]/60 transition-colors duration-500"></div>
           
           <h2 className="font-display text-4xl md:text-6xl text-black uppercase font-black mb-6 relative z-10 leading-[1.1]">Your Ride,<br />Your Rules</h2>
@@ -659,7 +649,7 @@ export default function ResponsiveLandingPage() {
         GET THE APP & FAQ SECTION
         ========================================================================= 
       */}
-      <div className="w-full bg-[#111111] py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative border-t border-white/5">
+      <div className="faq-section w-full bg-[#111111] py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative border-t border-white/5">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           
           {/* FAQ */}
@@ -674,7 +664,14 @@ export default function ResponsiveLandingPage() {
                 { q: "How do I partner my restaurant?", a: "Click 'Partner With Us' above to fill out a quick form. Our onboarding team will contact you within 24 hours." },
                 { q: "Can I track my order?", a: "Yes, our app features real-time live GPS tracking so you can follow your food from the kitchen to your doorstep." }
               ].map((faq, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
+                <motion.div 
+                  key={idx} 
+                  className="faq-item bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                >
                   <button 
                     onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                     className="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors"
@@ -700,13 +697,19 @@ export default function ResponsiveLandingPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
 
           {/* Get App */}
-          <div className="bg-gradient-to-br from-[#1a1a1a] to-black rounded-[3rem] border border-white/10 p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+          <motion.div 
+            className="app-download-card bg-gradient-to-br from-[#1a1a1a] to-black rounded-[3rem] border border-white/10 p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1, type: "spring", bounce: 0.4 }}
+            viewport={{ once: true, margin: "-50px" }}
+          >
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8b11c]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             
             <Smartphone className="w-16 h-16 text-[#f8b11c] mb-8 relative z-10" />
@@ -725,7 +728,7 @@ export default function ResponsiveLandingPage() {
             <div className="mt-12 inline-block bg-[#f8b11c]/20 border border-[#f8b11c]/30 text-[#f8b11c] px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase relative z-10">
               Get 50% Off First Order
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>

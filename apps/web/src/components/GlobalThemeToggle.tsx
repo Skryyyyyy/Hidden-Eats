@@ -10,6 +10,9 @@ export default function GlobalThemeToggle() {
   const isLight = theme === 'light';
   const pathname = usePathname();
 
+  // Hide the theme toggle on the landing page
+  if (pathname === '/') return null;
+
   return (
     <button 
       onClick={toggleTheme}

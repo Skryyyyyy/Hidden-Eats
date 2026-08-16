@@ -7,6 +7,15 @@ export default function FlashcardSplash() {
   const [fadeSplash, setFadeSplash] = useState(false);
 
   useEffect(() => {
+    // Check if splash was already shown in this session
+    if (sessionStorage.getItem('splashShown')) {
+      setShowSplash(false);
+      return;
+    }
+
+    // Mark as shown for future navigations in this session
+    sessionStorage.setItem('splashShown', 'true');
+
     // Start fading out after 1.5 seconds
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);

@@ -16,7 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/linear-modal';
-import { ParallaxComponent } from '@/components/ui/parallax-scrolling';
+import dynamic from 'next/dynamic';
+
+const ParallaxComponent = dynamic(
+  () => import('@/components/ui/parallax-scrolling').then((mod) => mod.ParallaxComponent),
+  { ssr: false }
+);
 
 
 export default function ResponsiveLandingPage() {

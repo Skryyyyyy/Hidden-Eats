@@ -2,6 +2,16 @@
 const nextConfig = {
   transpilePackages: ["@hidden-eats/shared", "@hidden-eats/supabase-client"],
   reactStrictMode: true,
+  swcMinify: true,
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
   async headers() {
     return [
       {

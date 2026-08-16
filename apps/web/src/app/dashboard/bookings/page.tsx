@@ -1,188 +1,171 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Sidebar from '@/components/Sidebar';
-import { useTheme } from '@/context/ThemeContext';
-import { createClient } from '@/lib/supabase';
-import { Calendar, Users, Clock, Check, X, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Clock, Users, CheckCircle, XCircle, Search, Filter, PhoneCall } from 'lucide-react';
 
-interface BookingRecord {
+interface Booking {
   id: string;
-  userName: string;
-  partySize: number;
-  time: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  specialRequests: string;
+  guestName: string;
+  phone: string;
+  guestsCount: number;
+  timeSlot: string;
+  date: string;
+  specialNotes?: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 }
 
-export default function NotionPartnerBookingsPage() {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+const INITIAL_BOOKINGS: Booking[] = [
+  {
+    id: 'BK-101',
+    guestName: 'Rahul Sharma',
+    phone: '+91 98765 43210',
+    guestsCount: 4,
+    timeSlot: ' Tonight, 8:30 PM',
+    date: '16 Aug 2026',
+    specialNotes: 'Prefers quiet corner table for birthday celebration.',
+    status: 'PENDING',
+  },
+  {
+    id: 'BK-102',
+    guestName: 'Priya Patel',
+    phone: '+91 91234 56789',
+    guestsCount: 2,
+    timeSlot: ' Tomorrow, 1:00 PM',
+    date: '17 Aug 2026',
+    specialNotes: 'Request window seating.',
+    status: 'CONFIRMED',
+  },
+  {
+    id: 'BK-103',
+    guestName: 'Vikram Singh',
+    phone: '+91 99887 76655',
+    guestsCount: 6,
+    timeSlot: ' 18 Aug, 9:00 PM',
+    date: '18 Aug 2026',
+    status: 'CONFIRMED',
+  },
+];
 
-  const [bookings, setBookings] = useState<BookingRecord[]>([
-    {
-      id: 'b-1',
-      userName: 'Rahul Sharma',
-      partySize: 4,
-      time: 'Tonight at 8:30 PM',
-      status: 'pending',
-      specialRequests: 'Anniversary celebration, quiet table requested.',
-    },
-    {
-      id: 'b-2',
-      userName: 'Priya Patel',
-      partySize: 2,
-      time: 'Tomorrow at 1:00 PM',
-      status: 'confirmed',
-      specialRequests: 'Window seating if available.',
-    },
-    {
-      id: 'b-3',
-      userName: 'Vikram Singh',
-      partySize: 6,
-      time: 'Aug 7 at 9:00 PM',
-      status: 'confirmed',
-      specialRequests: 'High chair required.',
-    },
-  ]);
+export default function BookingsManagementPage() {
+  const [bookings, setBookings] = useState<Booking[]>(INITIAL_BOOKINGS);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const supabase = createClient();
-
-  useEffect(() => {
-    const loadBookings = async () => {
-      const { data, error } = await supabase.from('bookings').select('*');
-      if (!error && data && data.length > 0) {
-        setBookings(
-          data.map((b: any) => ({
-            id: b.id,
-            userName: b.user_id ? `User #${b.user_id.slice(0, 5)}` : 'Diner',
-            partySize: b.party_size,
-            time: new Date(b.booking_time).toLocaleString(),
-            status: b.status,
-            specialRequests: b.special_requests || '',
-          }))
-        );
-      }
-    };
-    loadBookings();
-  }, [supabase]);
-
-  const updateStatus = async (id: string, newStatus: 'confirmed' | 'cancelled') => {
-    setBookings(bookings.map((b) => (b.id === id ? { ...b, status: newStatus } : b)));
-    try {
-      await supabase.from('bookings').update({ status: newStatus }).eq('id', id);
-    } catch (e) {
-      console.log('Status updated locally');
-    }
+  const updateBookingStatus = (id: string, status: Booking['status']) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, status } : b))
+    );
   };
 
+  const filteredBookings = bookings.filter(
+    (b) =>
+      b.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.phone.includes(searchQuery)
+  );
+
   return (
-    <div className={`min-h-screen flex font-sans antialiased text-body transition-colors ${
-      isLight ? 'bg-[#FAFAFA] text-[#111111]' : 'bg-[#0A0A0A] text-white'
-    }`}>
-      <Sidebar />
+    <div className="animate-fade-in max-w-6xl mx-auto space-y-8">
+      
+      {/* Header Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#141414] border border-white/10 p-6 rounded-3xl shadow-xl">
+        <div>
+          <span className="text-[10px] font-bold text-[#f8b11c] uppercase tracking-widest block mb-1">
+            Dine-In Reservations
+          </span>
+          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
+            Table Seating & Guests Pipeline
+          </h1>
+        </div>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className={`h-20 px-8 flex items-center justify-between sticky top-0 z-20 transition-all border-b glass-header ${
-          isLight ? 'border-black/5 bg-[#FAFAFA]/70' : 'border-white/5 bg-[#0A0A0A]/70'
-        }`}>
-          <div className="flex items-center gap-2 text-label text-[11px] uppercase tracking-widest font-bold">
-            <Link href="/dashboard" className={`transition-colors ${isLight ? 'text-[#666666] hover:text-[#111111]' : 'text-[#888888] hover:text-white'}`}>Dashboard</Link>
-            <ChevronRight className="w-3 h-3 opacity-50" />
-            <span className={isLight ? 'text-[#111111] font-bold' : 'text-white font-bold'}>Table Reservations</span>
-          </div>
-
-          <Link href="/dashboard" className={`text-label text-[11px] uppercase tracking-widest font-bold transition-colors ${
-            isLight ? 'text-[#666666] hover:text-[#111111]' : 'text-[#888888] hover:text-white'
-          }`}>
-            ← Back to Overview
-          </Link>
-        </header>
-
-        <main className="p-6 sm:p-12 space-y-8 max-w-6xl mx-auto w-full animate-fade-in">
-          <div>
-            <h1 className={`text-h1 text-4xl tracking-tight mb-2 ${isLight ? 'text-[#111111]' : 'text-white'}`}>
-              Table Reservations
-            </h1>
-            <p className="text-body text-[13px] text-[#666666] dark:text-[#aaaaaa]">
-              Review and manage table reservation requests in real-time.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {bookings.map((b) => (
-              <div
-                key={b.id}
-                className={`border rounded-[32px] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 transition-all shadow-sm hover:shadow-md ${
-                  isLight ? 'bg-white border-black/5' : 'bg-[#111111] border-white/5'
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <span className={`text-card-title text-base ${isLight ? 'text-[#111111]' : 'text-white'}`}>{b.userName}</span>
-                    <span className={`text-label text-[11px] px-3 py-1 rounded-2xl border font-bold flex items-center gap-1.5 ${
-                      isLight ? 'bg-[#FAFAFA] border-black/5 text-[#666666]' : 'bg-[#0A0A0A] border-white/5 text-[#888888]'
-                    }`}>
-                      <Users className="w-3.5 h-3.5" /> {b.partySize} Guests
-                    </span>
-                    <span
-                      className={`text-label text-[10px] uppercase tracking-wider px-3 py-1 rounded-2xl font-bold border ${
-                        b.status === 'confirmed'
-                          ? isLight ? 'bg-[#DCFCE7] text-[#16A34A] border-[#BBF7D0]' : 'bg-[#092615] text-[#10b981] border-[#0f4424]'
-                          : b.status === 'cancelled'
-                          ? isLight ? 'bg-[#FEE2E2] text-[#DC2626] border-[#FECACA]' : 'bg-[#260909] text-red-400 border-[#440f0f]'
-                          : isLight ? 'bg-[#FEF3C7] text-[#D97706] border-[#FDE68A]' : 'bg-[#241a08] text-[#f59e0b] border-[#44300a]'
-                      }`}
-                    >
-                      ● {b.status}
-                    </span>
-                  </div>
-
-                  <p className={`text-body text-[13px] flex items-center gap-1.5 ${
-                    isLight ? 'text-[#4B5563]' : 'text-[#aaaaaa]'
-                  }`}>
-                    <Clock className="w-4 h-4" /> {b.time}
-                  </p>
-                  
-                  {b.specialRequests && (
-                    <div className={`mt-3 p-3 rounded-[24px] border text-body text-[13px] italic ${
-                      isLight ? 'bg-[#FAFAFA] border-[#FCA5A5]/30 text-[#666666]' : 'bg-[#0A0A0A] border-[#441010]/50 text-[#888888]'
-                    }`}>
-                      <span className="font-bold opacity-70">Note:</span> "{b.specialRequests}"
-                    </div>
-                  )}
-                </div>
-
-                {b.status === 'pending' && (
-                  <div className="flex flex-row sm:flex-col lg:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
-                    <button
-                      onClick={() => updateStatus(b.id, 'confirmed')}
-                      className={`flex-1 sm:flex-none px-5 py-2.5 rounded-[24px] text-label text-[11px] uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-                        isLight
-                          ? 'bg-[#16A34A] hover:bg-[#15803D] text-white shadow-[#16A34A]/25'
-                          : 'bg-[#10b981] hover:bg-[#059669] text-black shadow-[#10b981]/25'
-                      }`}
-                    >
-                      <Check className="w-4 h-4" /> Confirm Table
-                    </button>
-                    <button
-                      onClick={() => updateStatus(b.id, 'cancelled')}
-                      className={`flex-1 sm:flex-none px-5 py-2.5 rounded-[24px] text-label text-[11px] uppercase tracking-wider font-bold border transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-                        isLight
-                          ? 'bg-white border-[#FCA5A5] text-[#DC2626] hover:bg-[#FEE2E2]'
-                          : 'bg-[#111111] border-[#441010] text-[#ef4444] hover:bg-[#1a0f0f]'
-                      }`}
-                    >
-                      <X className="w-4 h-4" /> Decline
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </main>
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search guest or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#f8b11c] transition-colors"
+          />
+        </div>
       </div>
+
+      {/* Bookings Table / Cards */}
+      <div className="bg-[#141414] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/10 text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-black/20">
+                <th className="p-5">Guest Info</th>
+                <th className="p-5">Party Size</th>
+                <th className="p-5">Date & Time</th>
+                <th className="p-5">Special Notes</th>
+                <th className="p-5">Status</th>
+                <th className="p-5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-xs font-medium text-gray-300">
+              {filteredBookings.map((b) => (
+                <tr key={b.id} className="hover:bg-white/5 transition-colors">
+                  <td className="p-5">
+                    <span className="font-bold text-white block text-sm">{b.guestName}</span>
+                    <span className="text-[10px] font-mono text-gray-500 flex items-center gap-1 mt-0.5">
+                      <PhoneCall className="w-3 h-3 text-[#f8b11c]" /> {b.phone}
+                    </span>
+                  </td>
+
+                  <td className="p-5">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-[#f8b11c]" /> {b.guestsCount} Guests
+                    </span>
+                  </td>
+
+                  <td className="p-5">
+                    <span className="text-white font-bold block">{b.timeSlot}</span>
+                    <span className="text-[10px] text-gray-500">{b.date}</span>
+                  </td>
+
+                  <td className="p-5 max-w-xs truncate text-gray-400">
+                    {b.specialNotes || 'Standard seating'}
+                  </td>
+
+                  <td className="p-5">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+                        b.status === 'CONFIRMED'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : b.status === 'CANCELLED'
+                          ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                          : 'bg-[#f8b11c]/10 text-[#f8b11c] border-[#f8b11c]/30'
+                      }`}
+                    >
+                      {b.status}
+                    </span>
+                  </td>
+
+                  <td className="p-5 text-right">
+                    {b.status === 'PENDING' && (
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => updateBookingStatus(b.id, 'CONFIRMED')}
+                          className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" /> Approve
+                        </button>
+                        <button
+                          onClick={() => updateBookingStatus(b.id, 'CANCELLED')}
+                          className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                        >
+                          <XCircle className="w-3.5 h-3.5" /> Reject
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   );
 }

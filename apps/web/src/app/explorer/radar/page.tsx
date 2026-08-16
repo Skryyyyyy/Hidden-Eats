@@ -55,6 +55,34 @@ export default function LiveCrowdRadarPage() {
     },
   ]);
 
+  React.useEffect(() => {
+    // Automatically fetch ML Model extracted hidden spots from backend database
+    async function fetchMlExtractedSpots() {
+      try {
+        const res = await fetch('/api/scrape-youtube');
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const mlSpots = json.data.map((item: any, idx: number) => ({
+            id: item.id || idx + 100,
+            name: item.extractedShopName,
+            location: item.extractedLocationText,
+            crowd: 'AI ML Discovered',
+            crowdColor: 'bg-amber-500/10 text-[#f8b11c] border-amber-500/30',
+            waitTime: item.signatureDish || 'Secret Dish',
+            lastUpdated: `Extracted via Whisper ASR + SpaCy NER (${(item.confidenceScore * 100).toFixed(0)}% Match)`,
+            distance: '1.8 km away',
+            activeDrivers: 6,
+            coords: { x: `${35 + idx * 20}%`, y: `${30 + idx * 22}%` },
+          }));
+          setSpots((prev) => [...mlSpots, ...prev]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch ML extracted spots from backend:', err);
+      }
+    }
+    fetchMlExtractedSpots();
+  }, []);
+
   const handleCheckIn = () => {
     setCheckInSuccess(true);
     setTimeout(() => setCheckInSuccess(false), 2500);

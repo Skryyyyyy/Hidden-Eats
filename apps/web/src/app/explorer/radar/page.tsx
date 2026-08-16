@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import ExplorerNav from '@/components/ExplorerNav';
 import { useTheme } from '@/context/ThemeContext';
-import { Radio, Clock, Users, MapPin, Navigation, Check, ShieldCheck, Flame } from 'lucide-react';
+import YouTubeScraperModal from '@/components/YouTubeScraperModal';
+import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
+import { Radio, Clock, Users, MapPin, Navigation, Check, ShieldCheck, Flame, Youtube, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function LiveCrowdRadarPage() {
@@ -11,9 +13,10 @@ export default function LiveCrowdRadarPage() {
   const isLight = theme === 'light';
 
   const [checkInSuccess, setCheckInSuccess] = useState(false);
+  const [showScraperModal, setShowScraperModal] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<number | null>(0);
 
-  const spots = [
+  const [spots, setSpots] = useState([
     {
       id: 1,
       name: 'Grand Secret Kitchen',
@@ -50,11 +53,28 @@ export default function LiveCrowdRadarPage() {
       activeDrivers: 3,
       coords: { x: '30%', y: '70%' },
     },
-  ];
+  ]);
 
   const handleCheckIn = () => {
     setCheckInSuccess(true);
     setTimeout(() => setCheckInSuccess(false), 2500);
+  };
+
+  const handleAddExtractedSpot = (scraped: ScrapedHiddenShop) => {
+    const newSpot = {
+      id: Date.now(),
+      name: scraped.extractedShopName,
+      location: scraped.extractedLocationText,
+      crowd: 'AI Discovered Gem',
+      crowdColor: 'bg-amber-500/10 text-[#f8b11c] border-amber-500/30',
+      waitTime: 'Secret Spot',
+      lastUpdated: 'Extracted from YouTube NLP Engine',
+      distance: '2.1 km away',
+      activeDrivers: 5,
+      coords: { x: '50%', y: '45%' },
+    };
+    setSpots([newSpot, ...spots]);
+    setSelectedSpot(0);
   };
 
   return (
@@ -77,12 +97,21 @@ export default function LiveCrowdRadarPage() {
             </p>
           </div>
 
-          <button
-            onClick={handleCheckIn}
-            className="px-5 py-3 bg-[#f8b11c] hover:bg-[#e0a019] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center gap-2 shrink-0 shadow-lg"
-          >
-            <Users className="w-4 h-4" /> Post Live Check-In
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setShowScraperModal(true)}
+              className="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-lg cursor-pointer"
+            >
+              <Youtube className="w-4 h-4 text-white" /> AI Scrape YouTube Food Spot
+            </button>
+
+            <button
+              onClick={handleCheckIn}
+              className="px-5 py-3 bg-[#f8b11c] hover:bg-[#e0a019] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center gap-2 shrink-0 shadow-lg cursor-pointer"
+            >
+              <Users className="w-4 h-4" /> Post Live Check-In
+            </button>
+          </div>
         </div>
 
         {checkInSuccess && (
@@ -196,6 +225,14 @@ export default function LiveCrowdRadarPage() {
 
         </div>
       </main>
+
+      {/* AI YouTube Scraper & NLP Location Extraction Modal */}
+      {showScraperModal && (
+        <YouTubeScraperModal
+          onClose={() => setShowScraperModal(false)}
+          onSpotExtracted={handleAddExtractedSpot}
+        />
+      )}
     </div>
   );
 }

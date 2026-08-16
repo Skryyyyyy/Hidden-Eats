@@ -47,8 +47,18 @@ export const ProfileScreen = () => {
             <View style={styles.profileInfo}>
               <Typography variant="h2" color={theme.colors.text.dark}>Alex Hunter</Typography>
               <Typography variant="body" color={theme.colors.primary} style={{ fontWeight: 'bold', marginTop: 4 }}>
-                Local Explorer
+                Local Explorer • 🌐 EN | 🇮🇳 TA | 🇮🇳 HI
               </Typography>
+            </View>
+
+            {/* Bitmoji & AI Scraper Trigger Buttons */}
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#f59e0b', paddingVertical: 8, borderRadius: 10, alignItems: 'center' }}>
+                <Typography variant="caption" color="#000000" style={{ fontWeight: 'bold' }}>🎨 3D Bitmoji Studio</Typography>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#ef4444', paddingVertical: 8, borderRadius: 10, alignItems: 'center' }}>
+                <Typography variant="caption" color="#ffffff" style={{ fontWeight: 'bold' }}>🎥 Scrape YT Food Spot</Typography>
+              </TouchableOpacity>
             </View>
 
             {/* XP Progress Bar */}

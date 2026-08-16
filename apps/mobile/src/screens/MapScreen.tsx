@@ -16,8 +16,9 @@ interface Props {
   navigation: MapScreenNavigationProp;
 }
 
-// Dummy data highlighting niche street food and small stalls
+// Dummy data highlighting niche street food, small stalls, and AI ML extracted spots
 const NEARBY_STALLS = [
+  { id: 'ml_1', name: 'Sri Balaji Mutton Mess (AI ML Discovered)', rating: '4.9', distance: '180m', type: 'AI ML Spot', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&q=80', description: 'Extracted via OpenAI Whisper ASR & SpaCy NER from YouTube vlogger audio.', latitude: 34.0535, longitude: -118.2440 },
   { id: '1', name: 'Raju\'s Midnight Dosa Cart', rating: '4.9', distance: '150m', type: 'Street Cart', image: 'https://images.unsplash.com/photo-1626804475297-41609ea064eb?w=400&q=80', description: 'Legendary crispy dosas served till 3 AM.', latitude: 34.0522, longitude: -118.2437 },
   { id: '2', name: 'Amma\'s Filter Coffee', rating: '4.8', distance: '300m', type: 'Tiny Cafe', image: 'https://images.unsplash.com/photo-1621287950201-92582dfd663e?w=400&q=80', description: 'Authentic frothy degree coffee in a brass dabarah.', latitude: 34.0532, longitude: -118.2447 },
   { id: '3', name: 'Hidden Biryani Master', rating: '5.0', distance: '450m', type: 'Home Kitchen', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&q=80', description: 'Secret wood-fired biryani behind the post office.', latitude: 34.0512, longitude: -118.2427 },

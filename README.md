@@ -23,6 +23,18 @@ Hidden Eats is a modern food discovery and delivery platform dedicated to uncove
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Backend/DB**: [Supabase](https://supabase.com/)
 
+## 🛡️ Security & Zero-Cost Cryptography
+
+Hidden Eats enforces enterprise-grade security standards with zero external licensing costs:
+
+- **AES-256-GCM Payload Cryptography**: Native browser `window.crypto.subtle` (Web Crypto API) client-side encryption for sensitive payload fields prior to transmission (`apps/web/src/lib/crypto.ts`). Obsolete DES is strictly prohibited.
+- **Supabase Database RLS**: PostgreSQL Row Level Security policies guarding `users`, `orders`, `restaurants`, and `reviews` tables (`supabase/migrations/20260816_security_rls_policies.sql`).
+- **Database Column Encryption (`pgcrypto`)**: Column-level encryption at rest using PostgreSQL `pgcrypto` extension for GSTINs, licenses, and sensitive user records.
+- **Edge Route Protection Middleware**: Next.js `middleware.ts` server-side route guarding protecting `/dashboard/*`, `/driver/*`, `/checkout/*`, and `/orders/*`.
+- **HTTP Security Headers**: Enforced `Content-Security-Policy` (CSP), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, and `HSTS` in `next.config.js`.
+- **HMAC-SHA256 Webhook Signatures**: Timing-safe HMAC-SHA256 signature verification for payment webhooks and partner callbacks (`apps/web/src/lib/security.ts`).
+- **Input Validation & Anti-XSS**: Zod schema validation and XSS string sanitization across all forms and API endpoints.
+
 ## 📂 Project Structure
 
 This project is set up as a Turborepo monorepo:

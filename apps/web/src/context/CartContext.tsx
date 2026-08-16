@@ -8,6 +8,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   isVeg?: boolean;
+  image?: string;
 };
 
 type CartContextType = {

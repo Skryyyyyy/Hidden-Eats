@@ -5,6 +5,7 @@ import { CartProvider } from '../context/CartContext';
 import FlashcardSplash from '../components/FlashcardSplash';
 
 import GlobalThemeToggle from '../components/GlobalThemeToggle';
+import SmoothFollower from '../components/SmoothFollower';
 
 export const metadata: Metadata = {
   title: 'Hidden Eats — Food Discovery & Partner Dashboard',
@@ -28,6 +29,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased text-body font-sans">
         <FlashcardSplash />
+        <SmoothFollower />
         <ThemeProvider>
           <CartProvider>
             {children}

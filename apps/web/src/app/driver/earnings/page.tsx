@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Wallet, TrendingUp, Clock, ChevronRight, Download } from 'lucide-react';
+import { Wallet, TrendingUp, Clock, ChevronRight, Download, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DriverEarningsPage() {

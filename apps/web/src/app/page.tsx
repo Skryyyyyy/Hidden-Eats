@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X, Compass, Radio, Clapperboard, Bookmark, Settings, User, CreditCard, History, Heart, Moon, Bell, MessageSquare, LogOut, Award, Smartphone, Zap, ShieldCheck, ChevronRight, Download, HelpCircle, Truck, Package, ChevronUp } from 'lucide-react';
+import { ArrowUpRight, Search, Star, Clock, Filter, SlidersHorizontal, MapPin, Menu as MenuIcon, ChevronDown, Home, Briefcase, X, Compass, Radio, Clapperboard, Bookmark, Settings, User, CreditCard, History, Heart, Moon, Bell, MessageSquare, LogOut, Award, Smartphone, Zap, ShieldCheck, ChevronRight, Download, HelpCircle, Truck, Package, ChevronUp, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import GlobalThemeToggle from '@/components/GlobalThemeToggle';
+import {
+  Dialog,
+  DialogClose,
+  DialogContainer,
+  DialogContent,
+  DialogDescription,
+  DialogImage,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/linear-modal';
+import { ParallaxComponent } from '@/components/ui/parallax-scrolling';
 
 
 export default function ResponsiveLandingPage() {
@@ -20,8 +31,27 @@ export default function ResponsiveLandingPage() {
   const [currentLocation, setCurrentLocation] = useState('Chennai');
   const [isLocating, setIsLocating] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  const handleProtectedNav = async (targetUrl: string, isLocationAction: boolean = false) => {
+    try {
+      const { createClient } = await import('@/lib/supabase');
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        if (isLocationAction) {
+          setIsLocationModalOpen(true);
+        } else {
+          window.location.href = targetUrl;
+        }
+      } else {
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(targetUrl)}`;
+      }
+    } catch {
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(targetUrl)}`;
+    }
+  };
 
   const handleUseGPS = () => {
     setIsLocating(true);
@@ -84,24 +114,42 @@ export default function ResponsiveLandingPage() {
             
             {/* Desktop Links - Updated to match new features */}
             <div className="hidden xl:flex items-center bg-black/20 backdrop-blur-md p-1.5 rounded-full border border-white/10 ml-4 lg:ml-8">
-              <Link href="/explorer" className="flex items-center gap-2 bg-[#f8b11c] text-black px-5 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest shadow-lg">
+              <button 
+                onClick={() => handleProtectedNav('/explorer')} 
+                className="flex items-center gap-2 bg-[#f8b11c] text-black px-5 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#e0a019] transition-colors"
+              >
                 <Compass className="w-3.5 h-3.5" /> Explore Spots
-              </Link>
-              <Link href="/driver" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </button>
+              <button 
+                onClick={() => handleProtectedNav('/driver')} 
+                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 <Briefcase className="w-3.5 h-3.5" /> Driver Portal
-              </Link>
-              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </button>
+              <button 
+                onClick={() => handleProtectedNav('/explorer/map')} 
+                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 <MapPin className="w-3.5 h-3.5" /> In-App Map
-              </Link>
-              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </button>
+              <button 
+                onClick={() => handleProtectedNav('/explorer/radar')} 
+                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 <Radio className="w-3.5 h-3.5" /> Live Radar
-              </Link>
-              <Link href="/explorer" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </button>
+              <button 
+                onClick={() => handleProtectedNav('/explorer/reels')} 
+                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 <Clapperboard className="w-3.5 h-3.5" /> Foodie Reels
-              </Link>
-              <Link href="/dashboard" className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              </button>
+              <button 
+                onClick={() => handleProtectedNav('/explorer/collections')} 
+                className="flex items-center gap-2 text-white/80 hover:text-white px-4 py-2.5 rounded-full text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 <Bookmark className="w-3.5 h-3.5" /> Collections
-              </Link>
+              </button>
             </div>
           </div>
           
@@ -109,7 +157,7 @@ export default function ResponsiveLandingPage() {
             {/* Location (Hidden on mobile) */}
             <div 
               className="hidden xl:flex items-start gap-6 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
-              onClick={() => setIsLocationModalOpen(true)}
+              onClick={() => handleProtectedNav('/explorer', true)}
             >
               {/* Icon and City/State */}
               <div className="flex items-start gap-2.5 mt-0.5">
@@ -347,7 +395,7 @@ export default function ResponsiveLandingPage() {
 
       {/* 
         =========================================================================
-        HOW IT WORKS (Enhanced)
+        HOW IT WORKS (Linear Modal Expandable Cards)
         ========================================================================= 
       */}
       <div className="w-full bg-[#FAFAFA] text-black py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative overflow-hidden">
@@ -360,34 +408,158 @@ export default function ResponsiveLandingPage() {
           <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tight font-black">How It Works</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 w-full max-w-6xl relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 w-full max-w-6xl relative z-10">
           {[
-            { step: '01', title: 'Discover', desc: 'Find hidden gems and top-rated local spots around Tamil Nadu.', icon: <Search className="w-10 h-10 text-white" />, img: '/img/food_general.png', color: 'bg-black' },
-            { step: '02', title: 'Order', desc: 'Seamless in-app ordering with secure payments and real-time tracking.', icon: <Smartphone className="w-10 h-10 text-black" />, img: '/img/burger.png', color: 'bg-[#f8b11c]' },
-            { step: '03', title: 'Enjoy', desc: 'Fast, reliable delivery straight to your door. Hot and fresh.', icon: <Package className="w-10 h-10 text-white" />, img: '/img/pizza.png', color: 'bg-red-900' }
-          ].map((item, idx) => (
-            <div key={idx} className="flex flex-col items-center text-center group">
-              <div className="relative mb-12">
-                {/* Large Number Background */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[8rem] font-display text-black/5 font-black leading-none group-hover:scale-110 transition-transform duration-700">{item.step}</div>
-                
-                {/* Image Circle */}
-                <div className="w-40 h-40 rounded-full overflow-hidden shadow-2xl relative z-10 border-4 border-white group-hover:-translate-y-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                  <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            {
+              id: 1,
+              step: '01',
+              title: 'Discover',
+              shortDesc: 'Find hidden gems and top-rated local spots around Tamil Nadu.',
+              description: 'Immerse yourself in our cutting-edge food discovery engine designed to showcase authentic local spots and secret off-menu items with unparalleled clarity and style. Filter through high-resolution dishes, explore chef recommendations, and uncover exclusive culinary spots not listed on standard food delivery apps across Tamil Nadu.',
+              tags: ['Hidden Gems', 'Secret Menus', 'Tamil Nadu', 'Chef Specials', 'Local Eats'],
+              icon: <Search className="w-10 h-10 text-white" />,
+              img: '/img/food_general.png',
+              color: 'bg-black'
+            },
+            {
+              id: 2,
+              step: '02',
+              title: 'Order',
+              shortDesc: 'Seamless in-app ordering with secure payments and real-time tracking.',
+              description: 'Embark on a seamless culinary journey with state-of-the-art in-app ordering. Spin through dynamic restaurant menus, reserve dining tables, or get express home delivery with zero hidden fees. Our platform integrates real-time GPS tracking feeds, showcasing everything from kitchen preparation states to courier arrival.',
+              tags: ['In-App Ordering', 'Real-time Tracking', 'Table Booking', 'Instant Pay'],
+              icon: <Smartphone className="w-10 h-10 text-black" />,
+              img: '/img/burger.png',
+              color: 'bg-[#f8b11c]'
+            },
+            {
+              id: 3,
+              step: '03',
+              title: 'Enjoy',
+              shortDesc: 'Fast, reliable delivery straight to your door. Hot and fresh.',
+              description: 'Transform your dining experience with hot, fresh delivery delivered straight to your door in under 30 minutes. Enjoy exclusive foodie perks, accumulate loyalty rewards, and unlock secret food badges with every single order you place on Hidden Eats.',
+              tags: ['Express Delivery', 'Hot & Fresh', 'VIP Rewards', 'Foodie Perks'],
+              icon: <Package className="w-10 h-10 text-white" />,
+              img: '/img/pizza.png',
+              color: 'bg-red-900'
+            }
+          ].map((item) => (
+            <Dialog
+              key={item.id}
+              transition={{
+                type: 'spring',
+                bounce: 0.05,
+                duration: 0.5,
+              }}
+            >
+              <DialogTrigger
+                style={{
+                  borderRadius: '24px',
+                }}
+                className="relative flex w-full flex-col overflow-hidden border border-black/10 bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl group text-left"
+              >
+                <div className="relative w-full h-56 overflow-hidden bg-black/5 flex items-center justify-center">
+                  <div className="absolute top-4 left-4 z-20 text-4xl font-display font-black text-black/20 group-hover:scale-110 transition-transform">
+                    {item.step}
+                  </div>
+                  <DialogImage
+                    src={item.img}
+                    alt={item.title}
+                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className={`absolute bottom-3 right-3 w-12 h-12 rounded-full ${item.color} flex items-center justify-center shadow-lg z-20 group-hover:rotate-12 transition-transform`}>
+                    {item.icon}
+                  </div>
                 </div>
-                
-                {/* Icon Badge */}
-                <div className={`absolute -bottom-4 -right-4 w-16 h-16 rounded-full ${item.color} flex items-center justify-center shadow-xl z-20 group-hover:rotate-12 transition-transform duration-500`}>
-                  {item.icon}
+
+                <div className="flex grow flex-col justify-between p-6 relative">
+                  <div>
+                    <DialogTitle className="text-foreground font-display text-3xl font-bold uppercase tracking-tight text-black mb-2">
+                      {item.title}
+                    </DialogTitle>
+                    <p className="text-black/60 text-sm font-medium leading-relaxed">
+                      {item.shortDesc}
+                    </p>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between pt-4 border-t border-black/5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#f8b11c]">Click to Expand</span>
+                    <div className="p-2 bg-black/5 hover:bg-black/10 rounded-lg transition-colors">
+                      <Plus className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <h3 className="font-display text-3xl uppercase font-bold mb-4">{item.title}</h3>
-              <p className="text-black/60 font-medium leading-relaxed max-w-[280px]">{item.desc}</p>
-            </div>
+              </DialogTrigger>
+
+              <DialogContainer
+                className="pt-12 md:pt-20"
+                overlayClassName="dark:bg-[radial-gradient(125%_125%_at_50%_10%,#050505_40%,#1b1b1b_100%)] bg-[radial-gradient(125%_125%_at_50%_10%,#ffffff_40%,#b1b1b1_100%)]"
+              >
+                <DialogContent
+                  style={{
+                    borderRadius: '24px',
+                  }}
+                  className="relative flex h-auto max-h-[90vh] mx-auto flex-col overflow-y-auto border border-white/10 bg-[#111111] text-white lg:w-[800px] w-[90%] shadow-2xl p-6 md:p-8"
+                >
+                  <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6 bg-black/40">
+                    <DialogImage
+                      src={item.img}
+                      alt={item.title}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className={`absolute top-4 right-4 w-14 h-14 rounded-full ${item.color} flex items-center justify-center shadow-2xl`}>
+                      {item.icon}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <DialogTitle className="text-4xl md:text-5xl font-display uppercase tracking-tight text-[#f8b11c]">
+                        {item.title}
+                      </DialogTitle>
+                      <span className="text-sm font-bold uppercase tracking-widest px-3 py-1 bg-white/10 rounded-full text-white/80">
+                        Step {item.step}
+                      </span>
+                    </div>
+
+                    <DialogDescription
+                      disableLayoutAnimation
+                      variants={{
+                        initial: { opacity: 0, scale: 0.95, y: -20 },
+                        animate: { opacity: 1, scale: 1, y: 0 },
+                        exit: { opacity: 0, scale: 0.95, y: -20 },
+                      }}
+                    >
+                      <p className="text-base text-gray-300 leading-relaxed font-sans">
+                        {item.description}
+                      </p>
+                      
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        {item.tags.map((tag, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="px-3 py-1 bg-[#f8b11c]/10 text-[#f8b11c] border border-[#f8b11c]/20 text-xs font-bold uppercase tracking-wider rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </DialogDescription>
+                  </div>
+
+                  <DialogClose className="text-white bg-white/10 p-3 hover:bg-white/20 rounded-full transition-colors" />
+                </DialogContent>
+              </DialogContainer>
+            </Dialog>
           ))}
         </div>
       </div>
+
+      {/* 
+        =========================================================================
+        PARALLAX SCROLLING SECTION
+        ========================================================================= 
+      */}
+      <ParallaxComponent />
 
       {/* 
         =========================================================================

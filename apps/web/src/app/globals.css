@@ -1,8 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap');
 
-/* Arial Fallback Metric Override to eliminate Layout Shift during variable font load */
+/* Caooli Elegant Retro-Modern Display Serif Typeface (designed by Maiko Hatta / Gilang Ternadho) */
+/* Characteristics: High stroke contrast, distinctive teardrop inner loop in uppercase A, sharp serifs */
+@font-face {
+  font-family: 'Caooli';
+  src: local('Caooli'), local('Caooli-Regular'), url('https://fonts.cdnfonts.com/s/95123/Caooli-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Arial Fallback Metric Override to eliminate Layout Shift */
 @font-face {
   font-family: 'Arial Fallback';
   src: local('Arial');
@@ -22,31 +30,28 @@
     line-height: 1.6;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Google Sans Flex', 'Arial Fallback', Arial, sans-serif;
+  h1, h2, h3, h4, h5, h6, .font-caooli, .font-display {
+    font-family: 'Caooli', 'Bodoni Moda', 'Playfair Display', Georgia, serif !important;
     letter-spacing: -0.025em;
     line-height: 1.15;
   }
 }
 
-/* 6 Semantic Typography Tokens powered by font-variation-settings */
+/* 6 Semantic Typography Tokens powered by Caooli & Google Sans Flex */
 .text-hero {
-  font-family: 'Google Sans Flex', 'Arial Fallback', Arial, sans-serif;
-  font-variation-settings: 'wght' 800, 'opsz' 96, 'wdth' 100, 'GRAD' 0, 'ROND' 20;
+  font-family: 'Caooli', 'Bodoni Moda', 'Playfair Display', Georgia, serif;
   letter-spacing: -0.025em;
   line-height: 1.1;
 }
 
 .text-section-heading {
-  font-family: 'Google Sans Flex', 'Arial Fallback', Arial, sans-serif;
-  font-variation-settings: 'wght' 700, 'opsz' 40, 'wdth' 100, 'GRAD' 0, 'ROND' 15;
+  font-family: 'Caooli', 'Bodoni Moda', 'Playfair Display', Georgia, serif;
   letter-spacing: -0.025em;
   line-height: 1.15;
 }
 
 .text-card-title {
-  font-family: 'Google Sans Flex', 'Arial Fallback', Arial, sans-serif;
-  font-variation-settings: 'wght' 700, 'opsz' 24, 'wdth' 100, 'GRAD' 0, 'ROND' 15;
+  font-family: 'Caooli', 'Bodoni Moda', 'Playfair Display', Georgia, serif;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }

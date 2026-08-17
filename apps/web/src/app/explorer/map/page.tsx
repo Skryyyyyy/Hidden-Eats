@@ -5,18 +5,15 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import ExplorerNav from '@/components/ExplorerNav';
+import { Map, MapControls, MapRoute, useMap } from '@/components/ui/map';
+import * as maplibregl from 'maplibre-gl';
 import {
   Search,
   MapPin,
   Navigation,
-  Layers,
-  Plus,
-  Minus,
   Calendar,
-  Flame,
   Star,
   Clock,
-  Radio,
   Sparkles,
 } from 'lucide-react';
 
@@ -80,81 +77,225 @@ const MOCK_MAP_SPOTS: MapSpot[] = [
   },
 ];
 
+/* ─── MapLibre Spot Markers (rendered as real map markers) ─── */
+function SpotMarkers({
+  spots,
+  selectedSpot,
+  onSelectSpot,
+}: {
+  spots: MapSpot[];
+  selectedSpot: MapSpot;
+  onSelectSpot: (spot: MapSpot) => void;
+}) {
+  const { map } = useMap();
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Clear old markers
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    spots.forEach((spot) => {
+      const isSelected = selectedSpot.id === spot.id;
+
+      const el = document.createElement('div');
+      el.style.cursor = 'pointer';
+      el.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform 0.3s;transform:scale(${isSelected ? 1.25 : 1});">
+          <div style="
+            padding:4px 10px;
+            border-radius:12px;
+            font-size:11px;
+            font-weight:800;
+            display:flex;align-items:center;gap:4px;
+            white-space:nowrap;
+            border:1px solid ${isSelected ? '#fff' : '#222e42'};
+            background:${isSelected ? '#f59e0b' : '#0f141d'};
+            color:${isSelected ? '#000' : '#fff'};
+            box-shadow:${isSelected ? '0 0 16px rgba(245,158,11,0.4)' : '0 4px 12px rgba(0,0,0,0.4)'};
+          ">💎 ${spot.gemScore}</div>
+          <div style="
+            width:36px;height:36px;
+            border-radius:14px;
+            display:flex;align-items:center;justify-content:center;
+            transform:rotate(45deg);
+            background:${isSelected ? 'linear-gradient(135deg,#f59e0b,#d97706)' : '#182232'};
+            color:${isSelected ? '#000' : '#f59e0b'};
+            border:${isSelected ? 'none' : '2px solid #2b3b54'};
+            box-shadow:${isSelected ? '0 0 20px rgba(245,158,11,0.5)' : '0 4px 12px rgba(0,0,0,0.3)'};
+          ">
+            <svg style="width:20px;height:20px;transform:rotate(-45deg);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+        </div>
+      `;
+
+      el.addEventListener('click', () => onSelectSpot(spot));
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([spot.lng, spot.lat])
+        .addTo(map);
+
+      markersRef.current.push(marker);
+    });
+
+    return () => {
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
+    };
+  }, [map, spots, selectedSpot, onSelectSpot]);
+
+  return null;
+}
+
+/* ─── User Live GPS Marker ─── */
+function UserLocationMarker() {
+  const { map } = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const el = document.createElement('div');
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="position:relative;">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.2);position:absolute;top:-12px;left:-12px;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+          <div style="width:16px;height:16px;border-radius:50%;background:#3b82f6;border:3px solid white;box-shadow:0 0 12px rgba(59,130,246,0.5);"></div>
+        </div>
+        <span style="background:rgba(0,0,0,0.85);color:#60a5fa;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;border:1px solid rgba(59,130,246,0.3);white-space:nowrap;">📍 Live Explorer Position</span>
+      </div>
+    `;
+
+    // Try to use real geolocation, fallback to Bangalore center
+    let marker: maplibregl.Marker;
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat([pos.coords.longitude, pos.coords.latitude])
+            .addTo(map);
+        },
+        () => {
+          marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat([77.5946, 12.9716])
+            .addTo(map);
+        }
+      );
+    } else {
+      marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([77.5946, 12.9716])
+        .addTo(map);
+    }
+
+    return () => {
+      marker?.remove();
+    };
+  }, [map]);
+
+  return null;
+}
+
+/* ─── Route between user and selected spot ─── */
+function NavigationRoute({ selectedSpot }: { selectedSpot: MapSpot }) {
+  const { map } = useMap();
+  const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
+
+  useEffect(() => {
+    async function fetchRoute() {
+      try {
+        // Use Bangalore center as user location fallback
+        const userLng = 77.5946;
+        const userLat = 12.9716;
+
+        const response = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${userLng},${userLat};${selectedSpot.lng},${selectedSpot.lat}?overview=full&geometries=geojson`
+        );
+        const data = await response.json();
+
+        if (data.routes?.[0]) {
+          setRouteCoords(data.routes[0].geometry.coordinates);
+        }
+      } catch (err) {
+        // Fallback straight line
+        setRouteCoords([
+          [77.5946, 12.9716],
+          [selectedSpot.lng, selectedSpot.lat],
+        ]);
+      }
+    }
+    fetchRoute();
+  }, [selectedSpot.lng, selectedSpot.lat]);
+
+  if (routeCoords.length === 0) return null;
+
+  return (
+    <MapRoute
+      id="nav-route"
+      coordinates={routeCoords}
+      color="#3b82f6"
+      width={5}
+      opacity={0.85}
+    />
+  );
+}
+
 function CustomGemGridMapContent() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
-
   const searchParams = useSearchParams();
   const spotParam = searchParams.get('spot');
 
-  // Proprietary Map Camera Center (Lat / Lng)
-  const [center, setCenter] = useState({ lat: 12.9716, lng: 77.5946 });
-  const [zoom, setZoom] = useState(14); // 10 to 18 scale
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-
   const [selectedSpot, setSelectedSpot] = useState<MapSpot>(MOCK_MAP_SPOTS[0]);
-  const [mapTheme, setMapTheme] = useState<'pitch_black' | 'cyber_amber' | 'clean_light'>('pitch_black');
   const [searchQuery, setSearchQuery] = useState('');
   const [bookingModal, setBookingModal] = useState(false);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      });
-    }
-  }, []);
 
   useEffect(() => {
     if (spotParam) {
       const matched = MOCK_MAP_SPOTS.find((s) => s.id === spotParam);
-      if (matched) {
-        setSelectedSpot(matched);
-        setCenter({ lat: matched.lat, lng: matched.lng });
-      }
+      if (matched) setSelectedSpot(matched);
     }
   }, [spotParam]);
-
-  // Proprietary Mouse Drag & Inertia Panning Math
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPanOffset({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Convert (Lat, Lng) coordinates to 2D Canvas Pixel Offsets relative to camera center
-  const latLngToPixel = (lat: number, lng: number) => {
-    const scale = Math.pow(2, zoom) * 0.4;
-    const x = (lng - center.lng) * scale * 1000 + panOffset.x;
-    const y = (center.lat - lat) * scale * 1000 + panOffset.y;
-    return { x, y };
-  };
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased ${isLight ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#000000] text-[#e1e1e1]'}`}>
       <ExplorerNav />
 
-      {/* Main Vector Map Engine Viewport */}
-      <div className="flex-1 relative min-h-[calc(100vh-64px)] w-full overflow-hidden bg-[#05070a] select-none">
+      {/* Full-Screen MapLibre GL Dark Map */}
+      <div className="flex-1 relative w-full overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
+        <Map center={[77.5946, 12.9716]} zoom={13} className="rounded-none">
+
+          {/* Map Controls (Zoom, Compass, Locate, Fullscreen) */}
+          <MapControls
+            position="top-right"
+            showZoom
+            showCompass
+            showLocate
+            showFullscreen
+          />
+
+          {/* Render real map markers for each hidden spot */}
+          <SpotMarkers
+            spots={MOCK_MAP_SPOTS}
+            selectedSpot={selectedSpot}
+            onSelectSpot={setSelectedSpot}
+          />
+
+          {/* User live GPS marker */}
+          <UserLocationMarker />
+
+          {/* OSRM driving route line */}
+          <NavigationRoute selectedSpot={selectedSpot} />
+        </Map>
+
         {/* Top Search Overlay */}
         <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-96 z-40 space-y-2">
           <div className={`border rounded-2xl p-2.5 shadow-2xl flex items-center gap-2 backdrop-blur-xl ${
-            isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0a0d14]/95 border-[#1e2638]'
+            isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0a0d14]/90 border-[#1e2638]'
           }`}>
             <Search className="w-4 h-4 text-[#f59e0b] ml-1" />
             <input
@@ -165,142 +306,6 @@ function CustomGemGridMapContent() {
               className="w-full bg-transparent text-xs outline-none text-white placeholder-[#777777]"
             />
           </div>
-        </div>
-
-        {/* Map Control Buttons */}
-        <div className="absolute top-4 right-4 z-40 flex flex-col gap-2">
-          <button
-            onClick={() => setMapTheme(mapTheme === 'pitch_black' ? 'cyber_amber' : 'pitch_black')}
-            className="p-2.5 rounded-xl border shadow-2xl backdrop-blur-xl bg-[#0a0d14] border-[#1e2638] text-[#f59e0b] hover:bg-[#121724]"
-            title="Toggle Proprietary Vector Style"
-          >
-            <Sparkles className="w-4 h-4" />
-          </button>
-
-          <div className="rounded-xl border border-[#1e2638] bg-[#0a0d14] shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl text-white">
-            <button
-              onClick={() => setZoom((z) => Math.min(z + 0.5, 18))}
-              className="p-2.5 hover:bg-[#141b2a] border-b border-[#1e2638] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setZoom((z) => Math.max(z - 0.5, 10))}
-              className="p-2.5 hover:bg-[#141b2a] transition-colors"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-          </div>
-
-          <button
-            onClick={() => {
-              setCenter({ lat: 12.9716, lng: 77.5946 });
-              setPanOffset({ x: 0, y: 0 });
-            }}
-            className="p-2.5 rounded-xl border shadow-2xl backdrop-blur-xl bg-[#0a0d14] border-[#1e2638] text-blue-400 hover:bg-[#121724]"
-            title="Recenter Camera"
-          >
-            <Navigation className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* PROPRIETARY VECTOR MAP CANVAS ENGINE */}
-        <div
-          ref={containerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          className={`absolute inset-0 cursor-grab active:cursor-grabbing transition-colors duration-300 ${
-            mapTheme === 'cyber_amber' ? 'bg-[#0f0c06]' : 'bg-[#05070a]'
-          }`}
-        >
-          {/* Custom Procedural Grid & Vector Roads Engine */}
-          <svg className="w-full h-full absolute inset-0 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <radialGradient id="gemHeatmap" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-              </radialGradient>
-
-              <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke={mapTheme === 'cyber_amber' ? '#2a1a04' : '#101622'} strokeWidth="1" />
-              </pattern>
-            </defs>
-
-            {/* Background Grid Pattern */}
-            <rect width="100%" height="100%" fill="url(#gridPattern)" />
-
-            {/* Custom Heatmap Glowing Zones */}
-            <circle cx="50%" cy="45%" r="280" fill="url(#gemHeatmap)" />
-
-            {/* Custom Vector Highway Arteries */}
-            <g stroke={mapTheme === 'cyber_amber' ? '#442a08' : '#1e293b'} strokeWidth="8" fill="none">
-              <path d="M -200 300 Q 400 150 1400 350" />
-              <path d="M 300 -100 Q 500 500 700 1000" />
-              <path d="M 0 600 Q 700 400 1400 700" />
-            </g>
-
-            {/* Custom Glowing Sector Ring */}
-            <circle cx="50%" cy="50%" r="180" fill="none" stroke="#f59e0b" strokeWidth="1" strokeDasharray="6 6" strokeOpacity="0.3" />
-          </svg>
-
-          {/* User Live GPS Marker */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex items-center justify-center">
-            <span className="w-10 h-10 rounded-full bg-blue-500/20 animate-ping absolute" />
-            <span className="w-4 h-4 rounded-full bg-blue-500 ring-4 ring-blue-500/30 border-2 border-white shadow-lg" />
-            <span className="absolute top-6 text-[10px] font-bold text-blue-400 bg-black/80 px-2 py-0.5 rounded border border-blue-500/30 whitespace-nowrap">
-              📍 Live Explorer Position
-            </span>
-          </div>
-
-          {/* Proprietary Pin Markers Placed using Local Mercator Vector Math */}
-          {MOCK_MAP_SPOTS.map((spot) => {
-            const isSelected = selectedSpot.id === spot.id;
-            const px = latLngToPixel(spot.lat, spot.lng);
-
-            // Compute screen position relative to viewport center
-            const screenX = `calc(50% + ${px.x}px)`;
-            const screenY = `calc(50% + ${px.y}px)`;
-
-            return (
-              <div
-                key={spot.id}
-                style={{ top: screenY, left: screenX }}
-                className="absolute -translate-x-1/2 -translate-y-full z-30 pointer-events-auto"
-              >
-                <button
-                  onClick={() => setSelectedSpot(spot)}
-                  className={`group relative flex flex-col items-center transition-all duration-300 ${
-                    isSelected ? 'scale-125 z-40' : 'scale-100 hover:scale-110'
-                  }`}
-                >
-                  {/* Glowing Radar Pulse behind Pin */}
-                  <span className={`w-12 h-12 rounded-full absolute -top-2 animate-ping pointer-events-none ${
-                    isSelected ? 'bg-[#f59e0b]/30' : 'bg-transparent'
-                  }`} />
-
-                  {/* Gem Score Chip */}
-                  <div className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold shadow-2xl flex items-center gap-1 border whitespace-nowrap mb-1 transition-all ${
-                    isSelected
-                      ? 'bg-[#f59e0b] text-black border-white ring-4 ring-[#f59e0b]/40 font-bold'
-                      : 'bg-[#0f141d] text-white border-[#222e42]'
-                  }`}>
-                    <span>💎</span> {spot.gemScore}
-                  </div>
-
-                  {/* Proprietary Gem Teardrop Pin */}
-                  <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shadow-2xl transition-all rotate-45 ${
-                    isSelected
-                      ? 'bg-gradient-to-tr from-[#f59e0b] to-[#d97706] text-black ring-4 ring-[#f59e0b]/40 scale-110'
-                      : 'bg-[#182232] text-[#f59e0b] border-2 border-[#2b3b54]'
-                  }`}>
-                    <MapPin className="w-5 h-5 -rotate-45" />
-                  </div>
-                </button>
-              </div>
-            );
-          })}
         </div>
 
         {/* Dynamic Spot Drawer Card */}
@@ -315,7 +320,6 @@ function CustomGemGridMapContent() {
                   alt={selectedSpot.name}
                   className="w-20 h-20 rounded-xl object-cover shrink-0 shadow-md"
                 />
-
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-extrabold text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-2 py-0.5 rounded">
@@ -325,19 +329,16 @@ function CustomGemGridMapContent() {
                       <Clock className="w-3 h-3" /> {selectedSpot.waitTime}
                     </span>
                   </div>
-
                   <h3 className={`text-base font-bold mt-1 truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {selectedSpot.name}
                   </h3>
                   <p className="text-xs text-[#777777] truncate mt-0.5">{selectedSpot.address}</p>
-
                   <div className="flex items-center gap-2 mt-2 text-xs text-[#f59e0b] font-bold">
                     <Star className="w-3.5 h-3.5 fill-[#f59e0b]" /> {selectedSpot.rating} Google Rating
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="pt-2 border-t border-[#1e2638] flex items-center gap-2">
                 <button
                   onClick={() => setBookingModal(true)}
@@ -359,15 +360,13 @@ function CustomGemGridMapContent() {
         )}
       </div>
 
-      {/* Internal Booking Modal */}
+      {/* Booking Modal */}
       {bookingModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#0a0d14] border border-[#1e2638] rounded-2xl p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-[#1e2638] pb-3">
               <h3 className="text-base font-bold text-white">Reserve Table at {selectedSpot.name}</h3>
-              <button onClick={() => setBookingModal(false)} className="text-[#777777] font-bold text-sm">
-                ✕
-              </button>
+              <button onClick={() => setBookingModal(false)} className="text-[#777777] font-bold text-sm">✕</button>
             </div>
             <p className="text-xs text-[#888888]">
               Reserve directly inside Hidden Eats without any middleman fees.
@@ -390,7 +389,7 @@ function CustomGemGridMapContent() {
 
 export default function InternalInAppWebMapPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#05070a] text-white p-10">Loading Proprietary Gem Grid Map Engine...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#05070a] text-white p-10">Loading Map...</div>}>
       <CustomGemGridMapContent />
     </Suspense>
   );

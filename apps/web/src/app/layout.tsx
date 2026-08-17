@@ -4,7 +4,11 @@ import { ThemeProvider } from '../context/ThemeContext';
 import { CartProvider } from '../context/CartContext';
 import FlashcardSplash from '../components/FlashcardSplash';
 import GlobalThemeToggle from '../components/GlobalThemeToggle';
+import SmoothFollower from '../components/SmoothFollower';
 import { LanguageProvider } from '../context/LanguageContext';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'Hidden Eats — Food Discovery & Partner Dashboard',
@@ -17,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark font-sans ${inter.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

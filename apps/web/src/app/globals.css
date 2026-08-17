@@ -87,7 +87,7 @@
   --color-primary-hover: #FF6B6B;
   --color-secondary: #FFB703;
   --color-accent: #F77F00;
-  
+
   /* Light Mode */
   --color-bg: #FDFCFB;
   --color-surface: #FFFFFF;
@@ -267,4 +267,3 @@ body {
 .goog-te-menu-value span {
   color: #ffffff !important;
 }
-

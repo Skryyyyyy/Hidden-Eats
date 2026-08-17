@@ -81,7 +81,7 @@ export default function InteractiveFeatures() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, x: -50 },
     visible: { 
       opacity: 1, 

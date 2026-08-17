@@ -7,7 +7,7 @@ export type SupportedLanguage = 'en' | 'ta' | 'hi' | 'es' | 'fr' | 'ar' | 'ja';
 export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   en: {
     exploreSpots: 'EXPLORE SPOTS',
-    inAppMap: 'IN-APP MAP',
+    inAppMap: 'MAP',
     liveRadar: 'LIVE RADAR',
     foodieReels: 'FOODIE REELS',
     collections: 'COLLECTIONS',
@@ -105,7 +105,7 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   },
   hi: {
     exploreSpots: 'रेस्टोरेंट खोजें',
-    inAppMap: 'इन-ऐप नक्शा',
+    inAppMap: 'नक्शा',
     liveRadar: 'लाइव राडार',
     foodieReels: 'फुडी रील्स',
     collections: 'संग्रह',
@@ -154,7 +154,7 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   },
   es: {
     exploreSpots: 'EXPLORAR LUGARES',
-    inAppMap: 'MAPA EN VIVO',
+    inAppMap: 'MAPA',
     liveRadar: 'RADAR EN VIVO',
     foodieReels: 'REELS DE COMIDA',
     collections: 'COLECCIONES',
@@ -203,7 +203,7 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   },
   fr: {
     exploreSpots: 'EXPLORER LES RESTOS',
-    inAppMap: 'CARTE EN DIRECT',
+    inAppMap: 'CARTE',
     liveRadar: 'RADAR EN DIRECT',
     foodieReels: 'REELS GOURMANDS',
     collections: 'COLLECTIONS',
@@ -252,7 +252,7 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   },
   ar: {
     exploreSpots: 'استكشاف المطاعم',
-    inAppMap: 'الخريطة المباشرة',
+    inAppMap: 'الخريطة',
     liveRadar: 'الرادار المباشر',
     foodieReels: 'مقاطع الطعام',
     collections: 'المجموعات',
@@ -301,7 +301,7 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
   },
   ja: {
     exploreSpots: 'スポットを検索',
-    inAppMap: 'ライブマップ',
+    inAppMap: 'マップ',
     liveRadar: 'ライブラダー',
     foodieReels: 'グルメショーツ',
     collections: 'コレクション',

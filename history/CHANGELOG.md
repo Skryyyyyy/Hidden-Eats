@@ -99,6 +99,28 @@
 - `apps/web/src/app/api/scrape-youtube/route.ts`
 - `apps/web/src/app/api/settlement/route.ts`
 - `supabase/migrations/20260901_sql_injection_security_hardening.sql`
+- `history/step-05-sqli-defense.md`
 
 ---
+
+## 📌 Step 6: Password Reset & 6-Point Security Verification
+**Date:** 2026-09-01  
+**Objective:** Add complete password reset capabilities across Explorer and Partner login portals, create a dedicated `/reset-password` page, and verify the 6 core SQL injection defense principles.
+
+### Summary of Changes:
+- **Dedicated Reset Password Page (`apps/web/src/app/reset-password/page.tsx`)**: Secure password update form with password matching, minimum length (6+ chars), SQL injection pattern rejection, and direct integration with `supabase.auth.updateUser()`.
+- **Diner Explorer Login (`apps/web/src/app/login/user/page.tsx`)**: Added "Forgot Password?" trigger, email reset request modal, and SQL injection sanitization on credentials.
+- **Restaurant Partner Login (`apps/web/src/app/login/partner/page.tsx`)**: Added "Forgot Password?" trigger, business email reset modal, and SQL injection sanitization.
+- **6-Point Security Verification**: Confirmed active enforcement of prepared statements, RLS least privilege, secure stored procedures, strict Zod validation, dependency security, and pre-DB SQLi pattern detection.
+
+### Files Modified/Created:
+- `apps/web/src/app/reset-password/page.tsx`
+- `apps/web/src/app/login/user/page.tsx`
+- `apps/web/src/app/login/partner/page.tsx`
+- `history/step-06-password-reset-and-security-verification.md`
+- `history/CHANGELOG.md`
+- `history/README.md`
+
+---
+
 

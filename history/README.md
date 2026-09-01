@@ -19,6 +19,8 @@ This folder is dedicated exclusively to tracking **all steps, modifications, and
 | [`step-01-oauth-and-fonts.md`](file:///c:/Hidden%20Eats/history/step-01-oauth-and-fonts.md) | Google/Apple OAuth setup, Supabase authentication fixes, and Caooli typography. |
 | [`step-02-dark-map-and-osrm-routing.md`](file:///c:/Hidden%20Eats/history/step-02-dark-map-and-osrm-routing.md) | MapLibre GL dark raster map implementation, OSRM live routing, and navigation UI. |
 | [`step-03-merge-and-sync.md`](file:///c:/Hidden%20Eats/history/step-03-merge-and-sync.md) | Collaborative merge with teammate updates, conflict resolution, and TypeScript fixes. |
+| [`step-05-sqli-defense.md`](file:///c:/Hidden%20Eats/history/step-05-sqli-defense.md) | Centralized SQL injection detection, payload sanitization, and API route guards. |
+| [`step-06-password-reset-and-security-verification.md`](file:///c:/Hidden%20Eats/history/step-06-password-reset-and-security-verification.md) | Password reset page/modals, credential sanitization, and 6-point SQLi defense verification. |
 
 ---
 

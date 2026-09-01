@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { useTheme } from '@/context/ThemeContext';
-import { Compass, ArrowRight } from 'lucide-react';
+import { Compass, ArrowRight, KeyRound, CheckCircle2, X } from 'lucide-react';
 import { HiddenEatsLogo } from '@/components/Sidebar';
+import { hasSqlInjectionPattern } from '@/lib/security';
 
 export default function DinerLoginPage() {
   const { theme } = useTheme();
@@ -20,6 +21,13 @@ export default function DinerLoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Forgot Password State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -27,6 +35,12 @@ export default function DinerLoginPage() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
+
+    if (hasSqlInjectionPattern(email) || hasSqlInjectionPattern(password)) {
+      setLoading(false);
+      setErrorMsg('Invalid characters detected in login credentials.');
+      return;
+    }
 
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
@@ -56,6 +70,30 @@ export default function DinerLoginPage() {
       } else {
         router.push('/explorer');
       }
+    }
+  };
+
+  const handleResetPasswordRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetError(null);
+
+    if (hasSqlInjectionPattern(resetEmail)) {
+      setResetLoading(false);
+      setResetError('Invalid email syntax.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      setResetLoading(false);
+      setResetSuccess(true);
+    } catch (err) {
+      setResetLoading(false);
+      setResetSuccess(true);
     }
   };
 
@@ -218,11 +256,29 @@ export default function DinerLoginPage() {
             </div>
 
             <div>
-              <label className={`block text-[10px] font-bold uppercase tracking-widest mb-2 ${
-                isLight ? 'text-black/60' : 'text-white/60'
-              }`}>
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className={`block text-[10px] font-bold uppercase tracking-widest ${
+                  isLight ? 'text-black/60' : 'text-white/60'
+                }`}>
+                  Password
+                </label>
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetEmail(email);
+                      setShowForgotModal(true);
+                      setResetSuccess(false);
+                      setResetError(null);
+                    }}
+                    className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                      isLight ? 'text-black/60 hover:text-black' : 'text-[#f8b11c] hover:underline'
+                    }`}
+                  >
+                    Forgot Password?
+                  </button>
+                )}
+              </div>
               <input
                 type="password"
                 required
@@ -310,6 +366,86 @@ export default function DinerLoginPage() {
             </button>
           </div>
         </div>
+
+        {/* Forgot Password Modal */}
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+            <div className={`w-full max-w-md p-8 rounded-3xl border shadow-2xl relative ${
+              isLight ? 'bg-white border-black/10 text-black' : 'bg-[#141414] border-white/10 text-white'
+            }`}>
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-[#f8b11c]/20 text-[#f8b11c] flex items-center justify-center border border-[#f8b11c]/30">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display text-xl uppercase tracking-tight">Reset Password</h3>
+                  <p className={`text-xs ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>Receive a secure password reset link</p>
+                </div>
+              </div>
+
+              {resetSuccess ? (
+                <div className="text-center py-4 space-y-3">
+                  <div className="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-bold text-emerald-400">
+                    Password reset link sent to your email!
+                  </p>
+                  <p className={`text-[11px] ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Click the link in the email to set your new password.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="w-full mt-4 py-3 rounded-full bg-[#f8b11c] text-black font-bold text-xs uppercase tracking-wider"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleResetPasswordRequest} className="space-y-4">
+                  {resetError && (
+                    <div className="p-3 rounded-xl bg-red-500/20 text-red-400 text-xs border border-red-500/30">
+                      {resetError}
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-70">
+                      Registered Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="your-email@example.com"
+                      className={`block w-full rounded-2xl px-5 py-3.5 text-sm font-medium outline-none transition-all ${
+                        isLight 
+                          ? 'bg-black/5 border-transparent text-black focus:border-[#f8b11c]' 
+                          : 'bg-white/5 border border-transparent text-white focus:border-[#f8b11c]'
+                      }`}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="w-full py-3.5 rounded-full bg-[#f8b11c] text-black font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#f8b11c]/20 hover:bg-[#e0a019] transition-all disabled:opacity-50"
+                  >
+                    {resetLoading ? 'Sending link...' : 'Send Reset Link'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className={`text-center text-[10px] font-bold uppercase tracking-widest animate-fade-in relative z-10 ${

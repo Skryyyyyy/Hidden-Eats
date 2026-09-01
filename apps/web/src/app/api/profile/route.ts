@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -16,17 +17,37 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { fullName, username, email, avatarUrl, bitmojiConfig, preferredLanguage } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.profileUpdate.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid profile data or illegal character format' },
+        { status: 400 }
+      );
+    }
+
+    const { fullName, username, email, avatarUrl, bitmojiConfig, preferredLanguage } = parseResult.data;
+
+    if (
+      hasSqlInjectionPattern(fullName) ||
+      hasSqlInjectionPattern(username) ||
+      hasSqlInjectionPattern(email)
+    ) {
+      return NextResponse.json(
+        { error: 'Security violation: Disallowed SQL syntax detected in profile fields' },
+        { status: 403 }
+      );
+    }
 
     // Return updated profile response
     return NextResponse.json({
       success: true,
       message: 'Profile and Bitmoji avatar updated successfully',
       profile: {
-        fullName: fullName || 'Rahul Sharma',
-        username: username || 'foodie_explorer',
-        email: email || 'explorer@hiddeneats.com',
+        fullName,
+        username,
+        email,
         avatarUrl: avatarUrl || null,
         bitmojiConfig: bitmojiConfig || null,
         preferredLanguage: preferredLanguage || 'en',

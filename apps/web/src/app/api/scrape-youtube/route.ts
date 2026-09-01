@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { extractHiddenShopFromVideoUrl, getAllScrapedShops } from '@/lib/videoScraperNLP';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function GET() {
   try {
@@ -20,13 +21,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { videoUrl } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.videoScraper.safeParse(rawBody);
 
-    if (!videoUrl || typeof videoUrl !== 'string') {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: 'Valid YouTube video URL is required' },
+        { error: 'Valid YouTube or Instagram video link is required' },
         { status: 400 }
+      );
+    }
+
+    const { videoUrl } = parseResult.data;
+
+    if (hasSqlInjectionPattern(videoUrl)) {
+      return NextResponse.json(
+        { error: 'Security violation: Disallowed URL syntax detected' },
+        { status: 403 }
       );
     }
 

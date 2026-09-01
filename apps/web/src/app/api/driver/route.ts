@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -18,8 +19,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { orderId, inputOtp } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.driverHandover.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid handover parameters or malformed OTP' },
+        { status: 400 }
+      );
+    }
+
+    const { orderId, inputOtp } = parseResult.data;
+
+    if (hasSqlInjectionPattern(orderId) || hasSqlInjectionPattern(inputOtp)) {
+      return NextResponse.json(
+        { error: 'Security violation: Disallowed SQL characters detected' },
+        { status: 403 }
+      );
+    }
 
     // Verify 4-Digit Handover OTP
     const isValidOtp = String(inputOtp) === '4892';

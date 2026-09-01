@@ -1,10 +1,30 @@
 import { NextResponse } from 'next/server';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 const GOOGLE_MAPS_SERVER_KEY = process.env.GOOGLE_MAPS_SERVER_KEY || '';
 
 export async function POST(req: Request) {
   try {
-    const { action, placeId, query, lat = 12.9716, lng = 77.5946, radius = 5000 } = await req.json();
+    const rawBody = await req.json();
+
+    // Validate payload against strict security schema
+    const parseResult = SecuritySchemas.placesQuery.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid input parameters or potentially malicious request format' },
+        { status: 400 }
+      );
+    }
+
+    const { action, placeId, query, lat, lng, radius } = parseResult.data;
+
+    // Check for SQL injection signatures in string inputs
+    if (query && hasSqlInjectionPattern(query)) {
+      return NextResponse.json(
+        { error: 'Security violation: Detected disallowed characters or SQL syntax' },
+        { status: 403 }
+      );
+    }
 
     // 1. PLACE DETAILS ACTION
     if (action === 'place-details' && placeId) {

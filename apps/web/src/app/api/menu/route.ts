@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -25,8 +26,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { dishId, isStock } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.menuStatus.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid dish payload or malformed parameters' },
+        { status: 400 }
+      );
+    }
+
+    const { dishId, isStock } = parseResult.data;
+
+    if (hasSqlInjectionPattern(dishId)) {
+      return NextResponse.json(
+        { error: 'Security violation: Disallowed SQL characters detected in dish identifier' },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

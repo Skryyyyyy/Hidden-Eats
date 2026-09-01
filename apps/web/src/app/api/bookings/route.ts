@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -27,8 +28,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { bookingId, action } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.bookingAction.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid booking payload or illegal characters detected' },
+        { status: 400 }
+      );
+    }
+
+    const { bookingId, action } = parseResult.data;
+
+    if (hasSqlInjectionPattern(bookingId)) {
+      return NextResponse.json(
+        { error: 'Security violation: SQL injection signature detected in identifier' },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

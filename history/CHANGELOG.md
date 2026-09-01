@@ -66,3 +66,39 @@
 - `history/CHANGELOG.md`
 
 ---
+
+## 📌 Step 5: SQL Injection Defense & Security Hardening Layer
+**Date:** 2026-09-01  
+**Objective:** Implement multi-layer defense against SQL Injection (SQLi), Cross-Site Scripting (XSS), and malicious parameter tampering across all API routes and database queries.
+
+### Summary of Changes:
+- **Security Engine (`apps/web/src/lib/security.ts`)**:
+  - `hasSqlInjectionPattern()`: RegEx detector for SQL keywords (`UNION`, `SELECT`, `DROP`, `OR 1=1`, `--`, `/* */`).
+  - `sanitizeSqlInput()` & `sanitizeSearchQuery()`: Automated escaping of quotes, backslashes, control characters, and SQL comment indicators.
+  - `isValidIdentifier()`: Enforces alphanumeric IDs preventing injection into query parameters.
+  - `SecuritySchemas`: Strict Zod validation schemas for all incoming API payloads (`placesQuery`, `bookingAction`, `driverHandover`, `menuStatus`, `settlement`, `profileUpdate`, `videoScraper`).
+- **Secured API Routes**:
+  - `apps/web/src/app/api/places/route.ts`: Sanitizes search queries, validates coordinates & place IDs.
+  - `apps/web/src/app/api/bookings/route.ts`: Validates booking actions and sanitized IDs.
+  - `apps/web/src/app/api/driver/route.ts`: Rejects malformed OTPs and verifies order IDs.
+  - `apps/web/src/app/api/menu/route.ts`: Validates dish ID formats and stock status flags.
+  - `apps/web/src/app/api/profile/route.ts`: Sanitizes full names, usernames, and email formats.
+  - `apps/web/src/app/api/scrape-youtube/route.ts`: Restricts video URLs to valid YouTube/Instagram domains.
+  - `apps/web/src/app/api/settlement/route.ts`: Validates numeric settlement amounts and UPI VPAs.
+- **Database Hardening (`supabase/migrations/20260901_sql_injection_security_hardening.sql`)**:
+  - Hardened Row Level Security (RLS) policies for `profiles`, `reviews`, `orders`, and `scraped_hidden_shops`.
+  - Secure search stored procedure with parameterized inputs and fixed `search_path = public, pg_temp` to prevent search path hijacking.
+
+### Files Modified/Created:
+- `apps/web/src/lib/security.ts`
+- `apps/web/src/app/api/places/route.ts`
+- `apps/web/src/app/api/bookings/route.ts`
+- `apps/web/src/app/api/driver/route.ts`
+- `apps/web/src/app/api/menu/route.ts`
+- `apps/web/src/app/api/profile/route.ts`
+- `apps/web/src/app/api/scrape-youtube/route.ts`
+- `apps/web/src/app/api/settlement/route.ts`
+- `supabase/migrations/20260901_sql_injection_security_hardening.sql`
+
+---
+

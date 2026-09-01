@@ -1,18 +1,33 @@
 import { NextResponse } from 'next/server';
 import { calculateOrderSettlement, buildUPIDeepLink } from '@/lib/payment';
+import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { totalAmount, payeeVPA, payeeName } = body;
+    const rawBody = await request.json();
+    const parseResult = SecuritySchemas.settlement.safeParse({
+      ...rawBody,
+      totalAmount: Number(rawBody.totalAmount),
+    });
 
-    const amount = Number(totalAmount) || 0;
-    if (amount <= 0) {
-      return NextResponse.json({ error: 'Valid total amount is required' }, { status: 400 });
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid settlement amount or UPI parameters' },
+        { status: 400 }
+      );
+    }
+
+    const { totalAmount, payeeVPA, payeeName } = parseResult.data;
+
+    if ((payeeVPA && hasSqlInjectionPattern(payeeVPA)) || (payeeName && hasSqlInjectionPattern(payeeName))) {
+      return NextResponse.json(
+        { error: 'Security violation: Disallowed SQL characters detected in payee parameters' },
+        { status: 403 }
+      );
     }
 
     // 1. Calculate 3-Way Revenue Settlement Split (85% Restaurant, 10% Driver, 5% Platform)
-    const settlement = calculateOrderSettlement(amount);
+    const settlement = calculateOrderSettlement(totalAmount);
 
     // 2. Generate 1-Tap UPI Deep Link
     const vpa = payeeVPA || 'hiddeneats@upi';
@@ -20,7 +35,7 @@ export async function POST(request: Request) {
     const upiLink = buildUPIDeepLink({
       payeeVPA: vpa,
       payeeName: name,
-      amount,
+      amount: totalAmount,
       transactionRef: 'HE_' + Date.now(),
       note: 'Hidden Eats Food Order',
     });

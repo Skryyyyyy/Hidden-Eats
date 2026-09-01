@@ -46,11 +46,13 @@ export function useMap() {
 export interface MapProps {
   center?: [number, number]; // [lng, lat]
   zoom?: number;
+  pitch?: number;
+  bearing?: number;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function Map({ center = [80.2707, 13.0827], zoom = 12, className = '', children }: MapProps) {
+export function Map({ center = [80.2707, 13.0827], zoom = 12, pitch = 0, bearing = 0, className = '', children }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
@@ -63,6 +65,8 @@ export function Map({ center = [80.2707, 13.0827], zoom = 12, className = '', ch
       style: DARK_MAP_STYLE,
       center: center,
       zoom: zoom,
+      pitch: pitch,
+      bearing: bearing,
       attributionControl: false,
     });
 

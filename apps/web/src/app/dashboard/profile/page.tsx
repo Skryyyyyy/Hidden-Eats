@@ -226,6 +226,40 @@ export default function PartnerProfilePage() {
               </div>
             </div>
 
+            {/* 🎩 Bitmoji & Chef Persona Customizer Section */}
+            <div className={`border rounded-[32px] p-8 space-y-6 shadow-sm transition-colors ${
+              isLight ? 'bg-white border-black/5' : 'bg-[#111111] border-white/5'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className={`text-card-title text-lg ${isLight ? 'text-[#111111]' : 'text-white'}`}>
+                    Foodie Bitmoji & Chef Persona
+                  </h3>
+                  <p className={`text-body text-[12px] mt-1 ${isLight ? 'text-[#666666]' : 'text-[#888888]'}`}>
+                    Customize your digital avatar displayed on reviews, dish recommendations, and KDS tickets.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl bg-white/5 border border-white/5">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-4xl shadow-xl shadow-amber-500/20 shrink-0">
+                  👨‍🍳
+                </div>
+                <div className="space-y-2 text-left flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      LEVEL 4 EXPLORER
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#f8b11c]/20 text-[#f8b11c] border border-[#f8b11c]/30">
+                      850 GEM XP
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-white">Title: Master Dum Biryani Connoisseur</p>
+                  <p className="text-xs text-gray-400">Unlocked 4 Secret Off-Menu Items & 3 Verified City Gems.</p>
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
               className={`px-8 py-3.5 rounded-[24px] text-label text-[13px] uppercase tracking-wider font-bold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${

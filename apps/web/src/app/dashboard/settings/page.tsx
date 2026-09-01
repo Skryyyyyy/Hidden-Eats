@@ -243,6 +243,28 @@ export default function ComprehensivePartnerSettingsPage() {
               </div>
             </div>
 
+            {/* Platform Emergency & Maintenance Mode Section */}
+            <div className={`p-8 rounded-[32px] border transition-all ${
+              isLight ? 'bg-white border-black/5 shadow-sm' : 'bg-[#141414] border-white/5 shadow-none'
+            }`}>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className={`text-h3 text-[17px] tracking-tight ${isLight ? 'text-[#111111]' : 'text-white'}`}>
+                    Platform Maintenance & Emergency Controls
+                  </h3>
+                  <p className={`text-body text-[12px] mt-1 ${isLight ? 'text-[#666666]' : 'text-[#888888]'}`}>
+                    Place your restaurant ordering or explorer public pages in maintenance mode during rush hours or upgrades.
+                  </p>
+                </div>
+                <Link
+                  href="/maintenance"
+                  className="px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/20 transition-all shrink-0"
+                >
+                  Preview Maintenance Page
+                </Link>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
               <button
                 type="submit"

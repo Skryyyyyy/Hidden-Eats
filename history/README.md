@@ -21,6 +21,10 @@ This folder is dedicated exclusively to tracking **all steps, modifications, and
 | [`step-03-merge-and-sync.md`](file:///c:/Hidden%20Eats/history/step-03-merge-and-sync.md) | Collaborative merge with teammate updates, conflict resolution, and TypeScript fixes. |
 | [`step-05-sqli-defense.md`](file:///c:/Hidden%20Eats/history/step-05-sqli-defense.md) | Centralized SQL injection detection, payload sanitization, and API route guards. |
 | [`step-06-password-reset-and-security-verification.md`](file:///c:/Hidden%20Eats/history/step-06-password-reset-and-security-verification.md) | Password reset page/modals, credential sanitization, and 6-point SQLi defense verification. |
+| [`step-07-maintenance-mode.md`](file:///c:/Hidden%20Eats/history/step-07-maintenance-mode.md) | Dedicated "Page Under Maintenance" portal, estimated time countdown, and staff bypass keys. |
+| [`step-08-kitchen-kds-realtime.md`](file:///c:/Hidden%20Eats/history/step-08-kitchen-kds-realtime.md) | Web Audio synthesized order bell, Supabase realtime channels, and thermal KOT printing. |
+| [`step-09-live-navigation-hud.md`](file:///c:/Hidden%20Eats/history/step-09-live-navigation-hud.md) | 3D GPS navigation HUD, turn-by-turn maneuver overlays, speed gauge, and scraper pin-to-map. |
+| [`step-10-foodie-passport-qr-settlement.md`](file:///c:/Hidden%20Eats/history/step-10-foodie-passport-qr-settlement.md) | Table secret QR scanner modal, Bitmoji avatar customizer, and dynamic BharatQR settlements. |
 | [`NEXT_STEPS_ROADMAP.md`](file:///c:/Hidden%20Eats/NEXT_STEPS_ROADMAP.md) | In-depth technical roadmap of upcoming implementation phases and milestones. |
 
 ---

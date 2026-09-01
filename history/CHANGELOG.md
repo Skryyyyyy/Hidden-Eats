@@ -118,9 +118,53 @@
 - `apps/web/src/app/login/user/page.tsx`
 - `apps/web/src/app/login/partner/page.tsx`
 - `history/step-06-password-reset-and-security-verification.md`
-- `history/CHANGELOG.md`
-- `history/README.md`
 
 ---
+
+## 📌 Step 7: Platform Maintenance Mode & Emergency Controls
+**Date:** 2026-09-01  
+**Objective:** Add dedicated "Page Under Maintenance" portal, estimated time countdown, and staff bypass keys.
+
+### Summary of Changes:
+- **Maintenance Page (`apps/web/src/app/maintenance/page.tsx`)**: Created glassmorphic maintenance portal with live ping status, duration estimate, security badge, and staff passcode bypass.
+- **Maintenance Engine (`apps/web/src/lib/maintenance.ts`)**: Route helper and runtime state configuration.
+- **Partner Settings Toggle (`apps/web/src/app/dashboard/settings/page.tsx`)**: Added quick maintenance preview and control card.
+
+---
+
+## 📌 Step 8: Real-Time Kitchen Display System (KDS) & Order Pipeline
+**Date:** 2026-09-01  
+**Objective:** Implement bi-directional real-time order stream, synthetic Web Audio bell chimes, digital KOT (Kitchen Order Ticket) printing, and 4-stage status pipeline.
+
+### Summary of Changes:
+- **Audio Bell Synthesizer**: Web Audio API dual-oscillator acoustic bell for zero-asset audio alerts on incoming orders.
+- **Supabase Realtime**: Subscribed to `orders` table to dynamically ingest live orders into the kitchen queue.
+- **Digital KOT Tickets**: Thermal receipt preview and browser 1-tap print mode.
+- **4-Stage Order Progression**: `NEW` -> `PREPARING` -> `READY_FOR_PICKUP` -> `DISPATCHED_WITH_DRIVER`.
+
+---
+
+## 📌 Step 9: Live Turn-by-Turn GPS Navigation HUD & NLP Pin-to-Map
+**Date:** 2026-09-01  
+**Objective:** Transform MapLibre GL dark map into an interactive 3D driving navigation HUD with turn maneuver banners, speed gauge, distance countdown, and YouTube scraper pin integration.
+
+### Summary of Changes:
+- **3D Navigation Perspective**: 60° camera pitch and 35° bearing heading rotation on navigation start.
+- **Maneuver Banner**: Turn directional arrows, live speed gauge (`28 km/h`), and ETA countdown (`1.2 km • 4 Mins`).
+- **YouTube NLP Scraper Pinning**: Newly extracted viral food spots are immediately pinned to the active MapLibre canvas with custom gem score badges.
+
+---
+
+## 📌 Step 10: Gamified Foodie Passport, Table QR Scanners & Dynamic BharatQR Settlements
+**Date:** 2026-09-01  
+**Objective:** Add table secret QR code scanner modal, Bitmoji avatar and XP progression card, and dynamic BharatQR code generation for 3-way payment settlements.
+
+### Summary of Changes:
+- **Table Secret QR Scanner (`apps/web/src/components/SecretQRScannerModal.tsx`)**: Camera viewfinder simulation unlocking off-menu secret dishes with passcode `#VAULT-88` and awarding `+50 Gem XP`.
+- **Foodie Bitmoji & Chef Persona (`apps/web/src/app/dashboard/profile/page.tsx`)**: Level 4 explorer avatar and gem XP badge showcase.
+- **Dynamic BharatQR Engine (`apps/web/src/lib/payment.ts`)**: `buildBharatQRCodeUrl` for instant on-screen UPI QR rendering and 3-way automated revenue splits.
+
+---
+
 
 

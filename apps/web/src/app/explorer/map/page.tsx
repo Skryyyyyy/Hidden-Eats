@@ -15,7 +15,18 @@ import {
   Star,
   Clock,
   Sparkles,
+  Compass,
+  Volume2,
+  VolumeX,
+  X,
+  QrCode,
+  Youtube,
+  ArrowUpRight,
+  CornerUpLeft,
+  CornerUpRight,
 } from 'lucide-react';
+import YouTubeScraperModal from '@/components/YouTubeScraperModal';
+import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
 
 interface MapSpot {
   id: string;
@@ -32,7 +43,7 @@ interface MapSpot {
   category: string;
 }
 
-const MOCK_MAP_SPOTS: MapSpot[] = [
+const INITIAL_MAP_SPOTS: MapSpot[] = [
   {
     id: 'res-1',
     name: 'Grand Secret Kitchen',
@@ -170,7 +181,6 @@ function UserLocationMarker() {
       </div>
     `;
 
-    // Try to use real geolocation, fallback to Bangalore center
     let marker: maplibregl.Marker;
 
     if ('geolocation' in navigator) {
@@ -200,87 +210,167 @@ function UserLocationMarker() {
   return null;
 }
 
-/* ─── Route between user and selected spot ─── */
-function NavigationRoute({ selectedSpot }: { selectedSpot: MapSpot }) {
+/* ─── OSRM Live Driving Route Line with Numbered Stop Pins ─── */
+function NavigationRoute({ selectedSpot, isNavMode }: { selectedSpot: MapSpot; isNavMode: boolean }) {
   const { map } = useMap();
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
+  const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
 
   useEffect(() => {
-    async function fetchRoute() {
-      try {
-        // Use Bangalore center as user location fallback
-        const userLng = 77.5946;
-        const userLat = 12.9716;
+    if (!map || !selectedSpot) return;
 
-        const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${userLng},${userLat};${selectedSpot.lng},${selectedSpot.lat}?overview=full&geometries=geojson`
-        );
-        const data = await response.json();
+    let isMounted = true;
+    const originLng = 77.5946;
+    const originLat = 12.9716;
+    const destLng = selectedSpot.lng;
+    const destLat = selectedSpot.lat;
 
-        if (data.routes?.[0]) {
-          setRouteCoords(data.routes[0].geometry.coordinates);
+    // Fetch real OSRM driving route
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+
+    fetch(osrmUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.code === 'Ok' && data.routes?.[0]?.geometry?.coordinates) {
+          const coords = data.routes[0].geometry.coordinates as [number, number][];
+          setRouteCoords(coords);
+
+          // Clear previous stop markers
+          stopMarkersRef.current.forEach(m => m.remove());
+          stopMarkersRef.current = [];
+
+          // Pin [1]: Origin (User position)
+          const startEl = document.createElement('div');
+          startEl.innerHTML = `
+            <div style="
+              width:28px;height:28px;border-radius:50%;
+              background:#10b981;color:#000;
+              font-size:12px;font-weight:900;
+              display:flex;align-items:center;justify-content:center;
+              border:2.5px solid #ffffff;
+              box-shadow:0 0 14px rgba(16,185,129,0.7);
+            ">1</div>
+          `;
+          const startMarker = new maplibregl.Marker({ element: startEl, anchor: 'center' })
+            .setLngLat([originLng, originLat])
+            .addTo(map);
+          stopMarkersRef.current.push(startMarker);
+
+          // Pin [2]: Destination (Selected spot)
+          const endEl = document.createElement('div');
+          endEl.innerHTML = `
+            <div style="
+              width:28px;height:28px;border-radius:50%;
+              background:#ef4444;color:#ffffff;
+              font-size:12px;font-weight:900;
+              display:flex;align-items:center;justify-content:center;
+              border:2.5px solid #ffffff;
+              box-shadow:0 0 14px rgba(239,68,68,0.7);
+            ">2</div>
+          `;
+          const endMarker = new maplibregl.Marker({ element: endEl, anchor: 'center' })
+            .setLngLat([destLng, destLat])
+            .addTo(map);
+          stopMarkersRef.current.push(endMarker);
+
+          // Adjust camera
+          if (isNavMode) {
+            map.flyTo({
+              center: [originLng, originLat],
+              zoom: 17.5,
+              pitch: 60,
+              bearing: 35,
+              duration: 1500,
+            });
+          } else {
+            const bounds = new maplibregl.LngLatBounds();
+            bounds.extend([originLng, originLat]);
+            bounds.extend([destLng, destLat]);
+            map.fitBounds(bounds, { padding: 100, maxZoom: 15.5 });
+          }
         }
-      } catch (err) {
+      })
+      .catch(() => {
         // Fallback straight line
-        setRouteCoords([
-          [77.5946, 12.9716],
-          [selectedSpot.lng, selectedSpot.lat],
-        ]);
-      }
-    }
-    fetchRoute();
-  }, [selectedSpot.lng, selectedSpot.lat]);
+        const directLine: [number, number][] = [
+          [originLng, originLat],
+          [destLng, destLat],
+        ];
+        setRouteCoords(directLine);
+      });
 
-  if (routeCoords.length === 0) return null;
+    return () => {
+      isMounted = false;
+      stopMarkersRef.current.forEach(m => m.remove());
+      stopMarkersRef.current = [];
+    };
+  }, [map, selectedSpot, isNavMode]);
 
   return (
-    <MapRoute
-      id="nav-route"
-      coordinates={routeCoords}
-      color="#3b82f6"
-      width={5}
-      opacity={0.85}
-    />
+    <>
+      {routeCoords.length > 0 && (
+        <MapRoute
+          id="active-driving-osrm-route"
+          coordinates={routeCoords}
+          color="#f59e0b"
+          width={5}
+          opacity={0.9}
+        />
+      )}
+    </>
   );
 }
 
 function CustomGemGridMapContent() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const searchParams = useSearchParams();
-  const spotParam = searchParams.get('spot');
 
-  const [selectedSpot, setSelectedSpot] = useState<MapSpot>(MOCK_MAP_SPOTS[0]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [spots, setSpots] = useState<MapSpot[]>(INITIAL_MAP_SPOTS);
+  const [selectedSpot, setSelectedSpot] = useState<MapSpot>(INITIAL_MAP_SPOTS[0]);
   const [bookingModal, setBookingModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showScraperModal, setShowScraperModal] = useState(false);
+  const [isNavMode, setIsNavMode] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
-  useEffect(() => {
-    if (spotParam) {
-      const matched = MOCK_MAP_SPOTS.find((s) => s.id === spotParam);
-      if (matched) setSelectedSpot(matched);
-    }
-  }, [spotParam]);
+  const handleSpotExtracted = (scraped: ScrapedHiddenShop) => {
+    const newSpot: MapSpot = {
+      id: `scraped-${Date.now()}`,
+      name: scraped.extractedShopName,
+      address: scraped.extractedLocationText,
+      lat: scraped.latitude,
+      lng: scraped.longitude,
+      gemScore: Number((scraped.confidenceScore * 9.5).toFixed(1)),
+      rating: 4.8,
+      image: scraped.thumbnailUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600',
+      hasSecretMenu: true,
+      crowdLevel: 'Moderate',
+      waitTime: '10 min wait',
+      category: scraped.signatureDish || 'Hidden Gem',
+    };
+
+    setSpots(prev => [newSpot, ...prev]);
+    setSelectedSpot(newSpot);
+  };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans antialiased ${isLight ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#000000] text-[#e1e1e1]'}`}>
+    <div className="min-h-screen bg-[#05070a] text-slate-100 flex flex-col font-sans">
       <ExplorerNav />
 
-      {/* Full-Screen MapLibre GL Dark Map */}
-      <div className="flex-1 relative w-full overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
-        <Map center={[77.5946, 12.9716]} zoom={13} className="rounded-none">
-
-          {/* Map Controls (Zoom, Compass, Locate, Fullscreen) */}
-          <MapControls
-            position="top-right"
-            showZoom
-            showCompass
-            showLocate
-            showFullscreen
-          />
+      {/* Main Map Container */}
+      <div className="relative flex-1 w-full h-[calc(100vh-64px)] overflow-hidden">
+        <Map
+          center={[77.5946, 12.9716]}
+          zoom={13.5}
+          pitch={isNavMode ? 60 : 0}
+          bearing={isNavMode ? 35 : 0}
+        >
+          <MapControls position="bottom-right" />
 
           {/* Render real map markers for each hidden spot */}
           <SpotMarkers
-            spots={MOCK_MAP_SPOTS}
+            spots={spots}
             selectedSpot={selectedSpot}
             onSelectSpot={setSelectedSpot}
           />
@@ -289,50 +379,113 @@ function CustomGemGridMapContent() {
           <UserLocationMarker />
 
           {/* OSRM driving route line */}
-          <NavigationRoute selectedSpot={selectedSpot} />
+          <NavigationRoute selectedSpot={selectedSpot} isNavMode={isNavMode} />
         </Map>
 
-        {/* Top Search Overlay */}
-        <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-96 z-40 space-y-2">
-          <div className={`border rounded-2xl p-2.5 shadow-2xl flex items-center gap-2 backdrop-blur-xl ${
-            isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0a0d14]/90 border-[#1e2638]'
-          }`}>
-            <Search className="w-4 h-4 text-[#f59e0b] ml-1" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Gem Grid locations..."
-              className="w-full bg-transparent text-xs outline-none text-white placeholder-[#777777]"
-            />
+        {/* 🧭 LIVE TURN-BY-TURN HUD BANNER (When Navigation Mode is Active) */}
+        {isNavMode && (
+          <div className="absolute top-4 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[500px] z-50 animate-fade-in">
+            <div className="bg-[#0b101b]/95 border-2 border-[#f59e0b] rounded-3xl p-4 shadow-[0_10px_40px_rgba(245,158,11,0.3)] backdrop-blur-2xl text-white">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#f59e0b] text-black flex items-center justify-center font-black">
+                    <CornerUpRight className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-tight">Turn Right in 250m</h4>
+                    <p className="text-xs text-[#f59e0b] font-semibold">Onto MG Road / Brigade Junction</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                  </button>
+                  <button
+                    onClick={() => setIsNavMode(false)}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Speed & ETA Gauge */}
+              <div className="flex items-center justify-between pt-3 text-xs">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-bold">Speed</span>
+                    <span className="text-base font-black text-emerald-400">28 km/h</span>
+                  </div>
+                  <div className="h-6 w-px bg-white/10" />
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-bold">Distance</span>
+                    <span className="text-base font-black text-white">1.2 km</span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-bold">ETA</span>
+                  <span className="text-base font-black text-[#f59e0b]">4 Mins Remaining</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Top Search & Actions Overlay */}
+        {!isNavMode && (
+          <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-[440px] z-40 space-y-2">
+            <div className={`border rounded-2xl p-2.5 shadow-2xl flex items-center gap-2 backdrop-blur-xl ${
+              isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0a0d14]/90 border-[#1e2638]'
+            }`}>
+              <Search className="w-4 h-4 text-[#f59e0b] ml-1" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search Gem Grid locations..."
+                className="w-full bg-transparent text-xs outline-none text-white placeholder-[#777777]"
+              />
+              <button
+                onClick={() => setShowScraperModal(true)}
+                title="Scrape from YouTube URL"
+                className="px-3 py-1.5 rounded-xl bg-red-600/20 border border-red-500/40 text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-red-600/30 transition-all shrink-0 cursor-pointer"
+              >
+                <Youtube className="w-3.5 h-3.5" /> NLP Scraper
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Spot Drawer Card */}
-        {selectedSpot && (
-          <div className="absolute bottom-6 left-4 right-4 sm:left-6 sm:right-auto sm:w-[420px] z-40">
-            <div className={`border rounded-2xl p-5 shadow-2xl backdrop-blur-xl space-y-4 ${
+        {selectedSpot && !isNavMode && (
+          <div className="absolute bottom-6 left-4 right-4 sm:left-6 sm:right-auto sm:w-[420px] z-40 animate-fade-in">
+            <div className={`border rounded-3xl p-5 shadow-2xl backdrop-blur-2xl space-y-4 ${
               isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0a0d14]/95 border-[#1e2638]'
             }`}>
               <div className="flex items-start gap-4">
                 <img
                   src={selectedSpot.image}
                   alt={selectedSpot.name}
-                  className="w-20 h-20 rounded-xl object-cover shrink-0 shadow-md"
+                  className="w-20 h-20 rounded-2xl object-cover shrink-0 shadow-md border border-white/10"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-extrabold text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-extrabold text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-2 py-0.5 rounded-full">
                       💎 {selectedSpot.gemScore} GEM SCORE
                     </span>
-                    <span className="text-[10px] font-extrabold text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-0.5 rounded flex items-center gap-1">
+                    <span className="text-[10px] font-extrabold text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                       <Clock className="w-3 h-3" /> {selectedSpot.waitTime}
                     </span>
                   </div>
-                  <h3 className={`text-base font-bold mt-1 truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <h3 className={`text-base font-black mt-1 truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {selectedSpot.name}
                   </h3>
-                  <p className="text-xs text-[#777777] truncate mt-0.5">{selectedSpot.address}</p>
+                  <p className="text-xs text-[#888888] truncate mt-0.5">{selectedSpot.address}</p>
                   <div className="flex items-center gap-2 mt-2 text-xs text-[#f59e0b] font-bold">
                     <Star className="w-3.5 h-3.5 fill-[#f59e0b]" /> {selectedSpot.rating} Google Rating
                   </div>
@@ -341,19 +494,17 @@ function CustomGemGridMapContent() {
 
               <div className="pt-2 border-t border-[#1e2638] flex items-center gap-2">
                 <button
-                  onClick={() => setBookingModal(true)}
-                  className="flex-1 py-2.5 bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs rounded-xl transition-all shadow-lg shadow-[#f59e0b]/20 flex items-center justify-center gap-1.5"
+                  onClick={() => setIsNavMode(true)}
+                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Calendar className="w-3.5 h-3.5" /> Book Table Seat
+                  <Navigation className="w-4 h-4 fill-white" /> Start GPS Navigation HUD
                 </button>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSpot.name}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-2.5 bg-[#141b2a] hover:bg-[#1a2336] text-white text-xs font-semibold rounded-xl border border-[#223048] transition-colors"
+                <button
+                  onClick={() => setBookingModal(true)}
+                  className="px-4 py-3 bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs rounded-2xl transition-all shadow-lg shadow-[#f59e0b]/20 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  GPS Navigation ↗
-                </a>
+                  <Calendar className="w-3.5 h-3.5" /> Book Seat
+                </button>
               </div>
             </div>
           </div>
@@ -362,8 +513,8 @@ function CustomGemGridMapContent() {
 
       {/* Booking Modal */}
       {bookingModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#0a0d14] border border-[#1e2638] rounded-2xl p-6 space-y-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#0a0d14] border border-[#1e2638] rounded-3xl p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-[#1e2638] pb-3">
               <h3 className="text-base font-bold text-white">Reserve Table at {selectedSpot.name}</h3>
               <button onClick={() => setBookingModal(false)} className="text-[#777777] font-bold text-sm">✕</button>
@@ -376,12 +527,20 @@ function CustomGemGridMapContent() {
                 alert('Table seat reservation requested successfully!');
                 setBookingModal(false);
               }}
-              className="w-full py-3 bg-[#f59e0b] text-black font-bold text-xs rounded-xl shadow-lg shadow-[#f59e0b]/20"
+              className="w-full py-3.5 bg-[#f59e0b] text-black font-bold text-xs rounded-2xl shadow-lg shadow-[#f59e0b]/20"
             >
               Confirm Reservation Request
             </button>
           </div>
         </div>
+      )}
+
+      {/* YouTube / Instagram Scraper Modal */}
+      {showScraperModal && (
+        <YouTubeScraperModal
+          onClose={() => setShowScraperModal(false)}
+          onSpotExtracted={handleSpotExtracted}
+        />
       )}
     </div>
   );

@@ -4,8 +4,8 @@
  */
 
 export interface UPIPaymentParams {
-  payeeVPA: string; // Virtual Payment Address e.g., hiddeneats@upi
-  payeeName: string; // Restaurant / Merchant Name
+  payeeVPA?: string; // Virtual Payment Address e.g., hiddeneats@upi
+  payeeName?: string; // Restaurant / Merchant Name
   amount: number; // Transaction Amount in INR (₹)
   transactionRef: string; // Unique Order Ref ID
   note?: string; // Note e.g. "Order ORD-8812 Hidden Eats"
@@ -24,6 +24,14 @@ export function buildUPIDeepLink({
   const encodedName = encodeURIComponent(payeeName);
   const encodedNote = encodeURIComponent(note);
   return `upi://pay?pa=${payeeVPA}&pn=${encodedName}&am=${amount.toFixed(2)}&cu=INR&tr=${transactionRef}&tn=${encodedNote}`;
+}
+
+/**
+ * Generate BharatQR image URL for instant on-screen scanning
+ */
+export function buildBharatQRCodeUrl(params: UPIPaymentParams): string {
+  const deepLink = buildUPIDeepLink(params);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(deepLink)}`;
 }
 
 /**

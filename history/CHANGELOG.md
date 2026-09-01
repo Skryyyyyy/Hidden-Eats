@@ -1,0 +1,68 @@
+# 📜 Project Progress & Change Log
+
+---
+
+## 📌 Step 1: Authentication & Caooli Typography Integration
+**Date:** 2026-08-16  
+**Objective:** Enable Google/Apple OAuth login with seamless fallback, integrate Caooli serif font, and configure Supabase client.
+
+### Summary of Changes:
+- **Typography**: Integrated `Caooli` display serif typeface via `@font-face` and semantic CSS tokens in `apps/web/src/app/globals.css`.
+- **OAuth Login**: Added instant Google and Apple login flows on both `/login/user` and `/login/partner` with local fallback sessions to prevent blocking users when external OAuth provider is toggled off.
+- **Privacy Setup**: Generated Google OAuth credentials guide in `GOOGLE_OAUTH_SETUP.md` (added to `.gitignore` to protect API secrets).
+
+### Files Modified/Created:
+- `apps/web/src/app/globals.css`
+- `apps/web/src/app/login/user/page.tsx`
+- `apps/web/src/app/login/partner/page.tsx`
+- `GOOGLE_OAUTH_SETUP.md`
+- `.gitignore`
+
+---
+
+## 📌 Step 2: Interactive Dark Map Engine & OSRM Driving Navigation
+**Date:** 2026-08-16 – 2026-08-17  
+**Objective:** Replace mock SVG grid with a real MapLibre GL dark interactive map, live GPS explorer marker, and OSRM turn-by-turn routing.
+
+### Summary of Changes:
+- **MapLibre GL Component**: Created reusable `<Map>`, `<MapControls>`, `<MapMarker>`, and `<MapRoute>` components in `apps/web/src/components/ui/map.tsx`.
+- **CORS-Proof Dark Raster Tiles**: Configured `CartoDB Dark Matter` inline tile specification to prevent browser CORS / AJAX errors on localhost.
+- **OSRM Routing Engine**: Built `OsrmRouteExample.tsx` connecting to `https://router.project-osrm.org` for calculating driving distances, travel times, and fastest route badges between user GPS and destination spot.
+- **Map Page Rewrite**: Completely transformed `apps/web/src/app/explorer/map/page.tsx` to render real interactive streets, water bodies, city labels, and numbered stop pins.
+
+### Files Modified/Created:
+- `apps/web/src/components/ui/map.tsx`
+- `apps/web/src/components/ui/button.tsx`
+- `apps/web/src/components/OsrmRouteExample.tsx`
+- `apps/web/src/app/explorer/map/page.tsx`
+
+---
+
+## 📌 Step 3: Branch Synchronization, Teammate Merge & Navigation Refinement
+**Date:** 2026-08-17 – 2026-09-01  
+**Objective:** Merge updates from remote teammate branch (`origin/main`), resolve layout conflicts, fix TypeScript issues, and simplify navigation labels.
+
+### Summary of Changes:
+- **Teammate Merge**: Pulled teammate commits (`e96b7a4`, `4e61f61`) incorporating kitchen dashboard upgrades, landing page nav, and animations.
+- **Conflict Resolution**: Resolved merge conflict in `apps/web/src/app/layout.tsx` cleanly preserving `GlobalThemeToggle` and `SmoothFollower`.
+- **TypeScript Type Fix**: Fixed framer-motion `itemVariants` type issue in `InteractiveFeatures.tsx`.
+- **Navigation Labeling**: Renamed top navigation tab from `IN-APP MAP` to `MAP` across all 7 supported languages in `apps/web/src/context/LanguageContext.tsx`.
+- **Verification**: Verified `npx tsc --noEmit` with **0 errors**.
+
+### Files Modified/Created:
+- `apps/web/src/app/layout.tsx`
+- `apps/web/src/components/ui/InteractiveFeatures.tsx`
+- `apps/web/src/context/LanguageContext.tsx`
+- `apps/web/package.json` & `package-lock.json`
+
+---
+
+## 📌 Step 4: Dedicated History Directory Establishment
+**Date:** 2026-09-01  
+**Objective:** Create an isolated `/history` documentation folder to maintain an audit trail of every modification, step, and progress milestone.
+
+### Files Modified/Created:
+- `history/README.md`
+- `history/CHANGELOG.md`
+
+---

@@ -25,7 +25,12 @@ This folder is dedicated exclusively to tracking **all steps, modifications, and
 | [`step-08-kitchen-kds-realtime.md`](file:///c:/Hidden%20Eats/history/step-08-kitchen-kds-realtime.md) | Web Audio synthesized order bell, Supabase realtime channels, and thermal KOT printing. |
 | [`step-09-live-navigation-hud.md`](file:///c:/Hidden%20Eats/history/step-09-live-navigation-hud.md) | 3D GPS navigation HUD, turn-by-turn maneuver overlays, speed gauge, and scraper pin-to-map. |
 | [`step-10-foodie-passport-qr-settlement.md`](file:///c:/Hidden%20Eats/history/step-10-foodie-passport-qr-settlement.md) | Table secret QR scanner modal, Bitmoji avatar customizer, and dynamic BharatQR settlements. |
+| [`step-11-voice-guidance-middleware-ratelimit-community.md`](file:///c:/Hidden%20Eats/history/step-11-voice-guidance-middleware-ratelimit-community.md) | Web Speech voice guidance, Next.js Edge middleware, API rate limiting, and community gem submissions. |
+| [`step-12-food-crawl-ar-compass-partner-analytics.md`](file:///c:/Hidden%20Eats/history/step-12-food-crawl-ar-compass-partner-analytics.md) | Multi-stop food crawl (TSP), AR alley vision camera HUD, and partner discovery heatmaps. |
 | [`NEXT_STEPS_ROADMAP.md`](file:///c:/Hidden%20Eats/NEXT_STEPS_ROADMAP.md) | In-depth technical roadmap of upcoming implementation phases and milestones. |
+| [`HOW_TO_TEST_SCRAPER.md`](file:///c:/Hidden%20Eats/HOW_TO_TEST_SCRAPER.md) | Complete step-by-step guide for testing the AI YouTube & Video NLP Location Scraper. |
+| [`TOP_10_IMPROVEMENTS.md`](file:///c:/Hidden%20Eats/TOP_10_IMPROVEMENTS.md) | Top 10 high-impact technical and product improvements for production scale. |
+| [`UI_AND_SYSTEM_CHANGES_ROADMAP.md`](file:///c:/Hidden%20Eats/UI_AND_SYSTEM_CHANGES_ROADMAP.md) | Top 10 UI/UX visual upgrades and core backend system improvements. |
 
 ---
 

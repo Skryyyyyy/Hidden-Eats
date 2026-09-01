@@ -10,7 +10,8 @@ import {
   Bookmark,
   Settings,
   ChevronDown,
-  Clapperboard
+  Clapperboard,
+  Sparkles
 } from 'lucide-react';
 
 import MultiLangSwitcher from '@/components/MultiLangSwitcher';
@@ -26,6 +27,7 @@ export default function ExplorerNav() {
     { href: '/explorer/map', label: t('inAppMap'), icon: MapPin },
     { href: '/explorer/radar', label: t('liveRadar'), icon: Radio },
     { href: '/explorer/reels', label: t('foodieReels'), icon: Clapperboard },
+    { href: '/explorer/submit-gem', label: '+ Submit Gem', icon: Sparkles },
     { href: '/explorer/collections', label: t('collections'), icon: Bookmark },
   ];
 

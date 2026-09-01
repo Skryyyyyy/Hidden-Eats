@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
 import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const GOOGLE_MAPS_SERVER_KEY = process.env.GOOGLE_MAPS_SERVER_KEY || '';
 
 export async function POST(req: Request) {
   try {
+    // Rate Limiting Protection (Max 60 requests per minute per IP)
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(clientIp, 60, 60000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please slow down.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimit.reset - Date.now()) / 1000)) } }
+      );
+    }
+
     const rawBody = await req.json();
 
     // Validate payload against strict security schema

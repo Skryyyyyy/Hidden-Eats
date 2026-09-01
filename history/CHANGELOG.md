@@ -166,5 +166,31 @@
 
 ---
 
+## 📌 Step 11: Voice Guidance, Edge Middleware, API Rate Limiting & Community Spot Submissions
+**Date:** 2026-09-01  
+**Objective:** Implement the top high-impact production improvements including browser-native speech synthesis navigation guidance, Next.js Edge middleware route protection, sliding-window API rate limiting, and the community hidden gem submission portal.
+
+### Summary of Changes:
+- **Web Speech Synthesis Engine (`apps/web/src/lib/voiceGuidance.ts`)**: Natural spoken turn maneuvers (*"In 250 meters, turn right onto MG Road"*) integrated into the 3D Navigation HUD on `/explorer/map`.
+- **Edge Security Middleware (`apps/web/src/middleware.ts`)**: Maintenance mode route interceptor, anti-clickjacking headers, and XSS filtering.
+- **API Sliding Window Rate Limiter (`apps/web/src/lib/rateLimit.ts`)**: Rate limiting guards added to `/api/places` (60 req/min) and `/api/scrape-youtube` (20 extractions/min).
+- **Community Gem Submission Portal (`apps/web/src/app/explorer/submit-gem/page.tsx`)**: Diner submission form with photo upload, landmark tagging, secret off-menu passcode entry, and `+100 Gem XP` reward.
+
+---
+
+## 📌 Step 12: Multi-Stop Food Crawl (TSP), AR Alley Compass & Discovery Heatmaps
+**Date:** 2026-09-01  
+**Objective:** Implement the multi-stop food crawl route optimizer with Traveling Salesperson Problem (TSP) nearest-neighbor algorithm, browser Augmented Reality (AR) spatial camera vision, and partner customer discovery heatmaps.
+
+### Summary of Changes:
+- **Multi-Stop Food Crawl TSP Optimizer (`apps/web/src/lib/foodCrawlOptimizer.ts`)**: Nearest-neighbor TSP algorithm for 2–5 chosen food gems with travel & tasting duration estimates.
+- **Interactive Crawl Drawer (`apps/web/src/components/FoodCrawlDrawer.tsx`)**: Slide-over selection UI integrated into `/explorer/map`.
+- **Augmented Reality Alley Compass Vision (`apps/web/src/components/ARAlleyCompassModal.tsx`)**: Live camera overlay with floating 3D radar markers and distance meters.
+- **Partner Customer Discovery Heatmaps (`apps/web/src/app/dashboard/analytics/page.tsx`)**: Traffic origin distribution and peak ordering hour breakdowns.
+
+---
+
+
+
 
 

@@ -119,6 +119,51 @@ export default function PartnerAnalyticsPage() {
             </div>
           </div>
 
+          {/* 🗺️ Customer Discovery Heatmap & Peak Traffic Distribution */}
+          <div className={`border rounded-[32px] p-8 space-y-6 shadow-sm transition-colors ${
+            isLight ? 'bg-white border-black/5' : 'bg-[#111111] border-white/5'
+          }`}>
+            <div className="flex items-center justify-between">
+              <h2 className={`text-card-title text-lg flex items-center gap-2 ${isLight ? 'text-[#111111]' : 'text-white'}`}>
+                <TrendingUp className={`w-5 h-5 ${isLight ? 'text-[#111111]' : 'text-[#f59e0b]'}`} /> Customer Discovery Heatmap & Traffic Origins
+              </h2>
+              <span className={`text-label text-[11px] uppercase tracking-widest font-bold ${isLight ? 'text-[#666666]' : 'text-emerald-400'}`}>
+                🔥 Peak: 7:30 PM - 10:00 PM
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Indiranagar (0-2km)</span>
+                <span className="text-xl font-black text-white block">48%</span>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-[#f59e0b] h-full w-[48%]" />
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Koramangala (3-5km)</span>
+                <span className="text-xl font-black text-white block">26%</span>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-amber-400 h-full w-[26%]" />
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400">MG Road Corridor</span>
+                <span className="text-xl font-black text-white block">16%</span>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-emerald-400 h-full w-[16%]" />
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Other Districts</span>
+                <span className="text-xl font-black text-white block">10%</span>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-blue-400 h-full w-[10%]" />
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* 📊 Competitor Gem Radar Benchmarking */}
           <div className={`border rounded-[32px] p-8 space-y-6 shadow-sm transition-colors ${
             isLight ? 'bg-white border-black/5' : 'bg-[#111111] border-white/5'
@@ -135,7 +180,7 @@ export default function PartnerAnalyticsPage() {
                 <div
                   key={comp.rank}
                   className={`p-5 rounded-[32px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md ${
-                    comp.rank === 1
+                    comp.rank === 1 
                       ? isLight 
                         ? 'bg-[#F3F4F6] border-[#D62828]/30 shadow-sm shadow-[#D62828]/10 scale-[1.01]' 
                         : 'bg-[#181206] border-[#FFB703]/50 shadow-md shadow-[#FFB703]/10 scale-[1.01]'

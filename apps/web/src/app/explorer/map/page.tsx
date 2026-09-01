@@ -26,7 +26,11 @@ import {
   CornerUpRight,
 } from 'lucide-react';
 import YouTubeScraperModal from '@/components/YouTubeScraperModal';
+import FoodCrawlDrawer from '@/components/FoodCrawlDrawer';
+import ARAlleyCompassModal from '@/components/ARAlleyCompassModal';
 import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
+import { voiceGuidance } from '@/lib/voiceGuidance';
+import { OptimizedFoodCrawl, FoodCrawlSpot } from '@/lib/foodCrawlOptimizer';
 
 interface MapSpot {
   id: string;
@@ -331,8 +335,25 @@ function CustomGemGridMapContent() {
   const [bookingModal, setBookingModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showScraperModal, setShowScraperModal] = useState(false);
+  const [showCrawlDrawer, setShowCrawlDrawer] = useState(false);
+  const [showARCompass, setShowARCompass] = useState(false);
   const [isNavMode, setIsNavMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  const startNavigationWithVoice = () => {
+    setIsNavMode(true);
+    voiceGuidance.setMuted(isMuted);
+    voiceGuidance.announceNavigationStart(selectedSpot.name, 4, '1.2');
+    setTimeout(() => {
+      voiceGuidance.announceManeuver('right', 250, 'MG Road');
+    }, 3500);
+  };
+
+  const handleToggleMute = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    voiceGuidance.setMuted(nextMuted);
+  };
 
   const handleSpotExtracted = (scraped: ScrapedHiddenShop) => {
     const newSpot: MapSpot = {
@@ -399,7 +420,7 @@ function CustomGemGridMapContent() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setIsMuted(!isMuted)}
+                    onClick={handleToggleMute}
                     className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
                   >
                     {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
@@ -458,6 +479,25 @@ function CustomGemGridMapContent() {
                 <Youtube className="w-3.5 h-3.5" /> NLP Scraper
               </button>
             </div>
+
+            {/* Quick Action Pill Bar */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCrawlDrawer(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-[#f59e0b]/20 border border-[#f59e0b]/40 text-[#f59e0b] hover:bg-[#f59e0b]/30 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-xl flex items-center gap-1.5 shadow-lg transition-all cursor-pointer"
+              >
+                <Navigation className="w-3 h-3 fill-[#f59e0b]" />
+                <span>Food Crawl Tour (TSP)</span>
+              </button>
+
+              <button
+                onClick={() => setShowARCompass(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-xl flex items-center gap-1.5 shadow-lg transition-all cursor-pointer"
+              >
+                <Compass className="w-3 h-3" />
+                <span>AR Alley Vision</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -494,7 +534,7 @@ function CustomGemGridMapContent() {
 
               <div className="pt-2 border-t border-[#1e2638] flex items-center gap-2">
                 <button
-                  onClick={() => setIsNavMode(true)}
+                  onClick={startNavigationWithVoice}
                   className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Navigation className="w-4 h-4 fill-white" /> Start GPS Navigation HUD
@@ -540,6 +580,35 @@ function CustomGemGridMapContent() {
         <YouTubeScraperModal
           onClose={() => setShowScraperModal(false)}
           onSpotExtracted={handleSpotExtracted}
+        />
+      )}
+
+      {/* Multi-Stop Food Crawl TSP Drawer */}
+      {showCrawlDrawer && (
+        <FoodCrawlDrawer
+          availableSpots={spots.map((s) => ({
+            id: s.id,
+            name: s.name,
+            address: s.address,
+            lat: s.lat,
+            lng: s.lng,
+            signatureDish: s.category || 'Special Dish',
+            gemScore: s.gemScore,
+          }))}
+          onClose={() => setShowCrawlDrawer(false)}
+          onApplyCrawlRoute={(crawl) => {
+            if (crawl.orderedSpots.length > 0) {
+              setSelectedSpot(spots.find((s) => s.id === crawl.orderedSpots[0].id) || spots[0]);
+              startNavigationWithVoice();
+            }
+          }}
+        />
+      )}
+
+      {/* AR Alley Compass & Camera Vision Modal */}
+      {showARCompass && (
+        <ARAlleyCompassModal
+          onClose={() => setShowARCompass(false)}
         />
       )}
     </div>

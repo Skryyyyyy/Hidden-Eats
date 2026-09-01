@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { extractHiddenShopFromVideoUrl, getAllScrapedShops } from '@/lib/videoScraperNLP';
 import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function GET() {
   try {
@@ -21,6 +22,16 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Rate Limiting Protection (Max 20 video scrape extractions per minute per IP)
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`scrape_${clientIp}`, 20, 60000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Scraper rate limit exceeded. Please wait a moment.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimit.reset - Date.now()) / 1000)) } }
+      );
+    }
+
     const rawBody = await request.json();
     const parseResult = SecuritySchemas.videoScraper.safeParse(rawBody);
 

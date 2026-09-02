@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, Clock, Users, CheckCircle, XCircle, Search, Filter, PhoneCall } from 'lucide-react';
+import { Calendar, Clock, Users, CheckCircle, XCircle, Search, Filter, PhoneCall, QrCode, Sparkles } from 'lucide-react';
+import QRScannerModal from '@/components/QRScannerModal';
+import DinerSecretQRPassModal from '@/components/DinerSecretQRPassModal';
 
 interface Booking {
   id: string;
@@ -11,7 +13,8 @@ interface Booking {
   timeSlot: string;
   date: string;
   specialNotes?: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  tableAssigned?: string;
+  status: 'PENDING' | 'CONFIRMED' | 'SEATED' | 'CANCELLED';
 }
 
 const INITIAL_BOOKINGS: Booking[] = [
@@ -20,18 +23,20 @@ const INITIAL_BOOKINGS: Booking[] = [
     guestName: 'Rahul Sharma',
     phone: '+91 98765 43210',
     guestsCount: 4,
-    timeSlot: ' Tonight, 8:30 PM',
+    timeSlot: 'Tonight, 8:30 PM',
     date: '16 Aug 2026',
+    tableAssigned: 'Table #4',
     specialNotes: 'Prefers quiet corner table for birthday celebration.',
-    status: 'PENDING',
+    status: 'CONFIRMED',
   },
   {
     id: 'BK-102',
     guestName: 'Priya Patel',
     phone: '+91 91234 56789',
     guestsCount: 2,
-    timeSlot: ' Tomorrow, 1:00 PM',
+    timeSlot: 'Tomorrow, 1:00 PM',
     date: '17 Aug 2026',
+    tableAssigned: 'Table #2',
     specialNotes: 'Request window seating.',
     status: 'CONFIRMED',
   },
@@ -40,20 +45,46 @@ const INITIAL_BOOKINGS: Booking[] = [
     guestName: 'Vikram Singh',
     phone: '+91 99887 76655',
     guestsCount: 6,
-    timeSlot: ' 18 Aug, 9:00 PM',
+    timeSlot: '18 Aug, 9:00 PM',
     date: '18 Aug 2026',
-    status: 'CONFIRMED',
+    tableAssigned: 'Table #7',
+    status: 'PENDING',
   },
 ];
 
 export default function BookingsManagementPage() {
   const [bookings, setBookings] = useState<Booking[]>(INITIAL_BOOKINGS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
+  const [activeQRPass, setActiveQRPass] = useState<any | null>(null);
 
   const updateBookingStatus = (id: string, status: Booking['status']) => {
     setBookings((prev) =>
       prev.map((b) => (b.id === id ? { ...b, status } : b))
     );
+  };
+
+  const handleQRVerified = (pass: any) => {
+    // Find matching booking or add/update to SEATED
+    setBookings((prev) => {
+      const match = prev.find((b) => b.id === pass.id || b.guestName.toLowerCase().includes(pass.dinerName.toLowerCase()));
+      if (match) {
+        return prev.map((b) => (b.id === match.id ? { ...b, status: 'SEATED' } : b));
+      } else {
+        const newBooking: Booking = {
+          id: pass.id || `BK-${Date.now().toString().slice(-3)}`,
+          guestName: pass.dinerName,
+          phone: pass.dinerPhoneMasked,
+          guestsCount: 4,
+          timeSlot: 'Just Arrived',
+          date: 'Today',
+          tableAssigned: pass.tableAssigned || 'Table #1',
+          specialNotes: pass.details,
+          status: 'SEATED',
+        };
+        return [newBooking, ...prev];
+      }
+    });
   };
 
   const filteredBookings = bookings.filter(
@@ -69,22 +100,32 @@ export default function BookingsManagementPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#141414] border border-white/10 p-6 rounded-3xl shadow-xl">
         <div>
           <span className="text-[10px] font-bold text-[#f8b11c] uppercase tracking-widest block mb-1">
-            Dine-In Reservations
+            Dine-In Reservations & Check-In
           </span>
           <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
             Table Seating & Guests Pipeline
           </h1>
         </div>
 
-        <div className="relative w-full md:w-64">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search guest or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#f8b11c] transition-colors"
-          />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search guest or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#f8b11c] transition-colors"
+            />
+          </div>
+
+          <button
+            onClick={() => setShowScanner(true)}
+            className="px-5 py-2.5 rounded-2xl bg-[#f8b11c] hover:bg-[#e0a019] text-black font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg shadow-[#f8b11c]/25 shrink-0 cursor-pointer"
+          >
+            <QrCode className="w-4 h-4" />
+            <span>Scan Diner QR</span>
+          </button>
         </div>
       </div>
 
@@ -97,9 +138,9 @@ export default function BookingsManagementPage() {
                 <th className="p-5">Guest Info</th>
                 <th className="p-5">Party Size</th>
                 <th className="p-5">Date & Time</th>
-                <th className="p-5">Special Notes</th>
+                <th className="p-5">Assigned Seating</th>
                 <th className="p-5">Status</th>
-                <th className="p-5 text-right">Actions</th>
+                <th className="p-5 text-right">Actions & QR Pass</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs font-medium text-gray-300">
@@ -123,14 +164,18 @@ export default function BookingsManagementPage() {
                     <span className="text-[10px] text-gray-500">{b.date}</span>
                   </td>
 
-                  <td className="p-5 max-w-xs truncate text-gray-400">
-                    {b.specialNotes || 'Standard seating'}
+                  <td className="p-5">
+                    <span className="font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full text-[11px]">
+                      {b.tableAssigned || 'Table Assigned on Arrival'}
+                    </span>
                   </td>
 
                   <td className="p-5">
                     <span
                       className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                        b.status === 'CONFIRMED'
+                        b.status === 'SEATED'
+                          ? 'bg-emerald-500 text-black font-black border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.5)]'
+                          : b.status === 'CONFIRMED'
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                           : b.status === 'CANCELLED'
                           ? 'bg-red-500/10 text-red-400 border-red-500/30'
@@ -141,18 +186,34 @@ export default function BookingsManagementPage() {
                     </span>
                   </td>
 
-                  <td className="p-5 text-right">
+                  <td className="p-5 text-right space-x-2">
+                    <button
+                      onClick={() =>
+                        setActiveQRPass({
+                          type: 'TABLE_BOOKING',
+                          id: b.id,
+                          restaurantName: 'Grand Secret Kitchen',
+                          dinerName: b.guestName,
+                          details: `${b.guestsCount} Guests • ${b.timeSlot}`,
+                          tableAssigned: b.tableAssigned,
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-gray-200 transition-colors cursor-pointer"
+                    >
+                      <QrCode className="w-3.5 h-3.5 text-[#f8b11c]" /> View Secret QR Pass
+                    </button>
+
                     {b.status === 'PENDING' && (
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="inline-flex items-center gap-1.5">
                         <button
                           onClick={() => updateBookingStatus(b.id, 'CONFIRMED')}
-                          className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                          className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors inline-flex items-center gap-1"
                         >
                           <CheckCircle className="w-3.5 h-3.5" /> Approve
                         </button>
                         <button
                           onClick={() => updateBookingStatus(b.id, 'CANCELLED')}
-                          className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                          className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors inline-flex items-center gap-1"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Reject
                         </button>
@@ -165,6 +226,22 @@ export default function BookingsManagementPage() {
           </table>
         </div>
       </div>
+
+      {/* QR Scanner Modal for Hotel Staff */}
+      {showScanner && (
+        <QRScannerModal
+          onClose={() => setShowScanner(false)}
+          onVerified={handleQRVerified}
+        />
+      )}
+
+      {/* Diner Secret QR Pass Modal */}
+      {activeQRPass && (
+        <DinerSecretQRPassModal
+          bookingOrOrder={activeQRPass}
+          onClose={() => setActiveQRPass(null)}
+        />
+      )}
 
     </div>
   );

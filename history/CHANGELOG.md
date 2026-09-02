@@ -238,6 +238,18 @@
 - **Page Integration (`apps/web/src/app/explorer/map/page.tsx`)**: Connected `DualEngineMap` with dynamic client-side loading (`ssr: false`) and fly-to spot animations.
 - **TypeScript Verification**: Passed `npx tsc --noEmit` and all automated unit tests (14/14 PASS).
 
+## 📌 Step 17: Secret QR Dining Pass & Partner Studio Verification Scanner
+**Date:** 2026-09-02  
+**Objective:** Integrate dynamic, cryptographic Secret QR Pass generation for diner bookings and food orders, paired with a camera verification scanner in Partner Studio.
+
+### Summary of Changes:
+- **Cryptographic QR Engine (`apps/web/src/lib/qrPass.ts`)**: Built HMAC-SHA256 signed token generator with table assignments and 4-digit backup PINs.
+- **Verification API (`/api/qr/verify`)**: Endpoint validating scanned QR passes with origin verification and distributed rate limits.
+- **Partner Scanner Modal (`apps/web/src/components/QRScannerModal.tsx`)**: Camera scanner with aiming reticle, laser animation, manual PIN input, and instant status updates (`CONFIRMED` -> `SEATED`).
+- **Diner Secret Pass Modal (`apps/web/src/components/DinerSecretQRPassModal.tsx`)**: Glowing gold digital boarding pass rendered on booking confirmation.
+- **Dashboard Integrations**: Added "Scan Diner QR" to `/dashboard/bookings` and `/dashboard/kitchen` (KDS).
+- **Automated Tests**: Updated `apps/web/scripts/run-tests.js` with 17/17 passing tests.
+
 ---
 
 

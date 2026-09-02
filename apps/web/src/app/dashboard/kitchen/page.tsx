@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Check, AlertCircle, ChefHat, BellRing, X, Printer, Send, Sparkles } from 'lucide-react';
+import { Clock, Check, AlertCircle, ChefHat, BellRing, X, Printer, Send, Sparkles, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
+import QRScannerModal from '@/components/QRScannerModal';
 
 type OrderItem = {
   id: string;
@@ -77,6 +78,7 @@ export default function KitchenDisplayPage() {
   const [kotOrder, setKotOrder] = useState<Order | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('New Order Arrived!');
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   const supabase = createClient();
 
@@ -208,6 +210,12 @@ export default function KitchenDisplayPage() {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setShowQRScanner(true)}
+            className="bg-[#10b981] hover:bg-[#059669] text-black px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+          >
+            <QrCode className="w-4 h-4" /> Scan Diner QR Pass
+          </button>
+          <button
             onClick={triggerMockNewOrder}
             className="bg-[#f8b11c] text-black px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-[#e0a019] shadow-lg shadow-[#f8b11c]/20 transition-all cursor-pointer"
           >
@@ -215,6 +223,18 @@ export default function KitchenDisplayPage() {
           </button>
         </div>
       </div>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScannerModal
+          onClose={() => setShowQRScanner(false)}
+          onVerified={(pass) => {
+            setAlertText(`Verified Secret Pass for ${pass.dinerName} • ${pass.tableAssigned || pass.details}`);
+            setShowAlert(true);
+            playKitchenBell();
+          }}
+        />
+      )}
 
       {/* 🔔 New Order Alert Banner */}
       <AnimatePresence>

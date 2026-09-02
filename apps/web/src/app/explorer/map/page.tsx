@@ -26,6 +26,7 @@ import ARAlleyCompassModal from '@/components/ARAlleyCompassModal';
 import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
 import { voiceGuidance } from '@/lib/voiceGuidance';
 import { MapSpotItem } from '@/components/DualEngineMap';
+import DinerSecretQRPassModal from '@/components/DinerSecretQRPassModal';
 
 // Dynamically import DualEngineMap to prevent SSR leaflet window errors
 const DualEngineMap = dynamic(() => import('@/components/DualEngineMap'), {
@@ -98,6 +99,7 @@ function CustomGemGridMapContent() {
   const [showARCompass, setShowARCompass] = useState(false);
   const [isNavMode, setIsNavMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [dinerQRPass, setDinerQRPass] = useState<any | null>(null);
 
   const startNavigationWithVoice = () => {
     setIsNavMode(true);
@@ -313,19 +315,34 @@ function CustomGemGridMapContent() {
               <button onClick={() => setBookingModal(false)} className="text-[#777777] font-bold text-sm">✕</button>
             </div>
             <p className="text-xs text-[#888888]">
-              Reserve directly inside Hidden Eats without any middleman fees.
+              Reserve directly inside Hidden Eats without any middleman fees. Instant Secret QR Pass generated.
             </p>
             <button
               onClick={() => {
-                alert('Table seat reservation requested successfully!');
                 setBookingModal(false);
+                setDinerQRPass({
+                  type: 'TABLE_BOOKING',
+                  id: `BK-${Date.now().toString().slice(-4)}`,
+                  restaurantName: selectedSpot.name,
+                  dinerName: 'Explorer Diner',
+                  details: '2 Guests • Table for Tonight',
+                  tableAssigned: 'Table #4',
+                });
               }}
-              className="w-full py-3.5 bg-[#f59e0b] text-black font-bold text-xs rounded-2xl shadow-lg shadow-[#f59e0b]/20"
+              className="w-full py-3.5 bg-[#f59e0b] hover:bg-[#d97706] text-black font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-[#f59e0b]/20 transition-all cursor-pointer"
             >
-              Confirm Reservation Request
+              Confirm Reservation & Get Secret Pass QR
             </button>
           </div>
         </div>
+      )}
+
+      {/* Diner Secret Pass QR Modal */}
+      {dinerQRPass && (
+        <DinerSecretQRPassModal
+          bookingOrOrder={dinerQRPass}
+          onClose={() => setDinerQRPass(null)}
+        />
       )}
 
       {/* YouTube / Instagram Scraper Modal */}

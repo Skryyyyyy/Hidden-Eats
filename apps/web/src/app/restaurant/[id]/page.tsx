@@ -8,6 +8,7 @@ import { useCart } from '../../../context/CartContext';
 import { useParams } from 'next/navigation';
 import { RestaurantService } from '@hidden-eats/shared';
 import { useTheme } from '@/context/ThemeContext';
+import SmartUPIPaymentModal from '@/components/SmartUPIPaymentModal';
 
 export default function RestaurantMenu() {
   const { theme } = useTheme();
@@ -20,6 +21,7 @@ export default function RestaurantMenu() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [paymentOrder, setPaymentOrder] = useState<any | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -47,11 +49,16 @@ export default function RestaurantMenu() {
 
   const handleCheckout = () => {
     setIsCheckoutOpen(false);
-    setOrderPlaced(true);
-    setTimeout(() => {
-      clearCart();
-      setOrderPlaced(false);
-    }, 3000);
+    const totalPayable = Math.round((cartTotal + 40 + cartTotal * 0.05) * 100) / 100;
+    const itemsSummary = cart.map(i => `${i.quantity}x ${i.name}`).join(', ');
+
+    setPaymentOrder({
+      id: `ORD-${Date.now().toString().slice(-4)}`,
+      restaurantName: restaurant?.name || 'Grand Secret Kitchen',
+      itemsSummary,
+      amount: totalPayable,
+      type: 'FOOD_ORDER',
+    });
   };
 
   if (loading || !restaurant) {
@@ -339,6 +346,17 @@ export default function RestaurantMenu() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Smart Dynamic UPI Payment Modal */}
+      {paymentOrder && (
+        <SmartUPIPaymentModal
+          order={paymentOrder}
+          onClose={() => setPaymentOrder(null)}
+          onPaymentSuccess={() => {
+            clearCart();
+          }}
+        />
+      )}
     </div>
   );
 }

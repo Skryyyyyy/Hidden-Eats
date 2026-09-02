@@ -250,6 +250,16 @@
 - **Dashboard Integrations**: Added "Scan Diner QR" to `/dashboard/bookings` and `/dashboard/kitchen` (KDS).
 - **Automated Tests**: Updated `apps/web/scripts/run-tests.js` with 17/17 passing tests.
 
+## 📌 Step 18: Smart Dynamic UPI QR & 1-Tap Mobile Payment Engine
+**Date:** 2026-09-02  
+**Objective:** Integrate dynamic UPI BharatQR generation, 1-tap mobile payment deep-linking (`upi://pay`), automatic real-time transition to Secret Pass QR, and 3-way revenue split logging.
+
+### Summary of Changes:
+- **Smart UPI Modal (`apps/web/src/components/SmartUPIPaymentModal.tsx`)**: Created unified payment modal with 1-tap mobile deep link (`upi://pay`) and BharatQR code for desktop scanning, countdown timer, VPA copy tool, and instant payment confirmation.
+- **Auto-Pass Transition**: Successful payment directly launches the diner's glowing Secret Pass QR (`DinerSecretQRPassModal`).
+- **Flow Wiring**: Connected to restaurant cart checkout (`/restaurant/[id]`) and explorer table booking flow (`/explorer/map`).
+- **TypeScript & Test Verification**: Verified with 0 errors and 17/17 passing tests.
+
 ---
 
 

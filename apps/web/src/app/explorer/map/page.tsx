@@ -27,6 +27,7 @@ import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
 import { voiceGuidance } from '@/lib/voiceGuidance';
 import { MapSpotItem } from '@/components/DualEngineMap';
 import DinerSecretQRPassModal from '@/components/DinerSecretQRPassModal';
+import SmartUPIPaymentModal from '@/components/SmartUPIPaymentModal';
 
 // Dynamically import DualEngineMap to prevent SSR leaflet window errors
 const DualEngineMap = dynamic(() => import('@/components/DualEngineMap'), {
@@ -100,6 +101,7 @@ function CustomGemGridMapContent() {
   const [isNavMode, setIsNavMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [dinerQRPass, setDinerQRPass] = useState<any | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<any | null>(null);
 
   const startNavigationWithVoice = () => {
     setIsNavMode(true);
@@ -317,24 +319,62 @@ function CustomGemGridMapContent() {
             <p className="text-xs text-[#888888]">
               Reserve directly inside Hidden Eats without any middleman fees. Instant Secret QR Pass generated.
             </p>
-            <button
-              onClick={() => {
-                setBookingModal(false);
-                setDinerQRPass({
-                  type: 'TABLE_BOOKING',
-                  id: `BK-${Date.now().toString().slice(-4)}`,
-                  restaurantName: selectedSpot.name,
-                  dinerName: 'Explorer Diner',
-                  details: '2 Guests • Table for Tonight',
-                  tableAssigned: 'Table #4',
-                });
-              }}
-              className="w-full py-3.5 bg-[#f59e0b] hover:bg-[#d97706] text-black font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-[#f59e0b]/20 transition-all cursor-pointer"
-            >
-              Confirm Reservation & Get Secret Pass QR
-            </button>
+            <div className="space-y-2 pt-2">
+              <button
+                onClick={() => {
+                  setBookingModal(false);
+                  setPaymentOrder({
+                    id: `BK-${Date.now().toString().slice(-4)}`,
+                    restaurantName: selectedSpot.name,
+                    itemsSummary: 'Table for 2 • Advance Booking Token',
+                    amount: 150,
+                    tableNumber: 'Table #4',
+                    type: 'TABLE_BOOKING',
+                  });
+                }}
+                className="w-full py-3.5 bg-[#f59e0b] hover:bg-[#d97706] text-black font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-[#f59e0b]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>⚡ Pay ₹150 via 1-Tap UPI QR</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setBookingModal(false);
+                  setDinerQRPass({
+                    type: 'TABLE_BOOKING',
+                    id: `BK-${Date.now().toString().slice(-4)}`,
+                    restaurantName: selectedSpot.name,
+                    dinerName: 'Explorer Diner',
+                    details: '2 Guests • Pay at Restaurant',
+                    tableAssigned: 'Table #4',
+                  });
+                }}
+                className="w-full py-3 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-2xl border border-white/10 transition-all cursor-pointer"
+              >
+                Reserve & Pay on Arrival at Secret Alley
+              </button>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Smart Dynamic UPI Payment Modal */}
+      {paymentOrder && (
+        <SmartUPIPaymentModal
+          order={paymentOrder}
+          onClose={() => setPaymentOrder(null)}
+          onPaymentSuccess={(res) => {
+            setPaymentOrder(null);
+            setDinerQRPass({
+              type: 'TABLE_BOOKING',
+              id: paymentOrder.id,
+              restaurantName: paymentOrder.restaurantName,
+              dinerName: 'Verified Diner',
+              details: `${paymentOrder.itemsSummary} • Paid ₹${paymentOrder.amount}`,
+              tableAssigned: paymentOrder.tableNumber || 'Table #4',
+            });
+          }}
+        />
       )}
 
       {/* Diner Secret Pass QR Modal */}

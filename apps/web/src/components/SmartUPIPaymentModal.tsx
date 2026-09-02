@@ -15,7 +15,7 @@ import {
   Clock,
   ExternalLink,
 } from 'lucide-react';
-import { buildUPIDeepLink, buildBharatQRCodeUrl, calculateOrderSettlement } from '@/lib/payment';
+import { buildUPIDeepLink, generateLocalBharatQRDataUrl, calculateOrderSettlement } from '@/lib/payment';
 import DinerSecretQRPassModal from '@/components/DinerSecretQRPassModal';
 
 interface SmartUPIPaymentModalProps {
@@ -40,6 +40,7 @@ export default function SmartUPIPaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentDone, setPaymentDone] = useState(false);
   const [showSecretPass, setShowSecretPass] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [secondsLeft, setSecondsLeft] = useState(300); // 5 minute timer
 
   const vpa = 'hiddeneats@upi';
@@ -55,15 +56,20 @@ export default function SmartUPIPaymentModal({
     note: `Hidden Eats - ${order.itemsSummary}`,
   });
 
-  const qrCodeUrl = buildBharatQRCodeUrl({
-    payeeVPA: vpa,
-    payeeName,
-    amount,
-    transactionRef,
-    note: `Hidden Eats - ${order.itemsSummary}`,
-  });
-
   const settlement = calculateOrderSettlement(amount);
+
+  // Generate local in-memory QR Code data URL without third-party network requests
+  useEffect(() => {
+    generateLocalBharatQRDataUrl({
+      payeeVPA: vpa,
+      payeeName,
+      amount,
+      transactionRef,
+      note: `Hidden Eats - ${order.itemsSummary}`,
+    }).then((url) => {
+      setQrCodeDataUrl(url);
+    });
+  }, [vpa, payeeName, amount, transactionRef, order.itemsSummary]);
 
   // Countdown timer
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function SmartUPIPaymentModal({
             </div>
             <div>
               <h3 className="text-sm font-black uppercase tracking-tight">Dynamic UPI Smart Pay</h3>
-              <p className="text-[10px] text-gray-400">Zero Gateway Fees • Direct Bank Settlement</p>
+              <p className="text-[10px] text-gray-400">Direct Bank Settlement • 256-Bit Encrypted</p>
             </div>
           </div>
 
@@ -224,13 +230,20 @@ export default function SmartUPIPaymentModal({
                 Or Scan with Any UPI Camera App:
               </span>
 
-              {/* Dynamic BharatQR Code */}
-              <div className="p-3 bg-white rounded-2xl inline-block shadow-xl border-2 border-[#f59e0b]">
-                <img
-                  src={qrCodeUrl}
-                  alt="Dynamic Smart UPI QR"
-                  className="w-44 h-44 object-contain mx-auto"
-                />
+              {/* Dynamic In-Memory BharatQR Code */}
+              <div className="p-3 bg-white rounded-2xl inline-block shadow-xl border-2 border-[#f59e0b] min-w-[190px] min-h-[190px] flex items-center justify-center mx-auto">
+                {qrCodeDataUrl ? (
+                  <img
+                    src={qrCodeDataUrl}
+                    alt="Dynamic Smart UPI QR"
+                    className="w-44 h-44 object-contain mx-auto"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-7 h-7 border-3 border-[#f59e0b] border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[10px] text-black font-bold uppercase">Generating UPI QR...</span>
+                  </div>
+                )}
               </div>
 
               {/* UPI ID Copy Bar */}
@@ -256,7 +269,7 @@ export default function SmartUPIPaymentModal({
               <span>GPay • PhonePe • Paytm • BHIM • CRED</span>
             </div>
 
-            {/* Simulator Button for Instant Local Testing */}
+            {/* Test Simulation Button (Development Only) */}
             <button
               onClick={handleSimulatePaymentSuccess}
               disabled={isProcessing}
@@ -270,7 +283,7 @@ export default function SmartUPIPaymentModal({
               ) : (
                 <>
                   <CheckCircle className="w-3.5 h-3.5 text-[#f59e0b]" />
-                  <span>⚡ Simulate Instant Payment Approval (Test)</span>
+                  <span>⚡ Simulate Instant Payment Approval (Test Mode)</span>
                 </>
               )}
             </button>

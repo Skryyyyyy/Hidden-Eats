@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { QrCode, X, Sparkles, ShieldCheck, Download, Share2, Check } from 'lucide-react';
-import { generateSecretQRToken } from '@/lib/qrPass';
+import { generateSecretQRToken, generateLocalQRCodeDataUrl } from '@/lib/qrPass';
 
 interface DinerSecretQRPassModalProps {
   bookingOrOrder: {
@@ -17,6 +17,8 @@ interface DinerSecretQRPassModalProps {
 }
 
 export default function DinerSecretQRPassModal({ bookingOrOrder, onClose }: DinerSecretQRPassModalProps) {
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+
   const qrData = generateSecretQRToken({
     type: bookingOrOrder.type,
     id: bookingOrOrder.id,
@@ -27,6 +29,12 @@ export default function DinerSecretQRPassModal({ bookingOrOrder, onClose }: Dine
     details: bookingOrOrder.details || 'Table for 4 • 8:30 PM',
     tableAssigned: bookingOrOrder.tableAssigned || 'Table #4',
   });
+
+  useEffect(() => {
+    generateLocalQRCodeDataUrl(qrData.token).then((dataUrl) => {
+      setQrCodeDataUrl(dataUrl);
+    });
+  }, [qrData.token]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
@@ -54,11 +62,18 @@ export default function DinerSecretQRPassModal({ bookingOrOrder, onClose }: Dine
 
         {/* QR Code Container */}
         <div className="relative p-5 rounded-3xl bg-white shadow-2xl flex flex-col items-center justify-center mx-auto w-64 h-64 border-4 border-[#f59e0b]">
-          <img
-            src={qrData.qrCodeUrl}
-            alt="Secret Pass QR Code"
-            className="w-full h-full object-contain"
-          />
+          {qrCodeDataUrl ? (
+            <img
+              src={qrCodeDataUrl}
+              alt="Secret Pass QR Code"
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-8 h-8 border-3 border-[#f59e0b] border-t-transparent rounded-full animate-spin" />
+              <span className="text-[10px] text-black font-bold uppercase tracking-wider">Generating Pass...</span>
+            </div>
+          )}
         </div>
 
         {/* Table & PIN Details */}
@@ -77,7 +92,7 @@ export default function DinerSecretQRPassModal({ bookingOrOrder, onClose }: Dine
         </div>
 
         <p className="text-[11px] text-gray-400 leading-relaxed">
-          Show this QR code upon arrival at the secret alley entrance for instant table seating.
+          Show this QR code upon arrival at the secret alley entrance for instant table seating. Valid for 24h.
         </p>
 
         <button

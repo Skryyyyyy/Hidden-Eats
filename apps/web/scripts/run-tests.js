@@ -88,23 +88,30 @@ const bookingSchema = z.object({
 assert(bookingSchema.safeParse({ bookingId: 'BK_101', action: 'APPROVE' }).success === true, 'Valid booking payload accepted by Zod schema');
 assert(bookingSchema.safeParse({ bookingId: 'BK_101', action: 'INVALID' }).success === false, 'Invalid booking action rejected by Zod schema');
 
-// 6. Secret QR Pass Token Generation & Signature Verification
+// 6. Secret QR Pass Token Generation, TTL Expiry & Cryptographic Signature Verification
 const QR_TEST_SECRET = 'he_secret_qr_signing_key_2026';
-function generateTestQR(id, type, dinerName) {
+const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+function generateTestQR(id, type, dinerName, offsetMs = 0) {
   const hash = crypto.createHash('md5').update(id + QR_TEST_SECRET).digest('hex');
   const backupPin = String(parseInt(hash.slice(0, 6), 16) % 10000).padStart(4, '0');
-  const createdAt = Date.now();
-  const rawString = `${type}:${id}:res-1:${backupPin}:${createdAt}`;
+  const createdAt = Date.now() + offsetMs;
+  const expiresAt = createdAt + MAX_AGE_MS;
+  const rawString = `${type}:${id}:res-1:${backupPin}:${createdAt}:${expiresAt}`;
   const signature = crypto.createHmac('sha256', QR_TEST_SECRET).update(rawString).digest('hex').slice(0, 16);
 
-  const payload = { type, id, restaurantId: 'res-1', dinerName, backupPin, createdAt, signature };
+  const payload = { type, id, restaurantId: 'res-1', dinerName, backupPin, createdAt, expiresAt, signature };
   return { token: Buffer.from(JSON.stringify(payload)).toString('base64'), backupPin, payload };
 }
 
 function verifyTestQR(token) {
   try {
     const parsed = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
-    const rawString = `${parsed.type}:${parsed.id}:${parsed.restaurantId}:${parsed.backupPin}:${parsed.createdAt}`;
+    const now = Date.now();
+    if (parsed.expiresAt && now > parsed.expiresAt) return false;
+    if (now - parsed.createdAt > MAX_AGE_MS) return false;
+
+    const rawString = `${parsed.type}:${parsed.id}:${parsed.restaurantId}:${parsed.backupPin}:${parsed.createdAt}:${parsed.expiresAt || ''}`;
     const expectedSig = crypto.createHmac('sha256', QR_TEST_SECRET).update(rawString).digest('hex').slice(0, 16);
     return crypto.timingSafeEqual(Buffer.from(parsed.signature), Buffer.from(expectedSig));
   } catch {
@@ -116,6 +123,10 @@ const qrPass = generateTestQR('BK_101', 'TABLE_BOOKING', 'Rahul Sharma');
 assert(qrPass.backupPin.length === 4, 'QR Pass generates valid 4-digit numeric fallback PIN');
 assert(verifyTestQR(qrPass.token) === true, 'Valid Secret QR token passes cryptographic verification');
 assert(verifyTestQR(Buffer.from(JSON.stringify({ bad: 'data' })).toString('base64')) === false, 'Forged QR token is rejected');
+
+// Test TTL expiration (>24 hours old)
+const expiredQrPass = generateTestQR('BK_999', 'TABLE_BOOKING', 'Old Diner', -(25 * 60 * 60 * 1000));
+assert(verifyTestQR(expiredQrPass.token) === false, 'Expired QR token (>24h old) is securely rejected');
 
 console.log(`\n🎉 All ${passed} tests passed successfully (${failed} failed).\n`);
 process.exit(failed === 0 ? 0 : 1);

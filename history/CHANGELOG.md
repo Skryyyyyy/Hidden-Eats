@@ -260,6 +260,16 @@
 - **Flow Wiring**: Connected to restaurant cart checkout (`/restaurant/[id]`) and explorer table booking flow (`/explorer/map`).
 - **TypeScript & Test Verification**: Verified with 0 errors and 17/17 passing tests.
 
+## 📌 Step 19: QR Pass & Payment Security Hardening
+**Date:** 2026-09-02  
+**Objective:** Harden QR tokens with 24h TTL expiration, add 4-digit PIN brute-force lockout rate limiting, migrate to in-memory local QR rendering, and gate test payment simulator.
+
+### Summary of Changes:
+- **QR Pass TTL Expiration (`apps/web/src/lib/qrPass.ts`)**: Embedded 24-hour expiration check into token payloads and cryptographic signature calculations.
+- **PIN Brute-Force Rate Limiting (`apps/web/src/app/api/qr/verify/route.ts`)**: Added dedicated `pin_lock_${clientIp}` bucket restricting PIN entries to max 5 failed attempts per 15 minutes.
+- **Zero-External-Network Local QR Rendering (`qrcode`)**: Integrated `generateLocalQRCodeDataUrl` and `generateLocalBharatQRDataUrl` producing in-memory data URLs directly in the browser/server.
+- **Automated Tests**: Updated `apps/web/scripts/run-tests.js` with 18/18 passing assertions including TTL expiration verification.
+
 ---
 
 

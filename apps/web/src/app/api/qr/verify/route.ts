@@ -13,8 +13,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Distributed Rate Limiting (Max 30 scans per minute per IP)
     const clientIp = getClientIp(request);
+
+    // 2. Global Distributed Rate Limiting (Max 30 requests per minute per IP)
     const rateLimit = await checkDistributedRateLimit(`qr_scan_${clientIp}`, 30, 60000);
     if (!rateLimit.success) {
       return NextResponse.json(
@@ -33,8 +34,24 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Verify Cryptographic Token
-    const result = verifySecretQRToken(tokenOrPin, restaurantId);
+    const trimmedInput = tokenOrPin.trim();
+    const isPinAttempt = /^\d{4}$/.test(trimmedInput);
+
+    // 3. Brute Force Lockout for 4-Digit PIN Attempts (Max 5 failed attempts per 15 mins)
+    if (isPinAttempt) {
+      const pinRateLimit = await checkDistributedRateLimit(`pin_lock_${clientIp}`, 5, 15 * 60 * 1000);
+      if (!pinRateLimit.success) {
+        return NextResponse.json(
+          {
+            error: 'Too many incorrect PIN attempts. Entry locked for 15 minutes for security.',
+          },
+          { status: 429, headers: { 'Retry-After': '900' } }
+        );
+      }
+    }
+
+    // 4. Verify Cryptographic Token & TTL Expiry
+    const result = verifySecretQRToken(trimmedInput, restaurantId);
 
     if (!result.isValid || !result.payload) {
       return NextResponse.json(

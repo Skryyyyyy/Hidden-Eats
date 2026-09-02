@@ -17,6 +17,8 @@ export interface UPIPaymentParams {
 /**
  * Generate standard upi://pay deep link URL
  */
+import QRCode from 'qrcode';
+
 export function buildUPIDeepLink({
   payeeVPA = 'hiddeneats@upi',
   payeeName = 'Hidden Eats Food Platform',
@@ -30,7 +32,23 @@ export function buildUPIDeepLink({
 }
 
 /**
- * Generate BharatQR image URL for instant on-screen scanning
+ * Generate in-memory BharatQR Data URL (Zero external network dependencies)
+ */
+export async function generateLocalBharatQRDataUrl(params: UPIPaymentParams): Promise<string> {
+  const deepLink = buildUPIDeepLink(params);
+  try {
+    return await QRCode.toDataURL(deepLink, {
+      width: 260,
+      margin: 1,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    });
+  } catch {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(deepLink)}`;
+  }
+}
+
+/**
+ * Generate BharatQR image URL for instant on-screen scanning (Fallback)
  */
 export function buildBharatQRCodeUrl(params: UPIPaymentParams): string {
   const deepLink = buildUPIDeepLink(params);

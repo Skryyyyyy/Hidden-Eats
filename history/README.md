@@ -27,10 +27,15 @@ This folder is dedicated exclusively to tracking **all steps, modifications, and
 | [`step-10-foodie-passport-qr-settlement.md`](file:///c:/Hidden%20Eats/history/step-10-foodie-passport-qr-settlement.md) | Table secret QR scanner modal, Bitmoji avatar customizer, and dynamic BharatQR settlements. |
 | [`step-11-voice-guidance-middleware-ratelimit-community.md`](file:///c:/Hidden%20Eats/history/step-11-voice-guidance-middleware-ratelimit-community.md) | Web Speech voice guidance, Next.js Edge middleware, API rate limiting, and community gem submissions. |
 | [`step-12-food-crawl-ar-compass-partner-analytics.md`](file:///c:/Hidden%20Eats/history/step-12-food-crawl-ar-compass-partner-analytics.md) | Multi-stop food crawl (TSP), AR alley vision camera HUD, and partner discovery heatmaps. |
+| [`step-13-security-hardening-and-vulnerability-patches.md`](file:///c:/Hidden%20Eats/history/step-13-security-hardening-and-vulnerability-patches.md) | Server-side staff bypass API, driver endpoint PII masking, edge CSP headers, and placeId validation. |
+| [`step-14-backend-integration-and-system-enhancements.md`](file:///c:/Hidden%20Eats/history/step-14-backend-integration-and-system-enhancements.md) | Supabase real database wiring, Upstash Redis distributed rate limiting, HMAC-SHA256 payment webhooks, pgvector migration, and automated tests. |
+| [`step-15-map-open-source-engine-decoupling.md`](file:///c:/Hidden%20Eats/history/step-15-map-open-source-engine-decoupling.md) | Decoupled open-source maplibre-gl map engine from explorer page and staged modular viewport for incoming map tool. |
+| [`step-16-dual-engine-map-carto-dark-and-deckgl-3d.md`](file:///c:/Hidden%20Eats/history/step-16-dual-engine-map-carto-dark-and-deckgl-3d.md) | Integrated React-Leaflet with CartoDB Dark Matter tiles, 3D Deck.gl Spatial Radar view, and top-right style switcher. |
 | [`NEXT_STEPS_ROADMAP.md`](file:///c:/Hidden%20Eats/NEXT_STEPS_ROADMAP.md) | In-depth technical roadmap of upcoming implementation phases and milestones. |
 | [`HOW_TO_TEST_SCRAPER.md`](file:///c:/Hidden%20Eats/HOW_TO_TEST_SCRAPER.md) | Complete step-by-step guide for testing the AI YouTube & Video NLP Location Scraper. |
 | [`TOP_10_IMPROVEMENTS.md`](file:///c:/Hidden%20Eats/TOP_10_IMPROVEMENTS.md) | Top 10 high-impact technical and product improvements for production scale. |
 | [`UI_AND_SYSTEM_CHANGES_ROADMAP.md`](file:///c:/Hidden%20Eats/UI_AND_SYSTEM_CHANGES_ROADMAP.md) | Top 10 UI/UX visual upgrades and core backend system improvements. |
+| [`SECURITY_VULNERABILITY_AUDIT.md`](file:///c:/Hidden%20Eats/SECURITY_VULNERABILITY_AUDIT.md) | Complete security vulnerability audit, severity matrix, and remediation roadmap. |
 
 ---
 

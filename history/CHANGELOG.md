@@ -190,6 +190,58 @@
 
 ---
 
+## 📌 Step 13: Security Vulnerability Remediation & Hardening
+**Date:** 2026-09-02  
+**Objective:** Remediate all critical, high, and medium vulnerabilities identified in `SECURITY_VULNERABILITY_AUDIT.md`.
+
+### Summary of Changes:
+- **Server-Side Staff Bypass API (`apps/web/src/app/api/auth/staff-bypass/route.ts`)**: Replaced hardcoded client-side passcodes with rate-limited server route, constant-time comparisons, and secure `HttpOnly` cookie issuance.
+- **Driver Endpoint PII Masking & Rate-Limited OTPs (`apps/web/src/app/api/driver/route.ts`)**: Eliminated plaintext OTP leakage and masked customer phone numbers.
+- **Edge Middleware Route Protection & Content Security Policy (`apps/web/src/middleware.ts`)**: Protected `/dashboard` and `/driver` routes and added strict CSP headers.
+- **Password Reset Error Handling (`apps/web/src/app/reset-password/page.tsx`)**: Removed false-positive success mask and added explicit auth error alerts.
+- **Strict Parameter Whitelist Validation (`apps/web/src/lib/security.ts`)**: Enforced alphanumeric regex on `placeId` in `placesQuery` schema.
+
+---
+
+## 📌 Step 14: Backend Supabase Integration, Distributed Rate Limiting, Webhook Verification & pgvector Schema
+**Date:** 2026-09-02  
+**Objective:** Implement the top backend, payment, and database enhancements with 0 UI changes, ensuring full backward compatibility and automated test coverage.
+
+### Summary of Changes:
+- **Supabase Server Clients (`apps/web/src/lib/supabase.ts`)**: Added `createServerSupabaseClient` and `createAdminClient` for server-side database access.
+- **Database-Wired API Routes**: Upgraded `/api/bookings` and `/api/menu` to interact with Supabase tables with resilient mock fallbacks.
+- **Distributed Edge Rate Limiting (`apps/web/src/lib/rateLimit.ts`)**: Added Upstash Redis support with atomic `INCR` + `EXPIRE` and proxy header spoofing protection.
+- **Cryptographic Payment Engine (`apps/web/src/lib/payment.ts`)**: Added HMAC-SHA256 webhook signature verification and transaction hash utilities.
+- **Database Migration (`supabase/migrations/20260902_pgvector_and_schema_enhancements.sql`)**: Created `vector` extension, bookings schema, and cosine similarity semantic search function.
+- **Automated Test Suite (`apps/web/scripts/run-tests.js`)**: 14/14 automated assertions passed for security, settlement math, and validation.
+
+## 📌 Step 15: Open-Source Map Engine Decoupling & Modular Viewport Staging
+**Date:** 2026-09-02  
+**Objective:** Decouple open-source maplibre-gl map engine from the explorer page and prepare a modular location viewport ready for incoming map tool integration.
+
+### Summary of Changes:
+- **Map Decoupling (`apps/web/src/app/explorer/map/page.tsx`)**: Removed `maplibre-gl` raster tile canvas and OSRM network dependencies.
+- **Visual Location Viewport**: Implemented interactive Gem Grid spot canvas preserving all surrounding features (NLP YouTube Scraper, Multi-Stop Food Crawl, AR Alley Vision, Turn-by-Turn GPS Navigation HUD, voice guidance, and reservation modals).
+- **TypeScript Verification**: Verified 0 type errors across `apps/web`.
+
+## 📌 Step 16: Dual-Engine Interactive Map Integration (React-Leaflet + Carto Dark & 3D Deck.gl Spatial Radar)
+**Date:** 2026-09-02  
+**Objective:** Integrate React-Leaflet with CartoDB Dark Matter tiles and 3D Deck.gl Spatial Radar, providing a style switcher for the user.
+
+### Summary of Changes:
+- **Dual-Engine Map Component (`apps/web/src/components/DualEngineMap.tsx`)**: Created modular multi-style map system supporting:
+  1. *CartoDB Dark Matter (React-Leaflet)*: Luxury dark raster street tiles, gold Gem Score pins, and route polylines.
+  2. *Deck.gl 3D Spatial Radar*: 3D spatial node elevation arcs, rotating sweep beam, and range rings.
+  3. *CartoDB Voyager*: Clean architectural navigation view.
+  4. *OpenStreetMap Classic*: Standard daytime map view.
+- **Top-Right Style Switcher**: Floating pill dropdown allowing users to change map styles instantly.
+- **Page Integration (`apps/web/src/app/explorer/map/page.tsx`)**: Connected `DualEngineMap` with dynamic client-side loading (`ssr: false`) and fly-to spot animations.
+- **TypeScript Verification**: Passed `npx tsc --noEmit` and all automated unit tests (14/14 PASS).
+
+---
+
+
+
 
 
 

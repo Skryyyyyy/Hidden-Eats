@@ -97,7 +97,7 @@ export const SecuritySchemas = {
   // Places Search Validation
   placesQuery: z.object({
     action: z.enum(['search', 'place-details']),
-    placeId: z.string().max(128).optional(),
+    placeId: z.string().max(128).regex(/^[a-zA-Z0-9_\-.:]+$/, 'Invalid place ID format').optional(),
     query: z.string().max(200).optional().transform((val) => (val ? sanitizeSearchQuery(val) : '')),
     lat: z.number().min(-90).max(90).optional().default(12.9716),
     lng: z.number().min(-180).max(180).optional().default(77.5946),
@@ -128,3 +128,39 @@ export const SecuritySchemas = {
     }, { message: 'URL must be a valid YouTube or Instagram link' }),
   }),
 };
+
+/**
+ * Validates Origin & Referer headers against trusted application domains
+ * Defends against Cross-Site Request Forgery (CSRF) on state-changing API mutations
+ */
+export function verifyTrustedOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
+  const host = request.headers.get('host');
+
+  // Same-origin browser requests or non-browser server requests with no origin/referer
+  if (!origin && !referer) {
+    return true;
+  }
+
+  const target = origin || referer || '';
+
+  // Allow local development ports
+  if (target.includes('localhost:') || target.includes('127.0.0.1:')) {
+    return true;
+  }
+
+  // Check matching Host header
+  if (host && target.includes(host)) {
+    return true;
+  }
+
+  // Check configured production app URL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl && target.startsWith(appUrl)) {
+    return true;
+  }
+
+  return false;
+}
+

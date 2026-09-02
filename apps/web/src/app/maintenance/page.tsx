@@ -14,16 +14,37 @@ export default function MaintenancePage() {
 
   const [adminKey, setAdminKey] = useState('');
   const [showAdminBypass, setShowAdminBypass] = useState(false);
-  const [bypassError, setBypassError] = useState(false);
+  const [bypassError, setBypassError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAdminBypass = (e: React.FormEvent) => {
+  const handleAdminBypass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminKey === 'admin123' || adminKey === 'hiddeneats2026') {
-      localStorage.setItem('he_maintenance_mode', 'false');
-      router.push('/dashboard');
-    } else {
-      setBypassError(true);
-      setTimeout(() => setBypassError(false), 2500);
+    if (!adminKey.trim()) return;
+
+    setIsSubmitting(true);
+    setBypassError(null);
+
+    try {
+      const res = await fetch('/api/auth/staff-bypass', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: adminKey }),
+      });
+
+      const data = await res.json();
+      setIsSubmitting(false);
+
+      if (res.ok && data.success) {
+        localStorage.setItem('he_maintenance_mode', 'false');
+        router.push('/dashboard');
+      } else {
+        setBypassError(data.error || 'Invalid staff passcode. Access denied.');
+        setTimeout(() => setBypassError(null), 3500);
+      }
+    } catch {
+      setIsSubmitting(false);
+      setBypassError('Failed to verify staff credentials.');
+      setTimeout(() => setBypassError(null), 3500);
     }
   };
 
@@ -154,7 +175,7 @@ export default function MaintenancePage() {
 
           {bypassError && (
             <p className="text-red-400 text-xs font-bold mt-2">
-              Invalid staff passcode. Access denied.
+              {bypassError}
             </p>
           )}
         </div>

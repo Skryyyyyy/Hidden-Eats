@@ -1,7 +1,10 @@
 /**
- * Instant UPI Deep-Linking & Payment Settlement Engine
+ * Instant UPI Deep-Linking, Payment Settlement & Webhook Verification Engine
  * Supports upi://pay protocol for Google Pay, PhonePe, Paytm, BHIM, CRED
+ * and HMAC-SHA256 Cryptographic Webhook verification for Razorpay / Stripe / Gateways.
  */
+
+import crypto from 'crypto';
 
 export interface UPIPaymentParams {
   payeeVPA?: string; // Virtual Payment Address e.g., hiddeneats@upi
@@ -58,4 +61,42 @@ export function calculateOrderSettlement(grossAmount: number, tipAmount = 0): Se
     partnerPayout,
     settlementTimestamp: new Date().toISOString(),
   };
+}
+
+/**
+ * Verifies Razorpay / Webhook signature using constant-time HMAC-SHA256 comparison
+ */
+export function verifyPaymentWebhookSignature(
+  rawBody: string,
+  signature: string,
+  secretKey: string
+): boolean {
+  if (!rawBody || !signature || !secretKey) return false;
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', secretKey)
+      .update(rawBody)
+      .digest('hex');
+
+    const signatureBuffer = Buffer.from(signature, 'utf8');
+    const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+
+    if (signatureBuffer.length !== expectedBuffer.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Generates an immutable transaction hash identifier
+ */
+export function generateTransactionHash(orderId: string, amount: number, timestamp: number): string {
+  return crypto
+    .createHash('sha256')
+    .update(`${orderId}:${amount}:${timestamp}`)
+    .digest('hex');
 }

@@ -1,9 +1,28 @@
 import { NextResponse } from 'next/server';
 import { calculateOrderSettlement, buildUPIDeepLink } from '@/lib/payment';
-import { SecuritySchemas, hasSqlInjectionPattern } from '@/lib/security';
+import { SecuritySchemas, hasSqlInjectionPattern, verifyTrustedOrigin } from '@/lib/security';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
+    // 1. Origin & CSRF Verification
+    if (!verifyTrustedOrigin(request)) {
+      return NextResponse.json(
+        { error: 'Forbidden: Untrusted cross-site request origin' },
+        { status: 403 }
+      );
+    }
+
+    // 2. Rate Limiting Protection (Max 20 settlement calculations per minute per IP)
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`settlement_post_${clientIp}`, 20, 60000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please wait a moment.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimit.reset - Date.now()) / 1000)) } }
+      );
+    }
+
     const rawBody = await request.json();
     const parseResult = SecuritySchemas.settlement.safeParse({
       ...rawBody,
@@ -26,10 +45,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Calculate 3-Way Revenue Settlement Split (85% Restaurant, 10% Driver, 5% Platform)
+    // 3. Calculate 3-Way Revenue Settlement Split (85% Restaurant, 10% Driver, 5% Platform)
     const settlement = calculateOrderSettlement(totalAmount);
 
-    // 2. Generate 1-Tap UPI Deep Link
+    // 4. Generate 1-Tap UPI Deep Link
     const vpa = payeeVPA || 'hiddeneats@upi';
     const name = payeeName || 'Hidden Eats Partner';
     const upiLink = buildUPIDeepLink({

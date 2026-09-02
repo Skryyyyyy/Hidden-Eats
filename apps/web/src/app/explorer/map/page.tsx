@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import ExplorerNav from '@/components/ExplorerNav';
-import { Map, MapControls, MapRoute, useMap } from '@/components/ui/map';
-import * as maplibregl from 'maplibre-gl';
 import {
   Search,
   MapPin,
@@ -19,10 +17,7 @@ import {
   Volume2,
   VolumeX,
   X,
-  QrCode,
   Youtube,
-  ArrowUpRight,
-  CornerUpLeft,
   CornerUpRight,
 } from 'lucide-react';
 import YouTubeScraperModal from '@/components/YouTubeScraperModal';
@@ -30,24 +25,22 @@ import FoodCrawlDrawer from '@/components/FoodCrawlDrawer';
 import ARAlleyCompassModal from '@/components/ARAlleyCompassModal';
 import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
 import { voiceGuidance } from '@/lib/voiceGuidance';
-import { OptimizedFoodCrawl, FoodCrawlSpot } from '@/lib/foodCrawlOptimizer';
+import { MapSpotItem } from '@/components/DualEngineMap';
 
-interface MapSpot {
-  id: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-  gemScore: number;
-  rating: number;
-  image: string;
-  hasSecretMenu: boolean;
-  crowdLevel: 'Low' | 'Moderate' | 'Busy';
-  waitTime: string;
-  category: string;
-}
+// Dynamically import DualEngineMap to prevent SSR leaflet window errors
+const DualEngineMap = dynamic(() => import('@/components/DualEngineMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-[#05070a] text-white">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-[#f59e0b] border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs uppercase tracking-widest font-bold text-gray-400">Loading Map Engine...</span>
+      </div>
+    </div>
+  ),
+});
 
-const INITIAL_MAP_SPOTS: MapSpot[] = [
+const INITIAL_MAP_SPOTS: MapSpotItem[] = [
   {
     id: 'res-1',
     name: 'Grand Secret Kitchen',
@@ -92,246 +85,12 @@ const INITIAL_MAP_SPOTS: MapSpot[] = [
   },
 ];
 
-/* ─── MapLibre Spot Markers (rendered as real map markers) ─── */
-function SpotMarkers({
-  spots,
-  selectedSpot,
-  onSelectSpot,
-}: {
-  spots: MapSpot[];
-  selectedSpot: MapSpot;
-  onSelectSpot: (spot: MapSpot) => void;
-}) {
-  const { map } = useMap();
-  const markersRef = useRef<maplibregl.Marker[]>([]);
-
-  useEffect(() => {
-    if (!map) return;
-
-    // Clear old markers
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
-
-    spots.forEach((spot) => {
-      const isSelected = selectedSpot.id === spot.id;
-
-      const el = document.createElement('div');
-      el.style.cursor = 'pointer';
-      el.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform 0.3s;transform:scale(${isSelected ? 1.25 : 1});">
-          <div style="
-            padding:4px 10px;
-            border-radius:12px;
-            font-size:11px;
-            font-weight:800;
-            display:flex;align-items:center;gap:4px;
-            white-space:nowrap;
-            border:1px solid ${isSelected ? '#fff' : '#222e42'};
-            background:${isSelected ? '#f59e0b' : '#0f141d'};
-            color:${isSelected ? '#000' : '#fff'};
-            box-shadow:${isSelected ? '0 0 16px rgba(245,158,11,0.4)' : '0 4px 12px rgba(0,0,0,0.4)'};
-          ">💎 ${spot.gemScore}</div>
-          <div style="
-            width:36px;height:36px;
-            border-radius:14px;
-            display:flex;align-items:center;justify-content:center;
-            transform:rotate(45deg);
-            background:${isSelected ? 'linear-gradient(135deg,#f59e0b,#d97706)' : '#182232'};
-            color:${isSelected ? '#000' : '#f59e0b'};
-            border:${isSelected ? 'none' : '2px solid #2b3b54'};
-            box-shadow:${isSelected ? '0 0 20px rgba(245,158,11,0.5)' : '0 4px 12px rgba(0,0,0,0.3)'};
-          ">
-            <svg style="width:20px;height:20px;transform:rotate(-45deg);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-          </div>
-        </div>
-      `;
-
-      el.addEventListener('click', () => onSelectSpot(spot));
-
-      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([spot.lng, spot.lat])
-        .addTo(map);
-
-      markersRef.current.push(marker);
-    });
-
-    return () => {
-      markersRef.current.forEach(m => m.remove());
-      markersRef.current = [];
-    };
-  }, [map, spots, selectedSpot, onSelectSpot]);
-
-  return null;
-}
-
-/* ─── User Live GPS Marker ─── */
-function UserLocationMarker() {
-  const { map } = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <div style="position:relative;">
-          <div style="width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.2);position:absolute;top:-12px;left:-12px;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
-          <div style="width:16px;height:16px;border-radius:50%;background:#3b82f6;border:3px solid white;box-shadow:0 0 12px rgba(59,130,246,0.5);"></div>
-        </div>
-        <span style="background:rgba(0,0,0,0.85);color:#60a5fa;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;border:1px solid rgba(59,130,246,0.3);white-space:nowrap;">📍 Live Explorer Position</span>
-      </div>
-    `;
-
-    let marker: maplibregl.Marker;
-
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-            .setLngLat([pos.coords.longitude, pos.coords.latitude])
-            .addTo(map);
-        },
-        () => {
-          marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-            .setLngLat([77.5946, 12.9716])
-            .addTo(map);
-        }
-      );
-    } else {
-      marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([77.5946, 12.9716])
-        .addTo(map);
-    }
-
-    return () => {
-      marker?.remove();
-    };
-  }, [map]);
-
-  return null;
-}
-
-/* ─── OSRM Live Driving Route Line with Numbered Stop Pins ─── */
-function NavigationRoute({ selectedSpot, isNavMode }: { selectedSpot: MapSpot; isNavMode: boolean }) {
-  const { map } = useMap();
-  const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
-  const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
-
-  useEffect(() => {
-    if (!map || !selectedSpot) return;
-
-    let isMounted = true;
-    const originLng = 77.5946;
-    const originLat = 12.9716;
-    const destLng = selectedSpot.lng;
-    const destLat = selectedSpot.lat;
-
-    // Fetch real OSRM driving route
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`;
-
-    fetch(osrmUrl)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!isMounted) return;
-        if (data.code === 'Ok' && data.routes?.[0]?.geometry?.coordinates) {
-          const coords = data.routes[0].geometry.coordinates as [number, number][];
-          setRouteCoords(coords);
-
-          // Clear previous stop markers
-          stopMarkersRef.current.forEach(m => m.remove());
-          stopMarkersRef.current = [];
-
-          // Pin [1]: Origin (User position)
-          const startEl = document.createElement('div');
-          startEl.innerHTML = `
-            <div style="
-              width:28px;height:28px;border-radius:50%;
-              background:#10b981;color:#000;
-              font-size:12px;font-weight:900;
-              display:flex;align-items:center;justify-content:center;
-              border:2.5px solid #ffffff;
-              box-shadow:0 0 14px rgba(16,185,129,0.7);
-            ">1</div>
-          `;
-          const startMarker = new maplibregl.Marker({ element: startEl, anchor: 'center' })
-            .setLngLat([originLng, originLat])
-            .addTo(map);
-          stopMarkersRef.current.push(startMarker);
-
-          // Pin [2]: Destination (Selected spot)
-          const endEl = document.createElement('div');
-          endEl.innerHTML = `
-            <div style="
-              width:28px;height:28px;border-radius:50%;
-              background:#ef4444;color:#ffffff;
-              font-size:12px;font-weight:900;
-              display:flex;align-items:center;justify-content:center;
-              border:2.5px solid #ffffff;
-              box-shadow:0 0 14px rgba(239,68,68,0.7);
-            ">2</div>
-          `;
-          const endMarker = new maplibregl.Marker({ element: endEl, anchor: 'center' })
-            .setLngLat([destLng, destLat])
-            .addTo(map);
-          stopMarkersRef.current.push(endMarker);
-
-          // Adjust camera
-          if (isNavMode) {
-            map.flyTo({
-              center: [originLng, originLat],
-              zoom: 17.5,
-              pitch: 60,
-              bearing: 35,
-              duration: 1500,
-            });
-          } else {
-            const bounds = new maplibregl.LngLatBounds();
-            bounds.extend([originLng, originLat]);
-            bounds.extend([destLng, destLat]);
-            map.fitBounds(bounds, { padding: 100, maxZoom: 15.5 });
-          }
-        }
-      })
-      .catch(() => {
-        // Fallback straight line
-        const directLine: [number, number][] = [
-          [originLng, originLat],
-          [destLng, destLat],
-        ];
-        setRouteCoords(directLine);
-      });
-
-    return () => {
-      isMounted = false;
-      stopMarkersRef.current.forEach(m => m.remove());
-      stopMarkersRef.current = [];
-    };
-  }, [map, selectedSpot, isNavMode]);
-
-  return (
-    <>
-      {routeCoords.length > 0 && (
-        <MapRoute
-          id="active-driving-osrm-route"
-          coordinates={routeCoords}
-          color="#f59e0b"
-          width={5}
-          opacity={0.9}
-        />
-      )}
-    </>
-  );
-}
-
 function CustomGemGridMapContent() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
-  const [spots, setSpots] = useState<MapSpot[]>(INITIAL_MAP_SPOTS);
-  const [selectedSpot, setSelectedSpot] = useState<MapSpot>(INITIAL_MAP_SPOTS[0]);
+  const [spots, setSpots] = useState<MapSpotItem[]>(INITIAL_MAP_SPOTS);
+  const [selectedSpot, setSelectedSpot] = useState<MapSpotItem>(INITIAL_MAP_SPOTS[0]);
   const [bookingModal, setBookingModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showScraperModal, setShowScraperModal] = useState(false);
@@ -356,7 +115,7 @@ function CustomGemGridMapContent() {
   };
 
   const handleSpotExtracted = (scraped: ScrapedHiddenShop) => {
-    const newSpot: MapSpot = {
+    const newSpot: MapSpotItem = {
       id: `scraped-${Date.now()}`,
       name: scraped.extractedShopName,
       address: scraped.extractedLocationText,
@@ -371,37 +130,31 @@ function CustomGemGridMapContent() {
       category: scraped.signatureDish || 'Hidden Gem',
     };
 
-    setSpots(prev => [newSpot, ...prev]);
+    setSpots((prev) => [newSpot, ...prev]);
     setSelectedSpot(newSpot);
   };
+
+  const filteredSpots = spots.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-100 flex flex-col font-sans">
       <ExplorerNav />
 
-      {/* Main Map Container */}
-      <div className="relative flex-1 w-full h-[calc(100vh-64px)] overflow-hidden">
-        <Map
-          center={[77.5946, 12.9716]}
-          zoom={13.5}
-          pitch={isNavMode ? 60 : 0}
-          bearing={isNavMode ? 35 : 0}
-        >
-          <MapControls position="bottom-right" />
-
-          {/* Render real map markers for each hidden spot */}
-          <SpotMarkers
-            spots={spots}
-            selectedSpot={selectedSpot}
-            onSelectSpot={setSelectedSpot}
-          />
-
-          {/* User live GPS marker */}
-          <UserLocationMarker />
-
-          {/* OSRM driving route line */}
-          <NavigationRoute selectedSpot={selectedSpot} isNavMode={isNavMode} />
-        </Map>
+      {/* Main Map Engine Container */}
+      <div className="relative flex-1 w-full h-[calc(100vh-72px)] overflow-hidden">
+        {/* Dynamic Multi-Style Map (Carto Dark, Deck.gl 3D, Voyager, OSM) */}
+        <DualEngineMap
+          spots={filteredSpots}
+          selectedSpot={selectedSpot}
+          onSelectSpot={setSelectedSpot}
+          userPosition={[12.9716, 77.5946]}
+          isNavMode={isNavMode}
+        />
 
         {/* 🧭 LIVE TURN-BY-TURN HUD BANNER (When Navigation Mode is Active) */}
         {isNavMode && (
@@ -457,7 +210,7 @@ function CustomGemGridMapContent() {
           </div>
         )}
 
-        {/* Top Search & Actions Overlay */}
+        {/* Top Search & Quick Actions Overlay */}
         {!isNavMode && (
           <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-[440px] z-40 space-y-2">
             <div className={`border rounded-2xl p-2.5 shadow-2xl flex items-center gap-2 backdrop-blur-xl ${
@@ -501,7 +254,7 @@ function CustomGemGridMapContent() {
           </div>
         )}
 
-        {/* Dynamic Spot Drawer Card */}
+        {/* Dynamic Selected Spot Card */}
         {selectedSpot && !isNavMode && (
           <div className="absolute bottom-6 left-4 right-4 sm:left-6 sm:right-auto sm:w-[420px] z-40 animate-fade-in">
             <div className={`border rounded-3xl p-5 shadow-2xl backdrop-blur-2xl space-y-4 ${

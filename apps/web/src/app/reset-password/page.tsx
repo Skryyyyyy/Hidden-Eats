@@ -54,14 +54,13 @@ export default function ResetPasswordPage() {
       setLoading(false);
 
       if (error) {
-        // Fallback for demo mode
-        setIsSuccess(true);
+        setErrorMsg(error.message || 'Failed to update password. Please request a new reset link.');
       } else {
         setIsSuccess(true);
       }
     } catch (err: any) {
       setLoading(false);
-      setIsSuccess(true);
+      setErrorMsg(err.message || 'An unexpected error occurred while resetting password.');
     }
   };
 

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Protected path prefixes
-const PROTECTED_DASHBOARD_PATHS = ['/dashboard', '/driver'];
+// Protected path prefixes requiring authenticated session
+const PROTECTED_DASHBOARD_PATHS = ['/dashboard'];
+const PROTECTED_DRIVER_PATHS = ['/driver'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,7 +18,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(maintenanceUrl);
   }
 
-  // 2. Edge Security Headers
+  // 2. Authentication Route Guards for Dashboard & Driver routes
+  const hasAuthSession =
+    request.cookies.has('sb-access-token') ||
+    request.cookies.has('supabase-auth-token') ||
+    Array.from(request.cookies.getAll()).some((c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token')) ||
+    request.cookies.get('he_staff_bypass')?.value === 'true';
+
+  // Check /dashboard protection — Redirect unauthenticated users to partner login
+  if (PROTECTED_DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix))) {
+    if (!hasAuthSession) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login/partner';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Check /driver protection — Redirect unauthenticated drivers to user/driver login
+  if (PROTECTED_DRIVER_PATHS.some((prefix) => pathname.startsWith(prefix))) {
+    if (!hasAuthSession) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login/user';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // 3. Edge Security Headers & Content Security Policy (CSP)
   const response = NextResponse.next();
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -26,6 +54,10 @@ export async function middleware(request: NextRequest) {
   response.headers.set(
     'Permissions-Policy',
     'camera=(self), geolocation=(self), microphone=()'
+  );
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:;"
   );
 
   return response;

@@ -79,6 +79,8 @@ export default function KitchenDisplayPage() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('New Order Arrived!');
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [kitchenStatus, setKitchenStatus] = useState<'ONLINE' | 'RUSH' | 'PAUSED'>('ONLINE');
+  const [showThermalKOT, setShowThermalKOT] = useState<Order | null>(null);
 
   const supabase = createClient();
 
@@ -206,6 +208,51 @@ export default function KitchenDisplayPage() {
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Ready for Pickup</p>
             </div>
           </div>
+        </div>
+
+        {/* 3-State Kitchen Status Toggle */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/5 border border-white/10 text-xs font-bold">
+          <button
+            onClick={() => {
+              setKitchenStatus('ONLINE');
+              setAlertText('Kitchen is LIVE & Accepting Orders');
+              setShowAlert(true);
+            }}
+            className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+              kitchenStatus === 'ONLINE' ? 'bg-emerald-500 text-black font-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${kitchenStatus === 'ONLINE' ? 'bg-black animate-pulse' : 'bg-emerald-400'}`} />
+            <span>Accepting</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setKitchenStatus('RUSH');
+              setAlertText('Rush Mode Active (+15m auto-prep buffer)');
+              setShowAlert(true);
+            }}
+            className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+              kitchenStatus === 'RUSH' ? 'bg-[#f8b11c] text-black font-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${kitchenStatus === 'RUSH' ? 'bg-black animate-ping' : 'bg-[#f8b11c]'}`} />
+            <span>Rush Mode</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setKitchenStatus('PAUSED');
+              setAlertText('Kitchen PAUSED (Incoming orders blocked)');
+              setShowAlert(true);
+            }}
+            className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+              kitchenStatus === 'PAUSED' ? 'bg-red-500 text-white font-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${kitchenStatus === 'PAUSED' ? 'bg-white' : 'bg-red-400'}`} />
+            <span>Paused</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-3">

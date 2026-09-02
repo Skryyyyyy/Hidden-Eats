@@ -1,7 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, Clock, Users, CheckCircle, XCircle, Search, Filter, PhoneCall, QrCode, Sparkles } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Users,
+  CheckCircle,
+  XCircle,
+  Search,
+  Filter,
+  PhoneCall,
+  QrCode,
+  Sparkles,
+  Layers,
+  CreditCard,
+  Zap,
+  Check,
+} from 'lucide-react';
 import QRScannerModal from '@/components/QRScannerModal';
 import DinerSecretQRPassModal from '@/components/DinerSecretQRPassModal';
 
@@ -17,6 +32,24 @@ interface Booking {
   status: 'PENDING' | 'CONFIRMED' | 'SEATED' | 'CANCELLED';
 }
 
+interface TableSlot {
+  tableNumber: string;
+  capacity: number;
+  status: 'AVAILABLE' | 'RESERVED' | 'OCCUPIED';
+  dinerName?: string;
+}
+
+const INITIAL_TABLES: TableSlot[] = [
+  { tableNumber: 'Table #1', capacity: 2, status: 'AVAILABLE' },
+  { tableNumber: 'Table #2', capacity: 2, status: 'RESERVED', dinerName: 'Priya Patel' },
+  { tableNumber: 'Table #3', capacity: 4, status: 'AVAILABLE' },
+  { tableNumber: 'Table #4', capacity: 4, status: 'OCCUPIED', dinerName: 'Rahul Sharma (Seated)' },
+  { tableNumber: 'Table #5', capacity: 4, status: 'AVAILABLE' },
+  { tableNumber: 'Table #6', capacity: 6, status: 'AVAILABLE' },
+  { tableNumber: 'Table #7', capacity: 6, status: 'RESERVED', dinerName: 'Vikram Singh' },
+  { tableNumber: 'Table #8', capacity: 8, status: 'AVAILABLE' },
+];
+
 const INITIAL_BOOKINGS: Booking[] = [
   {
     id: 'BK-101',
@@ -27,7 +60,7 @@ const INITIAL_BOOKINGS: Booking[] = [
     date: '16 Aug 2026',
     tableAssigned: 'Table #4',
     specialNotes: 'Prefers quiet corner table for birthday celebration.',
-    status: 'CONFIRMED',
+    status: 'SEATED',
   },
   {
     id: 'BK-102',
@@ -54,9 +87,11 @@ const INITIAL_BOOKINGS: Booking[] = [
 
 export default function BookingsManagementPage() {
   const [bookings, setBookings] = useState<Booking[]>(INITIAL_BOOKINGS);
+  const [tables, setTables] = useState<TableSlot[]>(INITIAL_TABLES);
   const [searchQuery, setSearchQuery] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [activeQRPass, setActiveQRPass] = useState<any | null>(null);
+  const [payoutTransferred, setPayoutTransferred] = useState(false);
 
   const updateBookingStatus = (id: string, status: Booking['status']) => {
     setBookings((prev) =>
@@ -65,9 +100,10 @@ export default function BookingsManagementPage() {
   };
 
   const handleQRVerified = (pass: any) => {
-    // Find matching booking or add/update to SEATED
     setBookings((prev) => {
-      const match = prev.find((b) => b.id === pass.id || b.guestName.toLowerCase().includes(pass.dinerName.toLowerCase()));
+      const match = prev.find(
+        (b) => b.id === pass.id || b.guestName.toLowerCase().includes(pass.dinerName.toLowerCase())
+      );
       if (match) {
         return prev.map((b) => (b.id === match.id ? { ...b, status: 'SEATED' } : b));
       } else {
@@ -85,6 +121,17 @@ export default function BookingsManagementPage() {
         return [newBooking, ...prev];
       }
     });
+
+    // Update floor table status
+    if (pass.tableAssigned) {
+      setTables((prev) =>
+        prev.map((t) =>
+          t.tableNumber === pass.tableAssigned
+            ? { ...t, status: 'OCCUPIED', dinerName: `${pass.dinerName} (Seated)` }
+            : t
+        )
+      );
+    }
   };
 
   const filteredBookings = bookings.filter(
@@ -94,13 +141,13 @@ export default function BookingsManagementPage() {
   );
 
   return (
-    <div className="animate-fade-in max-w-6xl mx-auto space-y-8">
+    <div className="animate-fade-in max-w-6xl mx-auto space-y-8 text-white">
       
       {/* Header Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#141414] border border-white/10 p-6 rounded-3xl shadow-xl">
         <div>
           <span className="text-[10px] font-bold text-[#f8b11c] uppercase tracking-widest block mb-1">
-            Dine-In Reservations & Check-In
+            Dine-In Reservations & Live Check-In
           </span>
           <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
             Table Seating & Guests Pipeline
@@ -129,7 +176,96 @@ export default function BookingsManagementPage() {
         </div>
       </div>
 
-      {/* Bookings Table / Cards */}
+      {/* 🗺️ INTERACTIVE TABLE OCCUPANCY FLOOR MAP */}
+      <div className="bg-[#141414] border border-white/10 p-6 rounded-3xl space-y-4 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <Layers className="w-5 h-5 text-[#f8b11c]" />
+            <h3 className="text-base font-black uppercase tracking-tight">Live Dining Floor Plan</h3>
+          </div>
+          <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Seated (Occupied)</span>
+            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#f8b11c]" /> Reserved (Incoming)</span>
+            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-white/20" /> Available</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {tables.map((t) => (
+            <div
+              key={t.tableNumber}
+              className={`p-4 rounded-2xl border transition-all space-y-1.5 ${
+                t.status === 'OCCUPIED'
+                  ? 'bg-emerald-500/15 border-emerald-500/40 shadow-lg shadow-emerald-500/10'
+                  : t.status === 'RESERVED'
+                  ? 'bg-[#f8b11c]/15 border-[#f8b11c]/40'
+                  : 'bg-white/5 border-white/10 hover:border-white/20'
+              }`}
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-mono font-black text-xs text-white">{t.tableNumber}</span>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/40 text-gray-300">
+                  {t.capacity} Seats
+                </span>
+              </div>
+              <p className="text-xs font-bold truncate text-white">
+                {t.dinerName || 'Available for Walk-ins'}
+              </p>
+              <span
+                className={`text-[9px] font-black uppercase tracking-widest block ${
+                  t.status === 'OCCUPIED'
+                    ? 'text-emerald-400'
+                    : t.status === 'RESERVED'
+                    ? 'text-[#f8b11c]'
+                    : 'text-gray-400'
+                }`}
+              >
+                ● {t.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 💳 INSTANT DAILY UPI PARTNER SETTLEMENT CARD */}
+      <div className="bg-gradient-to-r from-[#1b2333] to-[#0f172a] border border-[#f8b11c]/40 p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+        <div className="space-y-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#f8b11c] flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 fill-[#f8b11c]" /> Instant End-of-Day Payout Settlement
+          </span>
+          <h3 className="text-2xl font-black text-white">₹3,840.00 Net Payout Available</h3>
+          <p className="text-xs text-gray-400">
+            85% Kitchen Revenue Share (12 Dine-In & Secret Orders) • Zero Commission Delay
+          </p>
+        </div>
+
+        <button
+          onClick={() => {
+            setPayoutTransferred(true);
+            setTimeout(() => setPayoutTransferred(false), 4000);
+          }}
+          disabled={payoutTransferred}
+          className={`px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 shrink-0 cursor-pointer ${
+            payoutTransferred
+              ? 'bg-emerald-500 text-black shadow-emerald-500/25'
+              : 'bg-[#f8b11c] hover:bg-[#e0a019] text-black shadow-[#f8b11c]/25'
+          }`}
+        >
+          {payoutTransferred ? (
+            <>
+              <Check className="w-4 h-4 stroke-[3]" />
+              <span>Transferred to hotel@upi!</span>
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-4 h-4" />
+              <span>1-Tap Instant UPI Payout</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Bookings Table */}
       <div className="bg-[#141414] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">

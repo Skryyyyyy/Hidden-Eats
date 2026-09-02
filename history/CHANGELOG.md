@@ -270,6 +270,25 @@
 - **Zero-External-Network Local QR Rendering (`qrcode`)**: Integrated `generateLocalQRCodeDataUrl` and `generateLocalBharatQRDataUrl` producing in-memory data URLs directly in the browser/server.
 - **Automated Tests**: Updated `apps/web/scripts/run-tests.js` with 18/18 passing assertions including TTL expiration verification.
 
+## 📌 Step 20: Top 10 Real-Time Dashboard & Driver Operations Engine
+**Date:** 2026-09-02  
+**Objective:** Implement all 10 real-time operational features across the Partner Studio Dashboard and Driver Logistics Portal.
+
+### Summary of Changes:
+- **Partner Dashboard Enhancements**:
+  1. *3-State Kitchen Rush Mode Toggle* (`/dashboard/kitchen`): Accepting, Rush Mode (+15m), Paused.
+  2. *Limited Batch Decrementer* (`/dashboard/menu`): Real-time remaining portions counter with 86'd / Sold Out auto-transitions.
+  3. *Thermal ESC/POS KOT Printing* (`/dashboard/kitchen`): 80mm monospace printable kitchen ticket with pickup QR.
+  4. *Dynamic Table Floor Map* (`/dashboard/bookings`): 8-table visual seating grid with real-time occupancy updates.
+  5. *Instant End-of-Day UPI Settlement* (`/dashboard/bookings`): 1-tap transfer of 85% revenue to `hotel@upi`.
+- **Driver Logistics Portal Enhancements (`/driver`)**:
+  6. *Mission Radar with Guaranteed Earnings & Surge Bonus*.
+  7. *Secret Alley Voice Guidance & Backdoor Landmarks*.
+  8. *Dual-Step Anti-Theft Handover Verification* (Kitchen Bag Pickup + Diner 4-digit OTP).
+  9. *On-the-Spot "Collect via Dynamic UPI QR" for Pay-on-Delivery*.
+  10. *OLED Battery-Saver Stealth Mode* (`#000000`).
+- **Verification**: Verified with 0 TypeScript errors and 18/18 passing test suite assertions.
+
 ---
 
 

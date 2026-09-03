@@ -49,6 +49,7 @@ function LeafletEngine({
   const markersGroupRef = useRef<any>(null);
   const routeLineRef = useRef<any>(null);
 
+  // 1. Initialize Map Instance once on mount
   useEffect(() => {
     if (typeof window === 'undefined' || !mapContainerRef.current) return;
     const L = require('leaflet');
@@ -61,20 +62,32 @@ function LeafletEngine({
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     });
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: [selectedSpot.lat, selectedSpot.lng],
-        zoom: 14,
-        zoomControl: false,
-      });
+    const map = L.map(mapContainerRef.current, {
+      center: [selectedSpot.lat, selectedSpot.lng],
+      zoom: 14,
+      zoomControl: false,
+    });
 
-      L.control.zoom({ position: 'bottom-right' }).addTo(map);
+    // Leaflet control position strings are: 'topleft' | 'topright' | 'bottomleft' | 'bottomright'
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      mapInstanceRef.current = map;
-      markersGroupRef.current = L.layerGroup().addTo(map);
-    }
+    mapInstanceRef.current = map;
+    markersGroupRef.current = L.layerGroup().addTo(map);
 
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersGroupRef.current = null;
+      routeLineRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 2. Update Tiles, Markers, and Polyline dynamically when state changes
+  useEffect(() => {
     const map = mapInstanceRef.current;
+    if (!map || typeof window === 'undefined') return;
+    const L = require('leaflet');
 
     // Remove existing tile layer if style changes
     map.eachLayer((layer: any) => {

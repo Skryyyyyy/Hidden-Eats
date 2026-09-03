@@ -10,8 +10,8 @@ export default function GlobalThemeToggle() {
   const isLight = theme === 'light';
   const pathname = usePathname();
 
-  // Hide the theme toggle on the landing page
-  if (pathname === '/') return null;
+  // Hide the theme toggle on the landing page and the reels page
+  if (pathname === '/' || pathname === '/explorer/reels') return null;
 
   return (
     <button 

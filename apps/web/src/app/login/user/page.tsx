@@ -99,6 +99,17 @@ export default function DinerLoginPage() {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    
+    // Mock login if we are using the placeholder supabase URL
+    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+      setTimeout(() => {
+        localStorage.setItem('he_user_session', JSON.stringify({ provider: 'google', email: 'explorer@gmail.com', name: 'Google Explorer' }));
+        router.push('/explorer');
+      }, 1000);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -107,17 +118,28 @@ export default function DinerLoginPage() {
         },
       });
       if (error) {
-        localStorage.setItem('he_user_session', JSON.stringify({ provider: 'google', email: 'explorer@gmail.com', name: 'Google Explorer' }));
-        router.push('/explorer');
+        setLoading(false);
+        setErrorMsg(error.message);
       }
     } catch (err) {
-      localStorage.setItem('he_user_session', JSON.stringify({ provider: 'google', email: 'explorer@gmail.com', name: 'Google Explorer' }));
-      router.push('/explorer');
+      setLoading(false);
+      setErrorMsg('An error occurred during Google sign in.');
     }
   };
 
   const handleAppleSignIn = async () => {
     setLoading(true);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    
+    // Mock login if we are using the placeholder supabase URL
+    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+      setTimeout(() => {
+        localStorage.setItem('he_user_session', JSON.stringify({ provider: 'apple', email: 'explorer@apple.com', name: 'Apple Explorer' }));
+        router.push('/explorer');
+      }, 1000);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
@@ -126,12 +148,12 @@ export default function DinerLoginPage() {
         },
       });
       if (error) {
-        localStorage.setItem('he_user_session', JSON.stringify({ provider: 'apple', email: 'explorer@apple.com', name: 'Apple Explorer' }));
-        router.push('/explorer');
+        setLoading(false);
+        setErrorMsg(error.message);
       }
     } catch (err) {
-      localStorage.setItem('he_user_session', JSON.stringify({ provider: 'apple', email: 'explorer@apple.com', name: 'Apple Explorer' }));
-      router.push('/explorer');
+      setLoading(false);
+      setErrorMsg('An error occurred during Apple sign in.');
     }
   };
 

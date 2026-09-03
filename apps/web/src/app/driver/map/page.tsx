@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Navigation, MapPin, Navigation2, Check, X, Clock, Navigation as NavIcon, Flame, Plus } from 'lucide-react';
+import { Navigation, MapPin, Navigation2, Check, X, Clock, Navigation as NavIcon, Flame, Plus, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Map, MapControls } from '@/components/ui/map';
 
 export default function DriverMapPage() {
   const [activeRequest, setActiveRequest] = useState<boolean>(true);
@@ -12,24 +13,27 @@ export default function DriverMapPage() {
   return (
     <div className="relative w-full h-full min-h-[calc(100vh-64px)] md:min-h-screen bg-[#111] overflow-hidden flex flex-col">
       
-      {/* Map Background Placeholder & Heatmaps */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" style={{
-        backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }}>
-        {/* Fake Map Elements */}
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 border-4 border-[#333] rounded-full opacity-50" />
-        <div className="absolute top-1/2 left-1/3 w-64 h-2 bg-[#333] rotate-45 opacity-50" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-2 bg-[#333] -rotate-12 opacity-50" />
-        
-        {/* Heatmap / Surge Zones */}
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute top-[40%] right-[30%] w-48 h-48 bg-[#f8b11c]/30 rounded-full blur-[60px] animate-pulse" style={{ animationDelay: '1s' }} />
-        
-        {/* Heatmap Labels */}
-        <div className="absolute top-[35%] right-[28%] bg-red-500 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-lg flex items-center gap-1">
-          <Flame className="w-3 h-3" /> +₹50 Surge
-        </div>
+      {/* Real MapLibre GL Map Background */}
+      <div className="absolute inset-0 z-0">
+        <Map 
+          center={[80.2707, 13.0827]} 
+          zoom={12}
+          styles={{
+            light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+            dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+          }}
+        >
+          <MapControls position="top-left" showZoom showCompass showLocate showFullscreen={false} />
+
+          {/* Heatmap / Surge Zones (overlaid on real map) */}
+          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-[100px] animate-pulse pointer-events-none" />
+          <div className="absolute top-[40%] right-[30%] w-48 h-48 bg-[#f8b11c]/30 rounded-full blur-[60px] animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
+          
+          {/* Heatmap Labels */}
+          <div className="absolute top-[35%] right-[28%] bg-red-500 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-lg flex items-center gap-1 pointer-events-auto z-20">
+            <Flame className="w-3 h-3" /> +₹50 Surge
+          </div>
+        </Map>
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col p-4 md:p-8">
@@ -195,24 +199,4 @@ export default function DriverMapPage() {
       </div>
     </div>
   );
-}
-
-// Add ChevronRight icon import since it's used in the button now
-function ChevronRight(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  )
 }

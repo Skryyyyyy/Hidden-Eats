@@ -25,11 +25,20 @@ export const DICTIONARY: Record<SupportedLanguage, Record<string, string>> = {
     cat_Idli: 'Idli',
     cat_Dosa: 'Dosa',
     cat_Biryani: 'Biryani',
+    cat_Pizza: 'Pizza',
+    cat_Burger: 'Burger',
+    cat_Chinese: 'Chinese',
     cat_Meals: 'Meals',
     cat_Sweets: 'Sweets',
+    cat_IceCream: 'Ice Cream',
+    'cat_Ice Cream': 'Ice Cream',
+    cat_NorthIndian: 'North Indian',
+    'cat_North Indian': 'North Indian',
     cat_Snacks: 'Snacks',
     cat_Chaat: 'Chaat',
+    cat_Sandwich: 'Sandwich',
     cat_Coffee: 'Coffee',
+    cat_Juices: 'Juices',
 
     // Settings Keys
     settingsTitle: 'Settings & Profile Controls',
@@ -375,7 +384,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (key: string): string => {
     const langDict = DICTIONARY[language] || DICTIONARY.en;
-    return langDict[key] || DICTIONARY.en[key] || key;
+    if (langDict[key]) return langDict[key];
+    if (DICTIONARY.en[key]) return DICTIONARY.en[key];
+    if (key.startsWith('cat_')) return key.replace(/^cat_/, '');
+    return key;
   };
 
   return (

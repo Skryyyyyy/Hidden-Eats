@@ -24,6 +24,8 @@ apps/mobile/web-build/
 # Misc
 .DS_Store
 *.log
+*.tsbuildinfo
+.mapcn.tsx
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

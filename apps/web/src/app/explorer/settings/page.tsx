@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ExplorerNav from '@/components/ExplorerNav';
 import { useTheme } from '@/context/ThemeContext';
@@ -8,6 +8,7 @@ import MultiLangSwitcher from '@/components/MultiLangSwitcher';
 import GoogleTranslateWidget from '@/components/GoogleTranslateWidget';
 import BitmojiAvatarStudio, { BitmojiConfig } from '@/components/BitmojiAvatarStudio';
 import { useLanguage } from '@/context/LanguageContext';
+import { createClient } from '@/lib/supabase';
 import {
   User,
   MapPin,
@@ -90,11 +91,26 @@ export default function ComprehensiveUserSettingsPage() {
   // Account State & Profile Avatar
   const [fullName, setFullName] = useState('Rahul Sharma');
   const [username, setUsername] = useState('foodie_explorer');
-  const [email, setEmail] = useState('explorer@hiddeneats.com');
-  const [mobile, setMobile] = useState('+91 98765 43210');
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [bitmojiConfig, setBitmojiConfig] = useState<BitmojiConfig | undefined>(undefined);
   const [showBitmojiStudio, setShowBitmojiStudio] = useState(false);
+
+  // Fetch Supabase User
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { session } } = await createClient().auth.getSession();
+      if (session?.user) {
+        const u = session.user;
+        setEmail(u.email || '');
+        setUsername(u.user_metadata?.username || '');
+        setMobile(u.user_metadata?.mobile || '');
+        setFullName(u.user_metadata?.full_name || u.user_metadata?.username || '');
+      }
+    }
+    loadUser();
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -137,10 +153,24 @@ export default function ComprehensiveUserSettingsPage() {
   const [enable2FA, setEnable2FA] = useState(false);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
+    
+    if (activeTab === 'account') {
+      await createClient().auth.updateUser({
+        data: {
+          username: username,
+          full_name: fullName,
+          mobile: mobile,
+        }
+      });
+    }
+
     setSavedSuccess(true);
+    setIsSaving(false);
     setTimeout(() => setSavedSuccess(false), 2000);
   };
 

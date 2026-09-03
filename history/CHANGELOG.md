@@ -289,6 +289,18 @@
   10. *OLED Battery-Saver Stealth Mode* (`#000000`).
 - **Verification**: Verified with 0 TypeScript errors and 18/18 passing test suite assertions.
 
+## 📌 Step 21: Luxury Redesign, Fullscreen Fit & Restaurant Operations Dashboard
+**Date:** 2026-09-03  
+**Objective:** Resolve map runtime errors, remove forced login redirects, modernize Explorer page with luxury obsidian/amber theme, optimize for full screen resolution without side gutters, and build real-world restaurant operational dashboard with live batch controls and financial margins.
+
+### Summary of Changes:
+- **Map Bugfix (`DualEngineMap.tsx`)**: Corrected Leaflet zoom position from `bottom-right` to `bottomright` to prevent `corner.insertBefore` runtime crash; added proper unmount cleanup.
+- **Guest Access**: Eliminated client-side forced redirects to `/login/user` on `/explorer` and home page so diners can browse unauthenticated.
+- **Luxury Theme & Photography**: Upgraded Explorer background from muddy `#2c1305` to deep Obsidian Caviar (`#07080b`) with warm amber glow, frosted glass navbar, verified Unsplash culinary images with fallback handlers, and dictionary translations for all categories.
+- **Full-Resolution Edge-to-Edge Layout**: Removed restrictive `max-w-7xl` containers and expanded responsive grids to 6 columns to eliminate black side gutters on wide screens.
+- **Restaurant Operations Dashboard (`/dashboard/menu`)**: Built real-time KPI pulse bar (Today's Orders, Gross Sales, Batch Remaining, Low Stock, 86'd), Indian restaurant Veg/Non-Veg symbols, profit margin and food cost calculations, spice gauges, live batch decrements, 86'd toggles, and full Add Dish modal.
+- **Verification**: Verified with 0 TypeScript compilation errors and HTTP 200 responses on all routes.
+
 ---
 
 

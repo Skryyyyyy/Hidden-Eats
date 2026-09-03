@@ -19,8 +19,8 @@ export default function DriverMapPage() {
           center={[80.2707, 13.0827]} 
           zoom={12}
           styles={{
-            light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-            dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+            light: "https://tiles.openfreemap.org/styles/liberty",
+            dark: "https://tiles.openfreemap.org/styles/dark"
           }}
         >
           <MapControls position="top-left" showZoom showCompass showLocate showFullscreen={false} />

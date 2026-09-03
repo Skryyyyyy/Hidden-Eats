@@ -267,3 +267,13 @@ body {
 .goog-te-menu-value span {
   color: #ffffff !important;
 }
+
+/* ─── Watermark-Free High-Contrast Dark Map Layer ─── */
+.map-tiles-dark-theme {
+  filter: invert(100%) hue-rotate(180deg) brightness(0.85) contrast(1.15) !important;
+  background-color: #08090d !important;
+}
+
+.leaflet-container {
+  background-color: #08090d !important;
+}

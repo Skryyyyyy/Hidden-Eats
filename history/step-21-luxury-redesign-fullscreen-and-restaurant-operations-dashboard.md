@@ -45,8 +45,15 @@
 - **Add Dish to Vault Modal:** Complete restaurant form with categories, dietary flags, cost calculations, prep time, and secret menu toggle.
 - **Sidebar Integration:** Connected Analytics and Settings navigation in `apps/web/src/app/dashboard/layout.tsx`.
 
+### 6. 🚫 Complete Watermark Elimination:
+- **Root Cause**: CARTO updated their basemap service to stamp a diagonal `"API KEY REQUIRED carto.com/basemaps/apikey"` watermark across every tile PNG when accessed anonymously.
+- **Resolution**:
+  - In `DualEngineMap.tsx`: Replaced watermarked Carto raster tiles with a high-contrast, watermark-free dark map layer (`.map-tiles-dark-theme` with custom inverted canvas filter) and clean Esri World Street Map tiles for street mode.
+  - In MapLibre GL (`ui/map.tsx`, `/driver/map`, `/explorer/radar`): Replaced Carto GL URLs with **OpenFreeMap** (`tiles.openfreemap.org/styles/dark` and `liberty`), which are 100% free, fast, and completely watermark-free without requiring API keys.
+  - Added optional `NEXT_PUBLIC_CARTO_API_KEY` support if a custom authenticated Carto key is ever provided in the future.
+
 ---
 
 ## 🔍 Verification Results
 - **TypeScript Compilation:** `npx tsc --noEmit` verified with **0 errors**.
-- **Next.js Dev Server:** All endpoints (`/explorer`, `/dashboard/menu`, `/dashboard/kitchen`, `/dashboard/analytics`) verified returning **HTTP 200 OK**.
+- **Next.js Dev Server:** All endpoints (`/explorer`, `/dashboard/menu`, `/dashboard/kitchen`, `/dashboard/analytics`, `/explorer/map`, `/explorer/radar`, `/driver/map`) verified returning **HTTP 200 OK**.

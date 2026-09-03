@@ -299,6 +299,7 @@
 - **Luxury Theme & Photography**: Upgraded Explorer background from muddy `#2c1305` to deep Obsidian Caviar (`#07080b`) with warm amber glow, frosted glass navbar, verified Unsplash culinary images with fallback handlers, and dictionary translations for all categories.
 - **Full-Resolution Edge-to-Edge Layout**: Removed restrictive `max-w-7xl` containers and expanded responsive grids to 6 columns to eliminate black side gutters on wide screens.
 - **Restaurant Operations Dashboard (`/dashboard/menu`)**: Built real-time KPI pulse bar (Today's Orders, Gross Sales, Batch Remaining, Low Stock, 86'd), Indian restaurant Veg/Non-Veg symbols, profit margin and food cost calculations, spice gauges, live batch decrements, 86'd toggles, and full Add Dish modal.
+- **Watermark Removal (`DualEngineMap.tsx`, `ui/map.tsx`, `radar`, `driver/map`)**: Permanently removed the diagonal 'API KEY REQUIRED carto.com/basemaps/apikey' watermark that CARTO began burning into anonymous tiles. Replaced with watermark-free high-precision dark tiles with CSS inverted canvas styling, Esri clean street tiles, and OpenFreeMap vector styles (`tiles.openfreemap.org/styles/dark`), eliminating all watermarks without requiring paid API keys.
 - **Verification**: Verified with 0 TypeScript compilation errors and HTTP 200 responses on all routes.
 
 ---

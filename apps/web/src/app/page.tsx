@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import GlobalThemeToggle from '@/components/GlobalThemeToggle';
 import {
@@ -29,10 +30,10 @@ const ParallaxComponent = dynamic(
 import InteractiveFeatures from '@/components/ui/InteractiveFeatures';
 import ParticleText from '@/components/ParticleText';
 import DepthCarousel from '@/components/DepthCarousel';
-import Dock from '@/components/Dock';
 import SplitFlapText from '@/components/SplitFlapText';
 
 export default function ResponsiveLandingPage() {
+  const router = useRouter();
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
@@ -42,6 +43,7 @@ export default function ResponsiveLandingPage() {
   // Location State
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('Chennai');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -272,53 +274,53 @@ export default function ResponsiveLandingPage() {
                       {/* Section 1: Account */}
                       <div className="p-2 border-b border-white/10">
                         <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account & Profile</div>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <User className="w-4 h-4" /> Personal Info
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <MapPin className="w-4 h-4" /> Saved Addresses
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <CreditCard className="w-4 h-4" /> Payment Methods
-                        </button>
+                        <Link href="/explorer/settings" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <User className="w-4 h-4 text-[#f8b11c]" /> Personal Info
+                        </Link>
+                        <Link href="/explorer/settings" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <MapPin className="w-4 h-4 text-[#f8b11c]" /> Saved Addresses
+                        </Link>
+                        <Link href="/explorer/settings" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <CreditCard className="w-4 h-4 text-[#f8b11c]" /> Payment Methods
+                        </Link>
                       </div>
 
                       {/* Section 2: Orders */}
                       <div className="p-2 border-b border-white/10">
                         <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Orders & Activity</div>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <History className="w-4 h-4" /> Order History
-                        </button>
-                        <button className="w-full flex items-center justify-between px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <div className="flex items-center gap-3"><Heart className="w-4 h-4" /> Favorites</div>
+                        <Link href="/explorer/collections" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <History className="w-4 h-4 text-emerald-400" /> Order History
+                        </Link>
+                        <Link href="/explorer/collections" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center justify-between px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <div className="flex items-center gap-3"><Heart className="w-4 h-4 text-rose-400" /> Favorites</div>
                           <span className="bg-[#f8b11c]/20 text-[#f8b11c] px-2 py-0.5 rounded text-[10px] font-bold">12</span>
-                        </button>
+                        </Link>
                       </div>
 
                       {/* Section 3: Preferences */}
                       <div className="p-2 border-b border-white/10">
                         <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">App Preferences</div>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
-                          <Bell className="w-4 h-4" /> Notifications
-                        </button>
+                        <Link href="/explorer/settings" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                          <Bell className="w-4 h-4 text-purple-400" /> Notifications
+                        </Link>
                       </div>
 
                       {/* Section 4: Hidden Eats Exclusives */}
                       <div className="p-2 border-b border-white/10">
                         <div className="px-3 py-2 text-[10px] font-bold text-[#f8b11c] uppercase tracking-widest">Hidden Eats VIP</div>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[#f8b11c]/80 hover:text-[#f8b11c] hover:bg-[#f8b11c]/10 rounded-xl transition-colors text-xs font-medium text-left">
+                        <Link href="/explorer" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-[#f8b11c]/80 hover:text-[#f8b11c] hover:bg-[#f8b11c]/10 rounded-xl transition-colors text-xs font-medium text-left">
                           <Award className="w-4 h-4" /> My Unlocked Spots
-                        </button>
+                        </Link>
                       </div>
 
                       {/* Section 5: Support & Logout */}
                       <div className="p-2 bg-black/40">
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
+                        <Link href="/license" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-colors text-xs font-medium text-left">
                           <MessageSquare className="w-4 h-4" /> Help & Support
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors text-xs font-medium text-left">
+                        </Link>
+                        <Link href="/login" onClick={() => setIsSettingsOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors text-xs font-medium text-left">
                           <LogOut className="w-4 h-4" /> Log Out
-                        </button>
+                        </Link>
                       </div>
                     </motion.div>
                   )}
@@ -327,11 +329,73 @@ export default function ResponsiveLandingPage() {
             </div>
             
             {/* Mobile Menu Icon */}
-            <button className="md:hidden text-white p-2">
-              <MenuIcon className="w-6 h-6" />
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
             </button>
           </div>
         </nav>
+
+        {/* Mobile Navigation Drawer */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="md:hidden bg-[#0c0d14]/95 border-b border-white/10 backdrop-blur-xl px-6 py-6 relative z-30 space-y-4"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href="/explorer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-[#f8b11c]/15 text-white hover:text-[#f8b11c] text-xs font-bold uppercase tracking-wider transition-colors border border-white/5"
+                >
+                  <Compass className="w-4 h-4 text-[#f8b11c]" /> Explore
+                </Link>
+                <Link
+                  href="/explorer/map"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-emerald-500/15 text-white hover:text-emerald-400 text-xs font-bold uppercase tracking-wider transition-colors border border-white/5"
+                >
+                  <MapPin className="w-4 h-4 text-emerald-400" /> Live Map
+                </Link>
+                <Link
+                  href="/explorer/reels"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-rose-500/15 text-white hover:text-rose-400 text-xs font-bold uppercase tracking-wider transition-colors border border-white/5"
+                >
+                  <Clapperboard className="w-4 h-4 text-rose-400" /> Reels
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-blue-500/15 text-white hover:text-blue-400 text-xs font-bold uppercase tracking-wider transition-colors border border-white/5"
+                >
+                  <Briefcase className="w-4 h-4 text-blue-400" /> Partner
+                </Link>
+                <Link
+                  href="/driver"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-amber-500/15 text-white hover:text-amber-400 text-xs font-bold uppercase tracking-wider transition-colors border border-white/5"
+                >
+                  <Truck className="w-4 h-4 text-amber-400" /> Rider
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-[#f8b11c] text-black text-xs font-bold uppercase tracking-wider transition-colors"
+                >
+                  <User className="w-4 h-4" /> Sign In
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Hero Content Container (Grid for desktop, Flex col for mobile) */}
         <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[1.2fr_1fr] relative z-10 px-6 md:px-12 pb-12 pt-4 xl:pt-8 gap-8 lg:gap-16">
@@ -352,35 +416,54 @@ export default function ResponsiveLandingPage() {
             </div>
 
             {/* Address Lookup Bar */}
-            <div className="hero-subtitle mt-8 mb-4 flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 max-w-xl w-full relative z-30 shadow-2xl">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (deliveryAddress.trim()) {
+                  router.push(`/explorer?search=${encodeURIComponent(deliveryAddress.trim())}`);
+                } else {
+                  router.push('/explorer');
+                }
+              }}
+              className="hero-subtitle mt-8 mb-4 flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 max-w-xl w-full relative z-30 shadow-2xl"
+            >
               <div className="pl-4 pr-2 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-[#f8b11c]" />
               </div>
               <input 
                 type="text" 
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
                 placeholder="Enter your delivery address" 
                 className="bg-transparent border-none outline-none text-white placeholder-white/50 w-full text-sm font-medium focus:ring-0"
               />
-              <button className="bg-[#f8b11c] text-black px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider hover:bg-[#e0a019] transition-colors shrink-0 flex items-center gap-2">
+              <button 
+                type="submit"
+                className="bg-[#f8b11c] text-black px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider hover:bg-[#e0a019] transition-colors shrink-0 flex items-center gap-2 cursor-pointer"
+              >
                 Find Food <ArrowUpRight className="w-4 h-4" />
               </button>
-            </div>
+            </form>
 
             {/* Bottom 3 Cards */}
             <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-4 md:gap-6 mt-12 pb-4 lg:pb-0 scrollbar-hide snap-x w-full scroll-smooth">
               {[
-                { name: 'Burger', img: '/img/burger.png' },
-                { name: 'Pizza', img: '/img/pizza.png' },
-                { name: 'Sushi', img: '/img/sushi.png' }
+                { name: 'Burger', img: '/img/burger.png', query: 'Burger' },
+                { name: 'Pizza', img: '/img/pizza.png', query: 'Pizza' },
+                { name: 'Sushi', img: '/img/sushi.png', query: 'Chinese' }
               ].map((item, idx) => (
-                <div key={idx} className="hero-card bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-2 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl overflow-hidden will-change-transform">
+                <Link 
+                  key={idx} 
+                  href={`/explorer?category=${item.query}`}
+                  className="hero-card bg-[#FAF6EB] rounded-[1.5rem] md:rounded-[2rem] w-40 md:w-auto shrink-0 snap-center aspect-[4/5] flex items-center justify-center p-2 relative group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-black/40 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-xl overflow-hidden will-change-transform"
+                >
                    <img 
                      src={item.img} 
                      alt={item.name} 
                      className="w-full h-full object-cover rounded-[1rem] group-hover:scale-110 transition-transform duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-xl will-change-transform" 
                      loading="lazy"
                    />
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -388,7 +471,10 @@ export default function ResponsiveLandingPage() {
           {/* Right Column (Stacked Cards) */}
           <div className="flex flex-col gap-6 relative z-10 h-full justify-between">
              {/* Tall Card */}
-             <div className="hero-card flex-1 min-h-[350px] lg:min-h-0 bg-black rounded-[2rem] overflow-hidden relative group cursor-pointer shadow-2xl hover:shadow-black/50 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform">
+             <Link 
+               href="/explorer"
+               className="hero-card flex-1 min-h-[350px] lg:min-h-0 bg-black rounded-[2rem] overflow-hidden relative group cursor-pointer shadow-2xl hover:shadow-black/50 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform block"
+             >
                 <img 
                   src="/img/chicken_crunch.png" 
                   alt="Chicken Crunch" 
@@ -418,14 +504,12 @@ export default function ResponsiveLandingPage() {
                      </div>
                   </div>
                 </div>
-             </div>
+             </Link>
              
              {/* Yellow Card */}
-             <div 
-               onClick={() => {
-                 window.location.href = '/explorer';
-               }}
-               className="hero-card min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
+             <Link 
+               href="/explorer"
+               className="hero-card min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden block"
              >
                 {/* Decorative background circle */}
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
@@ -445,11 +529,11 @@ export default function ResponsiveLandingPage() {
                   <div className="flex gap-3">
                      <div className="w-14 h-14 lg:w-16 lg:h-16 bg-white/30 rounded-xl overflow-hidden backdrop-blur-md p-1 shadow-lg group-hover:-translate-y-1 transition-transform duration-[600ms] delay-75 ease-[cubic-bezier(0.23,1,0.32,1)] relative">
                        <img src="/img/food_general.png" className="w-full h-full rounded-lg object-cover" alt="Side" loading="lazy" />
-                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.8Γÿà</div>
+                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.8★</div>
                      </div>
                      <div className="w-14 h-14 lg:w-16 lg:h-16 bg-white/30 rounded-xl overflow-hidden backdrop-blur-md p-1 shadow-lg group-hover:-translate-y-1 transition-transform duration-[600ms] delay-150 ease-[cubic-bezier(0.23,1,0.32,1)] relative">
                        <img src="/img/food_general.png" className="w-full h-full rounded-lg object-cover" alt="Side 2" loading="lazy" />
-                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.9Γÿà</div>
+                       <div className="absolute bottom-1 right-1 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-sm">4.9★</div>
                      </div>
                   </div>
                   
@@ -457,7 +541,7 @@ export default function ResponsiveLandingPage() {
                     <ArrowUpRight className="w-6 h-6 stroke-[3]" />
                   </div>
                 </div>
-             </div>
+             </Link>
           </div>
           
         </div>
@@ -869,9 +953,12 @@ export default function ResponsiveLandingPage() {
           
           <h2 className="font-display text-4xl md:text-6xl text-white uppercase font-black mb-6 relative z-10 leading-[1.1]">Grow your<br />Business</h2>
           <p className="text-white/80 mb-8 max-w-md relative z-10 leading-relaxed text-sm md:text-base">Partner with Hidden Eats to reach more hungry customers in Tamil Nadu. We handle the logistics, you focus on the food.</p>
-          <button className="bg-[#f8b11c] text-black px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 relative z-10 flex items-center gap-2 shadow-xl shadow-[#f8b11c]/20">
+          <Link 
+            href="/dashboard"
+            className="bg-[#f8b11c] text-black px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 relative z-10 flex items-center gap-2 shadow-xl shadow-[#f8b11c]/20"
+          >
             Partner With Us <ArrowUpRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
         
         <div className="relative p-12 md:p-24 min-h-[400px] lg:min-h-[500px] flex flex-col justify-center items-start group overflow-hidden">
@@ -880,9 +967,12 @@ export default function ResponsiveLandingPage() {
           
           <h2 className="font-display text-4xl md:text-6xl text-black uppercase font-black mb-6 relative z-10 leading-[1.1]">Your Ride,<br />Your Rules</h2>
           <p className="text-black/80 mb-8 max-w-md font-medium relative z-10 leading-relaxed text-sm md:text-base">Be your own boss. Deliver smiles across the city on your own schedule and earn competitive payouts.</p>
-          <button className="bg-black text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gray-900 hover:scale-105 transition-all duration-300 relative z-10 flex items-center gap-2 shadow-xl shadow-black/20">
+          <Link 
+            href="/driver"
+            className="bg-black text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gray-900 hover:scale-105 transition-all duration-300 relative z-10 flex items-center gap-2 shadow-xl shadow-black/20"
+          >
             Apply to Ride <ArrowUpRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -984,7 +1074,13 @@ export default function ResponsiveLandingPage() {
         <h2 className="text-gray-500 uppercase tracking-widest text-xs font-bold mb-8">Serving across Tamil Nadu</h2>
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 max-w-5xl">
           {['Chennai', 'Coimbatore', 'Madurai', 'Trichy', 'Salem', 'Tirunelveli', 'Erode', 'Vellore'].map((city, idx) => (
-            <span key={idx} className="text-white/60 hover:text-white font-display text-xl md:text-2xl uppercase tracking-wider transition-colors cursor-pointer hover:-translate-y-1 block transform duration-300">{city}</span>
+            <Link 
+              key={idx} 
+              href={`/explorer?search=${city}`}
+              className="text-white/60 hover:text-[#f8b11c] font-display text-xl md:text-2xl uppercase tracking-wider transition-colors cursor-pointer hover:-translate-y-1 block transform duration-300"
+            >
+              {city}
+            </Link>
           ))}
         </div>
       </div>
@@ -1126,22 +1222,6 @@ export default function ResponsiveLandingPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 🛸 Mobile-Only Bottom Navigation Dock (Hidden on Desktop Website) */}
-      <Dock 
-        items={[
-          { icon: <Compass className="w-5 h-5 text-[#f8b11c]" />, label: 'Explore', href: '/explorer' },
-          { icon: <MapPin className="w-5 h-5 text-emerald-400" />, label: 'Map', href: '/explorer/map' },
-          { icon: <Radio className="w-5 h-5 text-purple-400" />, label: 'Radar', href: '/explorer/radar' },
-          { icon: <Clapperboard className="w-5 h-5 text-rose-400" />, label: 'Reels', href: '/explorer/reels' },
-          { icon: <Briefcase className="w-5 h-5 text-blue-400" />, label: 'Partner', href: '/dashboard' },
-          { icon: <Truck className="w-5 h-5 text-amber-300" />, label: 'Driver', href: '/driver' },
-        ]}
-        panelHeight={68}
-        baseItemSize={44}
-        magnification={60}
-        className="flex md:hidden bottom-3"
-      />
 
     </div>
   );

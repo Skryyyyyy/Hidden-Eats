@@ -503,7 +503,7 @@ export default function ExplorerPage() {
 
       </main>
 
-      {/* 🛸 Interactive Glassmorphic macOS Dock */}
+      {/* 🛸 Mobile-Only Bottom Navigation Dock */}
       <Dock
         items={[
           { icon: <Compass className="w-5 h-5 text-[#f59e0b]" />, label: 'Explore', href: '/explorer' },
@@ -514,9 +514,10 @@ export default function ExplorerPage() {
           { icon: <Bookmark className="w-5 h-5 text-blue-400" />, label: 'Saved Vault', href: '/explorer/collections' },
           { icon: <Settings className="w-5 h-5 text-gray-300" />, label: 'Settings', href: '/explorer/settings' },
         ]}
-        panelHeight={80}
-        baseItemSize={54}
-        magnification={84}
+        panelHeight={68}
+        baseItemSize={44}
+        magnification={60}
+        className="flex lg:hidden bottom-3"
       />
     </div>
   );

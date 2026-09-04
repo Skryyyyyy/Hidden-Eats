@@ -342,6 +342,14 @@
 - **Landing Page Integration (`apps/web/src/app/page.tsx`)**: Embedded Live Secret Dispatch Terminal banner.
 - **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
 
+## 📌 Step 26: Responsive Dock Layout & Mobile-Only Optimization
+**Date:** 2026-09-04  
+**Objective:** Optimize Dock component for mobile screens and remove desktop overlay obstruction on the landing page.
+
+### Summary of Changes:
+- **Landing Page & Explorer (`/` & `/explorer`)**: Set Dock visibility to mobile screens only (`md:hidden` / `lg:hidden`) so desktop view remains clean and uncluttered.
+- **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
+
 ---
 
 

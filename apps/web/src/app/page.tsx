@@ -1127,19 +1127,20 @@ export default function ResponsiveLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* 🛸 Animated macOS Glassmorphic Dock */}
+      {/* 🛸 Mobile-Only Bottom Navigation Dock (Hidden on Desktop Website) */}
       <Dock 
         items={[
-          { icon: <Compass className="w-5 h-5 text-[#f8b11c]" />, label: 'Explore Spots', href: '/explorer' },
-          { icon: <MapPin className="w-5 h-5 text-emerald-400" />, label: 'In-App Map', href: '/explorer/map' },
-          { icon: <Radio className="w-5 h-5 text-purple-400" />, label: 'Live Radar', href: '/explorer/radar' },
-          { icon: <Clapperboard className="w-5 h-5 text-rose-400" />, label: 'Food Reels', href: '/explorer/reels' },
-          { icon: <Briefcase className="w-5 h-5 text-blue-400" />, label: 'Partner Studio', href: '/dashboard' },
-          { icon: <Truck className="w-5 h-5 text-amber-300" />, label: 'Courier Hub', href: '/driver' },
+          { icon: <Compass className="w-5 h-5 text-[#f8b11c]" />, label: 'Explore', href: '/explorer' },
+          { icon: <MapPin className="w-5 h-5 text-emerald-400" />, label: 'Map', href: '/explorer/map' },
+          { icon: <Radio className="w-5 h-5 text-purple-400" />, label: 'Radar', href: '/explorer/radar' },
+          { icon: <Clapperboard className="w-5 h-5 text-rose-400" />, label: 'Reels', href: '/explorer/reels' },
+          { icon: <Briefcase className="w-5 h-5 text-blue-400" />, label: 'Partner', href: '/dashboard' },
+          { icon: <Truck className="w-5 h-5 text-amber-300" />, label: 'Driver', href: '/driver' },
         ]}
-        panelHeight={80}
-        baseItemSize={54}
-        magnification={84}
+        panelHeight={68}
+        baseItemSize={44}
+        magnification={60}
+        className="flex md:hidden bottom-3"
       />
 
     </div>

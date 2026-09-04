@@ -38,6 +38,7 @@ import {
   AlertTriangle,
   Camera,
   Upload,
+  Scale,
 } from 'lucide-react';
 
 function ToggleSwitch({
@@ -714,6 +715,16 @@ export default function ComprehensiveUserSettingsPage() {
                   </h2>
 
                   <div className="space-y-2">
+                    <Link href="/license" className="block p-4 border rounded-xl border-[#222222] hover:border-[#f59e0b] transition-colors">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white flex items-center gap-2">
+                          <Scale className="w-4 h-4 text-[#f59e0b]" /> Open Source MIT License
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-[#f59e0b]" />
+                      </div>
+                      <span className="text-[10px] text-[#777777]">Full permissive open-source license text, permissions, and conditions.</span>
+                    </Link>
+
                     <Link href="/legal/terms" className="block p-4 border rounded-xl border-[#222222] hover:border-[#f59e0b] transition-colors">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-white">Terms & Conditions (FSSAI & IT Act Compliant)</span>

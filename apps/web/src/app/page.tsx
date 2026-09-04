@@ -44,22 +44,37 @@ export default function ResponsiveLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Live Activity State
+  const [liveActivity, setLiveActivity] = useState<{message: string, time: string} | null>(null);
+
+  useEffect(() => {
+    const activities = [
+      "Just ordered: Spicy Chicken Burger in Anna Nagar",
+      "New Partner joined: The Sushi Bar",
+      "Just ordered: Truffle Fries in T. Nagar",
+      "New Review: 5 stars for Chicken Crunch",
+      "Just ordered: Classic Margherita in Adyar",
+      "Driver assigned for order #4291",
+      "Just ordered: 2x Cold Brew in Nungambakkam",
+    ];
+    
+    const interval = setInterval(() => {
+      const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+      setLiveActivity({ message: randomActivity, time: 'Just now' });
+      
+      setTimeout(() => {
+        setLiveActivity(null);
+      }, 5000);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleProtectedNav = async (targetUrl: string, isLocationAction: boolean = false) => {
-    try {
-      const { createClient } = await import('@/lib/supabase');
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        if (isLocationAction) {
-          setIsLocationModalOpen(true);
-        } else {
-          window.location.href = targetUrl;
-        }
-      } else {
-        window.location.href = `/login?callbackUrl=${encodeURIComponent(targetUrl)}`;
-      }
-    } catch {
-      window.location.href = `/login?callbackUrl=${encodeURIComponent(targetUrl)}`;
+    if (isLocationAction) {
+      setIsLocationModalOpen(true);
+    } else {
+      window.location.href = targetUrl;
     }
   };
 
@@ -228,9 +243,6 @@ export default function ResponsiveLandingPage() {
             </div>
             
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/login" className="text-white text-[11px] font-bold uppercase tracking-widest hover:text-[#f8b11c] transition-colors">
-                Log In
-              </Link>
               <Link href="/login" className="bg-[#f8b11c] text-black px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-[#e0a019] transition-colors shadow-lg">
                 Sign Up
               </Link>
@@ -336,6 +348,21 @@ export default function ResponsiveLandingPage() {
               </h2>
             </div>
 
+            {/* Address Lookup Bar */}
+            <div className="hero-subtitle mt-8 mb-4 flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 max-w-xl w-full relative z-30 shadow-2xl">
+              <div className="pl-4 pr-2 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-[#f8b11c]" />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Enter your delivery address" 
+                className="bg-transparent border-none outline-none text-white placeholder-white/50 w-full text-sm font-medium focus:ring-0"
+              />
+              <button className="bg-[#f8b11c] text-black px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider hover:bg-[#e0a019] transition-colors shrink-0 flex items-center gap-2">
+                Find Food <ArrowUpRight className="w-4 h-4" />
+              </button>
+            </div>
+
             {/* Bottom 3 Cards */}
             <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-4 md:gap-6 mt-12 pb-4 lg:pb-0 scrollbar-hide snap-x w-full scroll-smooth">
               {[
@@ -392,15 +419,8 @@ export default function ResponsiveLandingPage() {
              
              {/* Yellow Card */}
              <div 
-               onClick={async () => {
-                 const { createClient } = await import('@/lib/supabase');
-                 const supabase = createClient();
-                 const { data: { session } } = await supabase.auth.getSession();
-                 if (session) {
-                   window.location.href = '/explorer';
-                 } else {
-                   window.location.href = '/login?callbackUrl=/explorer';
-                 }
+               onClick={() => {
+                 window.location.href = '/explorer';
                }}
                className="hero-card min-h-[300px] lg:min-h-[350px] shrink-0 bg-[#f8b11c] rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between shadow-2xl hover:shadow-[#f8b11c]/30 hover:-translate-y-2 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group will-change-transform relative overflow-hidden"
              >
@@ -442,6 +462,36 @@ export default function ResponsiveLandingPage() {
 
       {/* 
         =========================================================================
+        LIVE PLATFORM METRICS
+        ========================================================================= 
+      */}
+      <div className="w-full bg-[#f8b11c] py-6 px-4 flex flex-col sm:flex-row items-center justify-center gap-8 md:gap-24 relative z-20 overflow-hidden border-y border-black/10 shadow-inner">
+        <div className="flex items-center gap-3">
+          <div className="relative flex items-center justify-center w-3 h-3">
+            <div className="w-3 h-3 bg-red-600 rounded-full animate-ping absolute"></div>
+            <div className="w-2 h-2 bg-red-600 rounded-full relative z-10"></div>
+          </div>
+          <span className="font-display font-black text-2xl md:text-3xl uppercase tracking-tighter text-black mt-1">Live Data</span>
+        </div>
+        
+        <div className="flex gap-12 md:gap-24">
+          <div className="flex flex-col items-center sm:items-start">
+            <span className="text-3xl md:text-4xl font-display font-black text-black">12,402</span>
+            <span className="text-[10px] font-bold text-black/70 uppercase tracking-widest">Active Foodies</span>
+          </div>
+          <div className="flex flex-col items-center sm:items-start">
+            <span className="text-3xl md:text-4xl font-display font-black text-black">843</span>
+            <span className="text-[10px] font-bold text-black/70 uppercase tracking-widest">Live Orders</span>
+          </div>
+          <div className="flex flex-col items-center sm:items-start hidden md:flex">
+            <span className="text-3xl md:text-4xl font-display font-black text-black">&lt;24m</span>
+            <span className="text-[10px] font-bold text-black/70 uppercase tracking-widest">Avg Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 
+        =========================================================================
         HOW IT WORKS (Linear Modal Expandable Cards)
         ========================================================================= 
       */}
@@ -455,7 +505,7 @@ export default function ResponsiveLandingPage() {
           <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tight font-black">How It Works</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 w-full max-w-6xl relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full max-w-7xl relative z-10">
           {[
             {
               id: 1,
@@ -463,7 +513,7 @@ export default function ResponsiveLandingPage() {
               title: 'Discover',
               shortDesc: 'Find hidden gems and top-rated local spots around Tamil Nadu.',
               description: 'Immerse yourself in our cutting-edge food discovery engine designed to showcase authentic local spots and secret off-menu items with unparalleled clarity and style. Filter through high-resolution dishes, explore chef recommendations, and uncover exclusive culinary spots not listed on standard food delivery apps across Tamil Nadu.',
-              tags: ['Hidden Gems', 'Secret Menus', 'Tamil Nadu', 'Chef Specials', 'Local Eats'],
+              tags: ['Hidden Gems', 'Secret Menus', 'Tamil Nadu'],
               icon: <Search className="w-10 h-10 text-white" />,
               img: '/img/food_general.png',
               color: 'bg-black'
@@ -472,9 +522,9 @@ export default function ResponsiveLandingPage() {
               id: 2,
               step: '02',
               title: 'Order',
-              shortDesc: 'Seamless in-app ordering with secure payments and real-time tracking.',
-              description: 'Embark on a seamless culinary journey with state-of-the-art in-app ordering. Spin through dynamic restaurant menus, reserve dining tables, or get express home delivery with zero hidden fees. Our platform integrates real-time GPS tracking feeds, showcasing everything from kitchen preparation states to courier arrival.',
-              tags: ['In-App Ordering', 'Real-time Tracking', 'Table Booking', 'Instant Pay'],
+              shortDesc: 'Seamless in-app ordering with secure payments.',
+              description: 'Embark on a seamless culinary journey with state-of-the-art in-app ordering. Spin through dynamic restaurant menus, reserve dining tables, or get express home delivery with zero hidden fees.',
+              tags: ['In-App Ordering', 'Table Booking'],
               icon: <Smartphone className="w-10 h-10 text-black" />,
               img: '/img/burger.png',
               color: 'bg-[#f8b11c]'
@@ -482,10 +532,21 @@ export default function ResponsiveLandingPage() {
             {
               id: 3,
               step: '03',
+              title: 'Track',
+              shortDesc: 'Real-time GPS tracking from kitchen to door.',
+              description: 'Our platform integrates real-time GPS tracking feeds, showcasing everything from kitchen preparation states to courier arrival. You will never be left guessing when your food will arrive.',
+              tags: ['Real-time Tracking', 'Live Updates'],
+              icon: <MapPin className="w-10 h-10 text-white" />,
+              img: '/img/sushi.png',
+              color: 'bg-[#2A2A2A]'
+            },
+            {
+              id: 4,
+              step: '04',
               title: 'Enjoy',
               shortDesc: 'Fast, reliable delivery straight to your door. Hot and fresh.',
               description: 'Transform your dining experience with hot, fresh delivery delivered straight to your door in under 30 minutes. Enjoy exclusive foodie perks, accumulate loyalty rewards, and unlock secret food badges with every single order you place on Hidden Eats.',
-              tags: ['Express Delivery', 'Hot & Fresh', 'VIP Rewards', 'Foodie Perks'],
+              tags: ['Express Delivery', 'Hot & Fresh', 'VIP Rewards'],
               icon: <Package className="w-10 h-10 text-white" />,
               img: '/img/pizza.png',
               color: 'bg-red-900'
@@ -614,6 +675,70 @@ export default function ResponsiveLandingPage() {
         ========================================================================= 
       */}
       <InteractiveFeatures />
+
+      {/* 
+        =========================================================================
+        TESTIMONIALS & SOCIAL PROOF
+        ========================================================================= 
+      */}
+      <div className="testimonials-section w-full bg-[#FAFAFA] text-black py-24 md:py-32 px-6 md:px-12 flex flex-col items-center z-20 relative border-t border-black/10">
+        <div className="text-center mb-16 relative z-10">
+          <span className="text-[#f8b11c] font-bold tracking-widest uppercase text-sm mb-4 block">Loved by Foodies</span>
+          <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tight font-black">Don't Just Take Our Word</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl relative z-10">
+          {[
+            {
+              name: "Sarah Jenkins",
+              role: "Local Food Blogger",
+              review: "Hidden Eats is a game changer. I've discovered so many hole-in-the-wall spots that aren't on any other delivery app. The live tracking is flawless.",
+              rating: 5,
+            },
+            {
+              name: "Michael Chen",
+              role: "Regular Customer",
+              review: "Finally, an app that focuses on quality local food instead of just fast-food chains. The delivery is lightning fast and the interface is incredibly smooth.",
+              rating: 5,
+            },
+            {
+              name: "Priya Ramesh",
+              role: "Restaurant Partner",
+              review: "Since joining Hidden Eats, our orders have doubled. Their focus on showcasing our food with high-quality images really makes a difference.",
+              rating: 5,
+            }
+          ].map((testimonial, idx) => (
+             <div key={idx} className="bg-white border border-black/10 p-8 rounded-[2rem] shadow-xl hover:-translate-y-2 transition-transform duration-300">
+               <div className="flex gap-1 mb-6">
+                 {[...Array(testimonial.rating)].map((_, i) => (
+                   <Star key={i} className="w-5 h-5 fill-[#f8b11c] text-[#f8b11c]" />
+                 ))}
+               </div>
+               <p className="text-black/80 font-medium text-lg leading-relaxed mb-8">"{testimonial.review}"</p>
+               <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-[#f8b11c] font-bold font-display text-xl">
+                   {testimonial.name.charAt(0)}
+                 </div>
+                 <div>
+                   <h4 className="font-bold text-black uppercase tracking-wider">{testimonial.name}</h4>
+                   <p className="text-black/50 text-sm font-medium">{testimonial.role}</p>
+                 </div>
+               </div>
+             </div>
+          ))}
+        </div>
+        
+        {/* Media Mentions / Featured In */}
+        <div className="mt-24 pt-12 border-t border-black/10 w-full max-w-5xl flex flex-col items-center">
+          <p className="text-black/40 font-bold uppercase tracking-widest text-sm mb-8">Featured In</p>
+          <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+             <div className="font-display text-2xl md:text-3xl font-black">THE HINDU</div>
+             <div className="font-display text-2xl md:text-3xl font-black">TIMES OF INDIA</div>
+             <div className="font-display text-2xl md:text-3xl font-black">VOGUE INDIA</div>
+             <div className="font-display text-2xl md:text-3xl font-black">LBB</div>
+          </div>
+        </div>
+      </div>
 
       {/* 
         =========================================================================
@@ -787,6 +912,26 @@ export default function ResponsiveLandingPage() {
         </div>
       </footer>
 
+
+      {/* Live Activity Toast */}
+      <AnimatePresence>
+        {liveActivity && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: -20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-6 z-50 bg-[#1a1a1a]/90 backdrop-blur-md border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-sm"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#f8b11c]/20 flex items-center justify-center shrink-0">
+              <div className="w-3 h-3 bg-[#f8b11c] rounded-full animate-pulse" />
+            </div>
+            <div>
+              <p className="text-white text-sm font-medium leading-tight">{liveActivity.message}</p>
+              <p className="text-[#f8b11c] text-xs font-bold mt-1 uppercase tracking-widest">{liveActivity.time}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 
         =========================================================================

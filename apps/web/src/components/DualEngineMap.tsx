@@ -49,6 +49,7 @@ function LeafletEngine({
   const markersGroupRef = useRef<any>(null);
   const routeLineRef = useRef<any>(null);
 
+  // 1. Initialize Map Instance once on mount
   useEffect(() => {
     if (typeof window === 'undefined' || !mapContainerRef.current) return;
     const L = require('leaflet');
@@ -61,20 +62,32 @@ function LeafletEngine({
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     });
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: [selectedSpot.lat, selectedSpot.lng],
-        zoom: 14,
-        zoomControl: false,
-      });
+    const map = L.map(mapContainerRef.current, {
+      center: [selectedSpot.lat, selectedSpot.lng],
+      zoom: 14,
+      zoomControl: false,
+    });
 
-      L.control.zoom({ position: 'bottom-right' }).addTo(map);
+    // Leaflet control position strings are: 'topleft' | 'topright' | 'bottomleft' | 'bottomright'
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      mapInstanceRef.current = map;
-      markersGroupRef.current = L.layerGroup().addTo(map);
-    }
+    mapInstanceRef.current = map;
+    markersGroupRef.current = L.layerGroup().addTo(map);
 
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersGroupRef.current = null;
+      routeLineRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 2. Update Tiles, Markers, and Polyline dynamically when state changes
+  useEffect(() => {
     const map = mapInstanceRef.current;
+    if (!map || typeof window === 'undefined') return;
+    const L = require('leaflet');
 
     // Remove existing tile layer if style changes
     map.eachLayer((layer: any) => {
@@ -83,21 +96,44 @@ function LeafletEngine({
       }
     });
 
-    // Configure Tile Layer based on chosen style
-    let tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    let attribution = '&copy; OpenStreetMap contributors &copy; CARTO';
+    // Configure Tile Layer based on chosen style - 100% Watermark Free!
+    const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY;
 
-    if (styleMode === 'carto-voyager') {
-      tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    if (styleMode === 'carto-dark') {
+      if (cartoKey) {
+        L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${cartoKey}`, {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20,
+        }).addTo(map);
+      } else {
+        // Watermark-Free High-Contrast Dark Canvas (Zero API Key / Zero Watermark)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          className: 'map-tiles-dark-theme',
+          maxZoom: 19,
+        }).addTo(map);
+      }
+    } else if (styleMode === 'carto-voyager') {
+      if (cartoKey) {
+        L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=${cartoKey}`, {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20,
+        }).addTo(map);
+      } else {
+        // Watermark-Free World Street Map
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, USGS, NPS',
+          maxZoom: 18,
+        }).addTo(map);
+      }
     } else if (styleMode === 'osm-street') {
-      tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
     }
-
-    L.tileLayer(tileUrl, {
-      attribution,
-      subdomains: 'abcd',
-      maxZoom: 20,
-    }).addTo(map);
 
     // Render Custom HTML Markers
     if (markersGroupRef.current) {
@@ -300,9 +336,9 @@ export default function DualEngineMap({
   const [showStyleMenu, setShowStyleMenu] = useState(false);
 
   const styleOptions: { mode: MapStyleMode; label: string; desc: string; icon: string }[] = [
-    { mode: 'carto-dark', label: 'CartoDB Dark Matter', desc: 'Luxury high-contrast obsidian dark map', icon: '🌑' },
+    { mode: 'carto-dark', label: 'Dark Matter (Watermark-Free)', desc: 'Luxury high-contrast obsidian dark map', icon: '🌑' },
     { mode: 'deckgl-3d', label: 'Deck.gl 3D Spatial Radar', desc: 'Futuristic beacon arcs & live sweep', icon: '✨' },
-    { mode: 'carto-voyager', label: 'CartoDB Voyager', desc: 'Clean architectural navigation', icon: '🧭' },
+    { mode: 'carto-voyager', label: 'Street Navigation (Clean)', desc: 'Clean architectural navigation', icon: '🧭' },
     { mode: 'osm-street', label: 'OpenStreetMap Classic', desc: 'Standard open street tiles', icon: '🗺️' },
   ];
 

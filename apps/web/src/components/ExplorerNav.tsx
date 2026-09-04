@@ -32,33 +32,39 @@ export default function ExplorerNav() {
   ];
 
   return (
-    <nav className="h-[72px] w-full px-6 flex items-center justify-between bg-[#3E0A0E] text-white">
+    <nav className="h-[72px] w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 flex items-center justify-between sticky top-0 z-50 backdrop-blur-2xl bg-[#08090d]/85 border-b border-white/[0.08] text-white shadow-2xl transition-colors">
       {/* Left Group: Location + Logo */}
-      <div className="flex items-center gap-8">
-        
-        {/* Location */}
+      <div className="flex items-center gap-6 sm:gap-8">
+        {/* Location Pill */}
         <Link 
           href="/explorer"
-          className="flex items-start gap-2 text-left hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all group"
         >
-          <MapPin className="w-4 h-4 text-[#FFB703] mt-0.5" />
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[11px] font-bold tracking-wider uppercase">
-              CHENNAI <ChevronDown className="w-3 h-3" />
+          <div className="w-6 h-6 rounded-full bg-[#f59e0b]/15 flex items-center justify-center text-[#f59e0b]">
+            <MapPin className="w-3.5 h-3.5" />
+          </div>
+          <div className="flex flex-col text-left">
+            <div className="flex items-center gap-1 text-[11px] font-black tracking-wider uppercase text-white group-hover:text-[#f59e0b] transition-colors">
+              CHENNAI <ChevronDown className="w-3 h-3 text-white/50 group-hover:text-[#f59e0b] transition-colors" />
             </div>
-            <span className="text-[10px] text-white/70">Tamil Nadu</span>
+            <span className="text-[9px] text-white/50 tracking-wide font-medium">Tamil Nadu</span>
           </div>
         </Link>
 
-        {/* Logo */}
-        <Link href="/explorer" className="text-xl font-bold tracking-wide">
-          Hidden Eats
+        {/* Brand Logo */}
+        <Link href="/explorer" className="flex items-center gap-2 group">
+          <span className="font-display text-2xl tracking-wider uppercase text-white group-hover:text-[#f59e0b] transition-colors">
+            Hidden<span className="text-[#f59e0b]">Eats</span>
+          </span>
+          <span className="hidden sm:inline-block text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-md bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30">
+            Explorer
+          </span>
         </Link>
       </div>
 
       {/* Right Group: Nav Pill + Prominent Multi-Language Switcher + Settings Icon */}
-      <div className="hidden xl:flex items-center gap-3">
-        <div className="flex items-center bg-black/20 rounded-full p-1 border border-black/20">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="hidden lg:flex items-center bg-white/[0.03] rounded-full p-1 border border-white/[0.08] backdrop-blur-xl">
           {explorerNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (pathname === '/' && item.href === '/explorer');
@@ -67,10 +73,10 @@ export default function ExplorerNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-colors ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black tracking-wider uppercase transition-all ${
                   isActive
-                    ? 'bg-[#FFB703] text-black shadow-sm'
-                    : 'text-white/80 hover:text-white hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-black shadow-lg shadow-[#f59e0b]/25 font-black'
+                    : 'text-white/70 hover:text-white hover:bg-white/[0.06]'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -83,10 +89,10 @@ export default function ExplorerNav() {
         {/* Prominent Global Multi-Language Switcher Dropdown */}
         <MultiLangSwitcher />
 
-        {/* Settings Link on the right side next to Collections */}
+        {/* Settings Link */}
         <Link 
           href="/explorer/settings"
-          className="p-2.5 rounded-full bg-black/20 hover:bg-black/40 transition-colors border border-white/10 text-white/80 hover:text-white flex items-center justify-center"
+          className="p-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] transition-all border border-white/[0.08] text-white/80 hover:text-[#f59e0b] flex items-center justify-center hover:scale-105 active:scale-95"
           title="Settings"
           aria-label="Settings"
         >

@@ -13,8 +13,8 @@ export default function RestaurantDashboardLayout({ children }: { children: Reac
   const navItems = [
     { name: 'Kitchen Display', href: '/dashboard/kitchen', icon: <LayoutDashboard className="w-5 h-5" /> },
     { name: 'Menu Management', href: '/dashboard/menu', icon: <UtensilsCrossed className="w-5 h-5" /> },
-    { name: 'Analytics', href: '#', icon: <BarChart3 className="w-5 h-5" /> },
-    { name: 'Settings', href: '#', icon: <Settings className="w-5 h-5" /> },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: <BarChart3 className="w-5 h-5" /> },
+    { name: 'Settings', href: '/dashboard/settings', icon: <Settings className="w-5 h-5" /> },
   ];
 
   return (

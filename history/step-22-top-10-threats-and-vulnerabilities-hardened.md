@@ -1,4 +1,4 @@
-# 🛡️ Step 21: Top 10 Security Threats & Vulnerability Patches
+# 🛡️ Step 22: Top 10 Security Threats & Vulnerability Patches
 
 **Date:** 2026-09-02  
 **Scope:** Server-Side Request Forgery (SSRF) Defense in ML Pipeline, Cryptographic Staff Bypass Token Signing, Supabase Multi-Tenant RLS & Realtime Isolation, UPI Intent Injection Defense, and Offline Replay Cache  

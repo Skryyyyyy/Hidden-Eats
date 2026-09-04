@@ -1,12 +1,143 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ExplorerNav from '@/components/ExplorerNav';
 import { useTheme } from '@/context/ThemeContext';
 import YouTubeScraperModal from '@/components/YouTubeScraperModal';
 import { ScrapedHiddenShop } from '@/lib/videoScraperNLP';
 import { Radio, Clock, Users, MapPin, Navigation, Check, ShieldCheck, Flame, Youtube, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Map, MapControls, useMap } from '@/components/ui/map';
+import * as maplibregl from 'maplibre-gl';
+
+interface RadarSpot {
+  id: number;
+  name: string;
+  location: string;
+  crowd: string;
+  crowdColor: string;
+  waitTime: string;
+  lastUpdated: string;
+  distance: string;
+  activeDrivers: number;
+  lat: number;
+  lng: number;
+}
+
+const INITIAL_SPOTS: RadarSpot[] = [
+  {
+    id: 1,
+    name: 'Grand Secret Kitchen',
+    location: 'T. Nagar, Chennai',
+    crowd: 'High Demand',
+    crowdColor: 'bg-red-500/10 text-red-400 border-red-500/30',
+    waitTime: '15 - 20 min wait',
+    lastUpdated: '12 mins ago (8 check-ins)',
+    distance: '1.2 km away',
+    activeDrivers: 4,
+    lat: 13.0418,
+    lng: 80.2341,
+  },
+  {
+    id: 2,
+    name: 'Alleyway Street Bakes',
+    location: 'Nungambakkam, Chennai',
+    crowd: 'Moderate',
+    crowdColor: 'bg-[#f8b11c]/10 text-[#f8b11c] border-[#f8b11c]/30',
+    waitTime: '5 min wait',
+    lastUpdated: '4 mins ago (14 check-ins)',
+    distance: '2.8 km away',
+    activeDrivers: 6,
+    lat: 13.0614,
+    lng: 80.2425,
+  },
+  {
+    id: 3,
+    name: 'Café De Quietude',
+    location: 'Anna Nagar, Chennai',
+    crowd: 'Low Crowd',
+    crowdColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    waitTime: 'No wait',
+    lastUpdated: 'Just now (5 check-ins)',
+    distance: '4.1 km away',
+    activeDrivers: 3,
+    lat: 13.0860,
+    lng: 80.2101,
+  },
+];
+
+/* ─── MapLibre markers for radar spots ─── */
+function RadarMapMarkers({
+  spots,
+  selectedSpot,
+  onSelectSpot,
+}: {
+  spots: RadarSpot[];
+  selectedSpot: number | null;
+  onSelectSpot: (idx: number) => void;
+}) {
+  const { map } = useMap();
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    spots.forEach((spot, idx) => {
+      const isSelected = selectedSpot === idx;
+
+      const el = document.createElement('div');
+      el.style.cursor = 'pointer';
+
+      const crowdColor =
+        spot.crowd === 'High Demand'
+          ? '#ef4444'
+          : spot.crowd === 'Moderate'
+          ? '#f59e0b'
+          : '#10b981';
+
+      el.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform 0.3s;transform:scale(${isSelected ? 1.3 : 1});">
+          <div style="
+            padding:4px 10px;
+            border-radius:12px;
+            font-size:11px;
+            font-weight:800;
+            white-space:nowrap;
+            border:1px solid ${isSelected ? '#fff' : crowdColor + '55'};
+            background:${isSelected ? crowdColor : '#0f141d'};
+            color:${isSelected ? '#fff' : crowdColor};
+            box-shadow:${isSelected ? `0 0 16px ${crowdColor}66` : '0 4px 12px rgba(0,0,0,0.4)'};
+          ">📍 ${spot.name.split(' ').slice(0, 2).join(' ')}</div>
+          <div style="
+            width:14px;height:14px;
+            border-radius:50%;
+            background:${crowdColor};
+            border:3px solid ${isSelected ? '#fff' : '#0a0a0a'};
+            box-shadow:0 0 ${isSelected ? '20' : '8'}px ${crowdColor}${isSelected ? '99' : '55'};
+          "></div>
+        </div>
+      `;
+
+      el.addEventListener('click', () => onSelectSpot(idx));
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([spot.lng, spot.lat])
+        .addTo(map);
+
+      markersRef.current.push(marker);
+    });
+
+    return () => {
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+    };
+  }, [map, spots, selectedSpot, onSelectSpot]);
+
+  return null;
+}
 
 export default function LiveCrowdRadarPage() {
   const { theme } = useTheme();
@@ -16,53 +147,16 @@ export default function LiveCrowdRadarPage() {
   const [showScraperModal, setShowScraperModal] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<number | null>(0);
 
-  const [spots, setSpots] = useState([
-    {
-      id: 1,
-      name: 'Grand Secret Kitchen',
-      location: 'T. Nagar, Chennai',
-      crowd: 'High Demand',
-      crowdColor: 'bg-red-500/10 text-red-400 border-red-500/30',
-      waitTime: '15 - 20 min wait',
-      lastUpdated: '12 mins ago (8 check-ins)',
-      distance: '1.2 km away',
-      activeDrivers: 4,
-      coords: { x: '45%', y: '35%' },
-    },
-    {
-      id: 2,
-      name: 'Alleyway Street Bakes',
-      location: 'Nungambakkam, Chennai',
-      crowd: 'Moderate',
-      crowdColor: 'bg-[#f8b11c]/10 text-[#f8b11c] border-[#f8b11c]/30',
-      waitTime: '5 min wait',
-      lastUpdated: '4 mins ago (14 check-ins)',
-      distance: '2.8 km away',
-      activeDrivers: 6,
-      coords: { x: '68%', y: '55%' },
-    },
-    {
-      id: 3,
-      name: 'Café De Quietude',
-      location: 'Anna Nagar, Chennai',
-      crowd: 'Low Crowd',
-      crowdColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-      waitTime: 'No wait',
-      lastUpdated: 'Just now (5 check-ins)',
-      distance: '4.1 km away',
-      activeDrivers: 3,
-      coords: { x: '30%', y: '70%' },
-    },
-  ]);
+  const [spots, setSpots] = useState<RadarSpot[]>(INITIAL_SPOTS);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Automatically fetch ML Model extracted hidden spots from backend database
     async function fetchMlExtractedSpots() {
       try {
         const res = await fetch('/api/scrape-youtube');
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
-          const mlSpots = json.data.map((item: any, idx: number) => ({
+          const mlSpots: RadarSpot[] = json.data.map((item: any, idx: number) => ({
             id: item.id || idx + 100,
             name: item.extractedShopName,
             location: item.extractedLocationText,
@@ -72,7 +166,8 @@ export default function LiveCrowdRadarPage() {
             lastUpdated: `Extracted via Whisper ASR + SpaCy NER (${(item.confidenceScore * 100).toFixed(0)}% Match)`,
             distance: '1.8 km away',
             activeDrivers: 6,
-            coords: { x: `${35 + idx * 20}%`, y: `${30 + idx * 22}%` },
+            lat: 13.0827 + (Math.random() - 0.5) * 0.04,
+            lng: 80.2707 + (Math.random() - 0.5) * 0.04,
           }));
           setSpots((prev) => [...mlSpots, ...prev]);
         }
@@ -89,7 +184,7 @@ export default function LiveCrowdRadarPage() {
   };
 
   const handleAddExtractedSpot = (scraped: ScrapedHiddenShop) => {
-    const newSpot = {
+    const newSpot: RadarSpot = {
       id: Date.now(),
       name: scraped.extractedShopName,
       location: scraped.extractedLocationText,
@@ -99,7 +194,8 @@ export default function LiveCrowdRadarPage() {
       lastUpdated: 'Extracted from YouTube NLP Engine',
       distance: '2.1 km away',
       activeDrivers: 5,
-      coords: { x: '50%', y: '45%' },
+      lat: 13.0827 + (Math.random() - 0.5) * 0.03,
+      lng: 80.2707 + (Math.random() - 0.5) * 0.03,
     };
     setSpots([newSpot, ...spots]);
     setSelectedSpot(0);
@@ -109,7 +205,7 @@ export default function LiveCrowdRadarPage() {
     <div className={`min-h-screen flex flex-col font-sans antialiased ${isLight ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#000000] text-[#e1e1e1]'}`}>
       <ExplorerNav />
 
-      <main className="max-w-6xl mx-auto w-full p-6 sm:p-10 space-y-8 flex-1">
+      <main className="max-w-7xl mx-auto w-full p-6 sm:p-10 space-y-8 flex-1">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
@@ -151,63 +247,55 @@ export default function LiveCrowdRadarPage() {
         {/* Radar Map & List Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Visual Interactive Animated Radar Sweep Widget */}
-          <div className="lg:col-span-7 bg-[#111111] border border-white/10 rounded-3xl p-6 relative overflow-hidden flex flex-col justify-between min-h-[380px] shadow-2xl">
-            <div className="flex justify-between items-center z-10">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#f8b11c]">
-                <Navigation className="w-4 h-4" /> Radar Active Range: 5 KM
-              </div>
-              <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
-                GPS LAT: 13.0827 | LNG: 80.2707
-              </span>
-            </div>
+          {/* Real Interactive MapLibre GL Map with Radar Overlay */}
+          <div className="lg:col-span-7 rounded-3xl overflow-hidden relative min-h-[420px] shadow-2xl border border-white/10">
+            <Map 
+              center={[80.2707, 13.0827]} 
+              zoom={12}
+              styles={{
+                light: "https://tiles.openfreemap.org/styles/liberty",
+                dark: "https://tiles.openfreemap.org/styles/dark"
+              }}
+            >
+              <MapControls position="top-right" showZoom showCompass showLocate showFullscreen />
 
-            {/* Radar Circle Grid Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[280px] h-[280px] rounded-full border border-[#f8b11c]/20 relative flex items-center justify-center">
-                <div className="w-[180px] h-[180px] rounded-full border border-[#f8b11c]/25 flex items-center justify-center">
-                  <div className="w-[90px] h-[90px] rounded-full border border-[#f8b11c]/30" />
-                </div>
-                {/* Center User Dot */}
-                <div className="w-3 h-3 bg-[#f8b11c] rounded-full shadow-[0_0_15px_#f8b11c] z-20" />
-              </div>
-
-              {/* Animated Rotating Radar Sweep */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                className="absolute w-[320px] h-[320px] rounded-full origin-center pointer-events-none"
-                style={{
-                  background: 'conic-gradient(from 0deg, rgba(248, 177, 35, 0.25) 0deg, transparent 60deg, transparent 360deg)',
-                }}
+              {/* Radar markers */}
+              <RadarMapMarkers
+                spots={spots}
+                selectedSpot={selectedSpot}
+                onSelectSpot={setSelectedSpot}
               />
-            </div>
 
-            {/* Spot Pins on Radar */}
-            {spots.map((spot, idx) => (
-              <button
-                key={spot.id}
-                onClick={() => setSelectedSpot(idx)}
-                style={{ left: spot.coords.x, top: spot.coords.y }}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 z-30 p-2.5 rounded-full border transition-all flex items-center gap-1.5 ${
-                  selectedSpot === idx
-                    ? 'bg-[#f8b11c] text-black border-white shadow-[0_0_20px_#f8b11c] scale-110'
-                    : 'bg-black/80 text-white border-white/20 hover:border-[#f8b11c]'
-                }`}
-              >
-                <MapPin className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-bold tracking-wider uppercase hidden sm:inline">
-                  {spot.name.split(' ')[0]}
+              {/* Rotating radar sweep overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                  className="w-[320px] h-[320px] rounded-full origin-center pointer-events-none opacity-30"
+                  style={{
+                    background: 'conic-gradient(from 0deg, rgba(248, 177, 35, 0.25) 0deg, transparent 60deg, transparent 360deg)',
+                  }}
+                />
+              </div>
+
+              {/* Top-left info badge */}
+              <div className="absolute top-4 left-4 z-30 pointer-events-auto flex items-center gap-2">
+                <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#f8b11c]">
+                  <Navigation className="w-3.5 h-3.5" /> Radar: 5 KM
+                </div>
+                <span className="text-[10px] font-mono text-gray-400 bg-black/60 backdrop-blur-xl px-2.5 py-1.5 rounded-xl border border-white/10">
+                  GPS 13.08 | 80.27
                 </span>
-              </button>
-            ))}
+              </div>
 
-            <div className="z-10 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-4 border-t border-white/5">
-              <span>Live Scanning...</span>
-              <span className="text-emerald-400 flex items-center gap-1">
-                ● 13 Active Drivers Online
-              </span>
-            </div>
+              {/* Bottom status bar */}
+              <div className="absolute bottom-4 left-4 right-4 z-30 pointer-events-auto flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-black/70 backdrop-blur-xl rounded-xl px-4 py-2.5 border border-white/10">
+                <span className="flex items-center gap-1.5"><Radio className="w-3 h-3 text-[#f8b11c] animate-pulse" /> Live Scanning...</span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  ● 13 Active Drivers Online
+                </span>
+              </div>
+            </Map>
           </div>
 
           {/* Spots List */}

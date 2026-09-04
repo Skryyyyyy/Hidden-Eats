@@ -98,16 +98,56 @@ export default function PartnerLoginPage() {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    // Instant seamless login for restaurant partner
-    localStorage.setItem('he_partner_session', JSON.stringify({ provider: 'google', email: 'partner@gmail.com', name: 'Google Partner' }));
-    router.push('/dashboard');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    
+    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+      localStorage.setItem('he_partner_session', JSON.stringify({ provider: 'google', email: 'partner@gmail.com', name: 'Google Partner' }));
+      router.push('/dashboard');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) {
+        setLoading(false);
+        setErrorMsg(error.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      setErrorMsg('An error occurred during Google sign in.');
+    }
   };
 
   const handleAppleSignIn = async () => {
     setLoading(true);
-    // Instant seamless login for restaurant partner
-    localStorage.setItem('he_partner_session', JSON.stringify({ provider: 'apple', email: 'partner@apple.com', name: 'Apple Partner' }));
-    router.push('/dashboard');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    
+    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+      localStorage.setItem('he_partner_session', JSON.stringify({ provider: 'apple', email: 'partner@apple.com', name: 'Apple Partner' }));
+      router.push('/dashboard');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) {
+        setLoading(false);
+        setErrorMsg(error.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      setErrorMsg('An error occurred during Apple sign in.');
+    }
   };
 
   return (

@@ -30,6 +30,7 @@ import InteractiveFeatures from '@/components/ui/InteractiveFeatures';
 import ParticleText from '@/components/ParticleText';
 import DepthCarousel from '@/components/DepthCarousel';
 import Dock from '@/components/Dock';
+import SplitFlapText from '@/components/SplitFlapText';
 
 export default function ResponsiveLandingPage() {
   const { theme } = useTheme();
@@ -715,6 +716,40 @@ export default function ResponsiveLandingPage() {
         <p className="text-gray-400 text-xs mt-3 z-10 font-mono text-center tracking-wide">
           Hover or tap anywhere to repel and reform the interactive particle grid
         </p>
+      </div>
+
+      {/* 
+        =========================================================================
+        🛩️ MECHANICAL SPLIT-FLAP REALTIME DISPATCH BOARD
+        ========================================================================= 
+      */}
+      <div className="w-full py-16 px-6 bg-[#08090e] border-b border-white/10 flex flex-col items-center justify-center relative overflow-hidden z-20">
+        <div className="text-center mb-6 z-10">
+          <span className="text-[#f8b11c] font-black tracking-widest uppercase text-xs block mb-2">
+            Live Secret Dispatch Terminal
+          </span>
+          <h3 className="font-display text-2xl sm:text-3xl uppercase tracking-tight text-white font-black">
+            Realtime Culinary Signals
+          </h3>
+        </div>
+
+        <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-[#0c0d14] border border-white/15 shadow-2xl overflow-x-auto max-w-full flex items-center justify-center">
+          <SplitFlapText
+            words={["LAUNCH READY", "SYNC ONLINE", "SIGNAL LIVE", "SECRET GEMS", "TAMIL NADU", "CHEF VAULT"]}
+            flipDuration={0.12}
+            stagger={0.06}
+            cycleDelay={2400}
+            charset="alphanumeric"
+            flipsPerChar={8}
+            tileColor="#111827"
+            textColor="#f8fafc"
+            tileRadius={8}
+            gap={6}
+            fontSize={42}
+            loop
+            padTo={12}
+          />
+        </div>
       </div>
 
       {/* 

@@ -333,6 +333,15 @@
 - **Landing Page & Explorer Integration (`apps/web/src/app/page.tsx` & `/explorer/page.tsx`)**: Embedded ParticleText banner, 3D DepthCarousel secret dish vault, and floating interactive Dock.
 - **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
 
+## 📌 Step 25: Mechanical SplitFlapText Realtime Dispatch Board
+**Date:** 2026-09-04  
+**Objective:** Add mechanical 3D SplitFlapText transit dispatch board with animated letter flipping and realistic typography physics.
+
+### Summary of Changes:
+- **SplitFlapText Component (`apps/web/src/components/SplitFlapText.tsx` & `.css`)**: Built transit departure board with 3D flap animations, custom charsets, and smooth phrase cycling.
+- **Landing Page Integration (`apps/web/src/app/page.tsx`)**: Embedded Live Secret Dispatch Terminal banner.
+- **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
+
 ---
 
 

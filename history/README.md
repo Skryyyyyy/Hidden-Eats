@@ -39,6 +39,7 @@ This folder is dedicated exclusively to tracking **all steps, modifications, and
 | [`step-22-top-10-threats-and-vulnerabilities-hardened.md`](file:///c:/Hidden%20Eats/history/step-22-top-10-threats-and-vulnerabilities-hardened.md) | Patched top 10 threats: SSRF defense, signed bypass tokens, UPI delimiter neutralization, RLS multi-tenant isolation, and QR replay cache. |
 | [`step-23-mit-license-page.md`](file:///c:/Hidden%20Eats/history/step-23-mit-license-page.md) | Added root MIT LICENSE file and dedicated luxury Open-Source License web page (`/license`). |
 | [`step-24-dock-particletext-and-depthcarousel.md`](file:///c:/Hidden%20Eats/history/step-24-dock-particletext-and-depthcarousel.md) | Built and integrated interactive macOS `Dock`, canvas `ParticleText`, and 3D `DepthCarousel` components. |
+| [`step-25-splitflaptext-departure-terminal.md`](file:///c:/Hidden%20Eats/history/step-25-splitflaptext-departure-terminal.md) | Added mechanical 3D `SplitFlapText` transit dispatch board with animated letter flipping. |
 | [`NEXT_STEPS_ROADMAP.md`](file:///c:/Hidden%20Eats/NEXT_STEPS_ROADMAP.md) | In-depth technical roadmap of upcoming implementation phases and milestones. |
 | [`HOW_TO_TEST_SCRAPER.md`](file:///c:/Hidden%20Eats/HOW_TO_TEST_SCRAPER.md) | Complete step-by-step guide for testing the AI YouTube & Video NLP Location Scraper. |
 | [`TOP_10_IMPROVEMENTS.md`](file:///c:/Hidden%20Eats/TOP_10_IMPROVEMENTS.md) | Top 10 high-impact technical and product improvements for production scale. |

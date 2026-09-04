@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Security, Depends, status
 from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 import logging
 import os
+import re
 import secrets
+from urllib.parse import urlparse
 from typing import List, Optional
 
 from modules.ingest import download_video
@@ -39,12 +41,80 @@ def verify_api_key(
         )
     return True
 
+# SSRF Defense: Domain & Hostname Validation
+ALLOWED_DOMAINS = {
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "youtu.be",
+    "instagram.com",
+    "www.instagram.com",
+}
+
+BLOCKED_IP_PATTERNS = [
+    r"^127\.",
+    r"^10\.",
+    r"^172\.(1[6-9]|2[0-9]|3[0-1])\.",
+    r"^192\.168\.",
+    r"^169\.254\.",
+    r"^0\.0\.0\.0",
+    r"^localhost$",
+    r"^\[?::1\]?$",
+]
+
+def validate_safe_media_url(url: str) -> str:
+    """
+    Validates that a URL is well-formed, uses http/https, targets allowed domains,
+    and prevents Server-Side Request Forgery (SSRF) against internal services.
+    """
+    if not url or not isinstance(url, str):
+        raise HTTPException(status_code=400, detail="Invalid URL format.")
+    
+    try:
+        parsed = urlparse(url.strip())
+    except Exception:
+        raise HTTPException(status_code=400, detail="Malformed URL.")
+    
+    if parsed.scheme not in ("http", "https"):
+        raise HTTPException(status_code=400, detail="Disallowed protocol. Only http/https supported.")
+    
+    hostname = (parsed.hostname or "").lower()
+    if not hostname:
+        raise HTTPException(status_code=400, detail="Missing hostname in URL.")
+    
+    # Check for prohibited credentials in URL
+    if parsed.username or parsed.password:
+        raise HTTPException(status_code=400, detail="User credentials in URL are prohibited.")
+    
+    # Block internal IP ranges & localhost
+    for pattern in BLOCKED_IP_PATTERNS:
+        if re.search(pattern, hostname):
+            raise HTTPException(status_code=403, detail="SSRF Protection: Access to private IP or internal host is prohibited.")
+    
+    # Enforce allowed media domain whitelist
+    if hostname not in ALLOWED_DOMAINS and not any(hostname.endswith("." + d) for d in ALLOWED_DOMAINS):
+        raise HTTPException(status_code=400, detail="Disallowed domain. Only YouTube and Instagram URLs are permitted.")
+    
+    return url
+
 class VideoRequest(BaseModel):
     url: str
+
+    @field_validator("url")
+    @classmethod
+    def check_url(cls, v: str) -> str:
+        return validate_safe_media_url(v)
 
 class ScrapeRequest(BaseModel):
     query_or_url: str
     max_results: int = 5
+
+    @field_validator("max_results")
+    @classmethod
+    def check_max(cls, v: int) -> int:
+        if v < 1 or v > 20:
+            raise ValueError("max_results must be between 1 and 20")
+        return v
 
 @app.get("/")
 def health_check():
@@ -75,21 +145,22 @@ async def batch_process(urls: List[str]):
     """Processes a list of URLs sequentially to avoid crashing the GPU."""
     logger.info(f"Starting batch processing of {len(urls)} videos...")
     for index, url in enumerate(urls):
-        logger.info(f"--- Processing video {index + 1} of {len(urls)} ---")
-        await process_pipeline(url)
+        try:
+            safe_url = validate_safe_media_url(url)
+            logger.info(f"--- Processing video {index + 1} of {len(urls)} ---")
+            await process_pipeline(safe_url)
+        except Exception as err:
+            logger.warning(f"Skipping unsafe or invalid URL {url}: {err}")
     logger.info("Batch processing complete.")
 
 @app.post("/process-video", dependencies=[Depends(verify_api_key)])
 async def process_video(request: VideoRequest, background_tasks: BackgroundTasks):
-    if "youtube.com" not in request.url and "youtu.be" not in request.url:
-        raise HTTPException(status_code=400, detail="Only YouTube URLs are supported currently.")
-    
-    # Run heavy pipeline in background
-    background_tasks.add_task(process_pipeline, request.url)
+    safe_url = validate_safe_media_url(request.url)
+    background_tasks.add_task(process_pipeline, safe_url)
     
     return {
         "message": "Video processing started in the background.",
-        "url": request.url,
+        "url": safe_url,
         "status": "processing"
     }
 
@@ -100,7 +171,6 @@ async def scrape_and_process(request: ScrapeRequest, background_tasks: Backgroun
         if not urls:
             return {"message": "No URLs found for the given query.", "status": "failed"}
             
-        # Queue batch processor in background
         background_tasks.add_task(batch_process, urls)
         
         return {

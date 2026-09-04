@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyStaffBypassToken } from '@/lib/security';
 
 // Protected path prefixes requiring authenticated session
 const PROTECTED_DASHBOARD_PATHS = ['/dashboard'];
@@ -10,7 +11,8 @@ export async function middleware(request: NextRequest) {
 
   // 1. Maintenance Mode Interceptor
   const isMaintenanceEnv = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
-  const hasStaffBypass = request.cookies.get('he_staff_bypass')?.value === 'true';
+  const staffBypassCookie = request.cookies.get('he_staff_bypass')?.value;
+  const hasStaffBypass = verifyStaffBypassToken(staffBypassCookie);
 
   if (isMaintenanceEnv && !hasStaffBypass && pathname !== '/maintenance' && !pathname.startsWith('/api') && !pathname.startsWith('/_next')) {
     const maintenanceUrl = request.nextUrl.clone();
@@ -23,7 +25,7 @@ export async function middleware(request: NextRequest) {
     request.cookies.has('sb-access-token') ||
     request.cookies.has('supabase-auth-token') ||
     Array.from(request.cookies.getAll()).some((c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token')) ||
-    request.cookies.get('he_staff_bypass')?.value === 'true';
+    hasStaffBypass;
 
   // Check /dashboard protection — Redirect unauthenticated users to partner login
   if (PROTECTED_DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix))) {

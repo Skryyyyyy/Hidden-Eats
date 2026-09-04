@@ -164,3 +164,46 @@ export function verifyTrustedOrigin(request: Request): boolean {
   return false;
 }
 
+const STAFF_BYPASS_SECRET = process.env.STAFF_BYPASS_SECRET || 'he_secure_bypass_2026';
+const STAFF_BYPASS_MAX_AGE_MS = 2 * 60 * 60 * 1000; // 2 Hours
+
+/**
+ * Generates an HMAC-SHA256 signed staff bypass token
+ */
+export function generateStaffBypassToken(): string {
+  const timestamp = Date.now();
+  const raw = `staff_bypass:${timestamp}`;
+  const crypto = require('crypto');
+  const signature = crypto.createHmac('sha256', STAFF_BYPASS_SECRET).update(raw).digest('hex');
+  return `${timestamp}.${signature}`;
+}
+
+/**
+ * Cryptographically verifies an HMAC-SHA256 signed staff bypass token and checks TTL
+ */
+export function verifyStaffBypassToken(token: string | null | undefined): boolean {
+  if (!token || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+
+  const [timestampStr, signature] = parts;
+  const timestamp = parseInt(timestampStr, 10);
+  if (isNaN(timestamp)) return false;
+
+  // Check 2-hour TTL expiration
+  if (Date.now() - timestamp > STAFF_BYPASS_MAX_AGE_MS || timestamp > Date.now() + 60000) {
+    return false;
+  }
+
+  const raw = `staff_bypass:${timestamp}`;
+  const crypto = require('crypto');
+  const expectedSig = crypto.createHmac('sha256', STAFF_BYPASS_SECRET).update(raw).digest('hex');
+
+  const sigBuf = Buffer.from(signature, 'utf8');
+  const expBuf = Buffer.from(expectedSig, 'utf8');
+
+  if (sigBuf.length !== expBuf.length) return false;
+  return crypto.timingSafeEqual(sigBuf, expBuf);
+}
+
+

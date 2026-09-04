@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
-import { hasSqlInjectionPattern } from '@/lib/security';
+import { hasSqlInjectionPattern, generateStaffBypassToken } from '@/lib/security';
 
 const STAFF_BYPASS_SECRET = process.env.STAFF_BYPASS_SECRET || 'he_secure_bypass_2026';
 
@@ -56,7 +56,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Issue secure HttpOnly cookie for Edge Middleware verification
+    // 3. Issue cryptographically signed HMAC token in HttpOnly cookie
+    const token = generateStaffBypassToken();
+
     const response = NextResponse.json({
       success: true,
       message: 'Staff bypass authenticated successfully',
@@ -64,7 +66,7 @@ export async function POST(request: Request) {
 
     response.cookies.set({
       name: 'he_staff_bypass',
-      value: 'true',
+      value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

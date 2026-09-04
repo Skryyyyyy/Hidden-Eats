@@ -32,9 +32,23 @@ assert(settlement.platformFee === 50, 'Platform fee calculates accurately (5% = 
 assert(settlement.driverShare === 200, 'Driver share includes base (15% = ₹150) + tip (₹50) = ₹200');
 assert(settlement.partnerPayout === 800, 'Partner payout is correct (80% net = ₹800)');
 
-// 2. UPI Deep Link Encoding
+// 2. UPI Deep Link Encoding & Sanitization
+function sanitizeUPIString(input, maxLength = 64) {
+  if (!input || typeof input !== 'string') return '';
+  return input
+    .trim()
+    .replace(/[&?=#\r\n\t]/g, '')
+    .slice(0, maxLength);
+}
+
 function buildUPIDeepLink({ payeeVPA = 'hiddeneats@upi', payeeName = 'Hidden Eats', amount, transactionRef, note = 'Food Order' }) {
-  return `upi://pay?pa=${payeeVPA}&pn=${encodeURIComponent(payeeName)}&am=${amount.toFixed(2)}&cu=INR&tr=${transactionRef}&tn=${encodeURIComponent(note)}`;
+  const safeAmount = Math.max(0.01, isFinite(amount) ? amount : 0);
+  const safeVPA = sanitizeUPIString(payeeVPA).replace(/[^a-zA-Z0-9@._-]/g, '');
+  const safeName = encodeURIComponent(sanitizeUPIString(payeeName, 50));
+  const safeRef = encodeURIComponent(sanitizeUPIString(transactionRef, 35).replace(/[^a-zA-Z0-9_-]/g, ''));
+  const safeNote = encodeURIComponent(sanitizeUPIString(note, 60));
+
+  return `upi://pay?pa=${safeVPA}&pn=${safeName}&am=${safeAmount.toFixed(2)}&cu=INR&tr=${safeRef}&tn=${safeNote}`;
 }
 
 const upiLink = buildUPIDeepLink({
@@ -47,6 +61,16 @@ const upiLink = buildUPIDeepLink({
 assert(upiLink.startsWith('upi://pay?'), 'UPI deep link starts with upi://pay protocol');
 assert(upiLink.includes('pa=partner@upi'), 'UPI payee VPA is accurate');
 assert(upiLink.includes('am=340.00'), 'UPI amount is formatted with two decimal places');
+
+// Test injection in UPI note parameter
+const injectedUPILink = buildUPIDeepLink({
+  payeeVPA: 'partner@upi',
+  payeeName: 'Grand Secret Kitchen',
+  amount: 340,
+  transactionRef: 'ORD_101',
+  note: 'Biryani&am=1.00&pa=attacker@upi#hack',
+});
+assert(!injectedUPILink.includes('&am=1.00'), 'UPI parameter injection attack is neutralized');
 
 // 3. HMAC-SHA256 Webhook Verification
 function verifyPaymentWebhookSignature(rawBody, signature, secretKey) {
@@ -127,6 +151,50 @@ assert(verifyTestQR(Buffer.from(JSON.stringify({ bad: 'data' })).toString('base6
 // Test TTL expiration (>24 hours old)
 const expiredQrPass = generateTestQR('BK_999', 'TABLE_BOOKING', 'Old Diner', -(25 * 60 * 60 * 1000));
 assert(verifyTestQR(expiredQrPass.token) === false, 'Expired QR token (>24h old) is securely rejected');
+
+// 7. Cryptographic Staff Bypass Token Verification
+const STAFF_SECRET = 'he_secure_bypass_2026';
+function generateTestStaffBypass(timestamp = Date.now()) {
+  const raw = `staff_bypass:${timestamp}`;
+  const sig = crypto.createHmac('sha256', STAFF_SECRET).update(raw).digest('hex');
+  return `${timestamp}.${sig}`;
+}
+
+function verifyTestStaffBypass(token) {
+  if (!token || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [timestampStr, signature] = parts;
+  const timestamp = parseInt(timestampStr, 10);
+  if (isNaN(timestamp) || Date.now() - timestamp > 2 * 3600 * 1000) return false;
+
+  const raw = `staff_bypass:${timestamp}`;
+  const expectedSig = crypto.createHmac('sha256', STAFF_SECRET).update(raw).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig));
+}
+
+const validStaffToken = generateTestStaffBypass();
+assert(verifyTestStaffBypass(validStaffToken) === true, 'HMAC signed staff bypass token verified');
+assert(verifyTestStaffBypass('forged.signature123') === false, 'Forged staff bypass token rejected');
+assert(verifyTestStaffBypass(generateTestStaffBypass(Date.now() - 3 * 3600 * 1000)) === false, 'Expired staff bypass token (>2h) rejected');
+
+// 8. SSRF Domain Validation
+function isSafeMediaUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+    const hostname = parsed.hostname.toLowerCase();
+    const allowed = ['youtube.com', 'www.youtube.com', 'youtu.be', 'instagram.com', 'www.instagram.com'];
+    if (['127.0.0.1', 'localhost', '169.254.169.254', '0.0.0.0'].includes(hostname)) return false;
+    return allowed.includes(hostname);
+  } catch {
+    return false;
+  }
+}
+
+assert(isSafeMediaUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ') === true, 'Valid YouTube URL accepted');
+assert(isSafeMediaUrl('http://169.254.169.254/latest/meta-data/') === false, 'AWS metadata SSRF URL blocked');
+assert(isSafeMediaUrl('http://localhost:5432/db') === false, 'Localhost SSRF URL blocked');
 
 console.log(`\n🎉 All ${passed} tests passed successfully (${failed} failed).\n`);
 process.exit(failed === 0 ? 0 : 1);

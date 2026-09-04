@@ -289,6 +289,18 @@
   10. *OLED Battery-Saver Stealth Mode* (`#000000`).
 - **Verification**: Verified with 0 TypeScript errors and 18/18 passing test suite assertions.
 
+## 📌 Step 21: Top 10 Security Threats & Vulnerability Patches
+**Date:** 2026-09-02  
+**Objective:** Harden the system against Server-Side Request Forgery (SSRF), staff bypass spoofing, UPI parameter injection, cross-tenant WebSocket leaks, and offline QR replays.
+
+### Summary of Changes:
+- **ML Pipeline SSRF Defense (`apps/ml-pipeline/main.py`)**: Added domain whitelist (`youtube.com`, `instagram.com`), blocked private IP ranges and localhost, and rejected embedded credentials.
+- **Cryptographic Staff Bypass (`apps/web/src/lib/security.ts` & `middleware.ts`)**: Replaced static boolean cookie with HMAC-SHA256 signed token (`generateStaffBypassToken` & `verifyStaffBypassToken`) with 2-hour TTL expiration.
+- **UPI Deep-Link Sanitization (`apps/web/src/lib/payment.ts`)**: Built `sanitizeUPIString` neutralizing URI control delimiters (`&`, `?`, `=`, `#`, CR/LF) before intent generation.
+- **Supabase Multi-Tenant Isolation (`supabase/migrations/20260902_rls_tenant_isolation_and_realtime_security.sql`)**: Implemented strict Row-Level Security policies on `orders` and `bookings` and hardened realtime publication.
+- **Offline QR Replay Defense (`apps/web/src/components/QRScannerModal.tsx`)**: Maintained session cache to block duplicate passes on scanner devices.
+- **Automated Test Suite (`apps/web/scripts/run-tests.js`)**: 25/25 automated assertions passing with 0 failures.
+
 ---
 
 

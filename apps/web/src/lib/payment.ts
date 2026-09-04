@@ -5,6 +5,7 @@
  */
 
 import crypto from 'crypto';
+import QRCode from 'qrcode';
 
 export interface UPIPaymentParams {
   payeeVPA?: string; // Virtual Payment Address e.g., hiddeneats@upi
@@ -17,7 +18,13 @@ export interface UPIPaymentParams {
 /**
  * Generate standard upi://pay deep link URL
  */
-import QRCode from 'qrcode';
+export function sanitizeUPIString(input: string, maxLength = 64): string {
+  if (!input || typeof input !== 'string') return '';
+  return input
+    .trim()
+    .replace(/[&?=#\r\n\t]/g, '') // Strip URI control characters and newlines
+    .slice(0, maxLength);
+}
 
 export function buildUPIDeepLink({
   payeeVPA = 'hiddeneats@upi',
@@ -26,9 +33,13 @@ export function buildUPIDeepLink({
   transactionRef,
   note = 'Hidden Eats Food Order',
 }: UPIPaymentParams): string {
-  const encodedName = encodeURIComponent(payeeName);
-  const encodedNote = encodeURIComponent(note);
-  return `upi://pay?pa=${payeeVPA}&pn=${encodedName}&am=${amount.toFixed(2)}&cu=INR&tr=${transactionRef}&tn=${encodedNote}`;
+  const safeAmount = Math.max(0.01, isFinite(amount) ? amount : 0);
+  const safeVPA = sanitizeUPIString(payeeVPA).replace(/[^a-zA-Z0-9@._-]/g, '');
+  const safeName = encodeURIComponent(sanitizeUPIString(payeeName, 50));
+  const safeRef = encodeURIComponent(sanitizeUPIString(transactionRef, 35).replace(/[^a-zA-Z0-9_-]/g, ''));
+  const safeNote = encodeURIComponent(sanitizeUPIString(note, 60));
+
+  return `upi://pay?pa=${safeVPA}&pn=${safeName}&am=${safeAmount.toFixed(2)}&cu=INR&tr=${safeRef}&tn=${safeNote}`;
 }
 
 /**

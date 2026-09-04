@@ -20,7 +20,12 @@ export default function QRScannerModal({ onClose, onVerified }: QRScannerModalPr
     setIsScanning(true);
     setErrorMsg(null);
 
+    // Replay check from local session storage
     try {
+      const redeemedCache: Record<string, string> = JSON.parse(
+        sessionStorage.getItem('he_redeemed_passes') || '{}'
+      );
+
       const res = await fetch('/api/qr/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,6 +36,20 @@ export default function QRScannerModal({ onClose, onVerified }: QRScannerModalPr
       setIsScanning(false);
 
       if (res.ok && data.success) {
+        const passId = data.pass?.id;
+
+        // Check if pass was already redeemed in this session
+        if (passId && redeemedCache[passId]) {
+          setErrorMsg(`Duplicate Replay: Pass ${passId} was already redeemed at ${redeemedCache[passId]}.`);
+          return;
+        }
+
+        // Record redemption in local session storage
+        if (passId) {
+          redeemedCache[passId] = new Date().toLocaleTimeString();
+          sessionStorage.setItem('he_redeemed_passes', JSON.stringify(redeemedCache));
+        }
+
         setVerifiedPass(data.pass);
         if (onVerified) onVerified(data.pass);
       } else {

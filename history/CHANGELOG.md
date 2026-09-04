@@ -314,7 +314,15 @@
 - **Offline QR Replay Defense (`apps/web/src/components/QRScannerModal.tsx`)**: Maintained session cache to block duplicate passes on scanner devices.
 - **Automated Test Suite (`apps/web/scripts/run-tests.js`)**: 25/25 automated assertions passing with 0 failures.
 
----
+## 📌 Step 23: MIT License File & Dedicated Open-Source License Page
+**Date:** 2026-09-04  
+**Objective:** Add standard root MIT LICENSE file and luxury-themed interactive `/license` web page with 1-click clipboard copier and navigation integration.
+
+### Summary of Changes:
+- **Root License File (`LICENSE`)**: Added standard permissive MIT License (2026).
+- **Web License Page (`apps/web/src/app/license/page.tsx`)**: Built full license viewer with obsidian/gold luxury styling, visual permission cards (Permissions, Conditions, Limitations), and 1-tap copy button.
+- **Settings Integration (`apps/web/src/app/explorer/settings/page.tsx`)**: Linked `/license` in the Legal Compliance tab.
+- **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
 
 ---
 

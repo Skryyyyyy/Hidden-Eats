@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ExplorerNav from '@/components/ExplorerNav';
+import Dock from '@/components/Dock';
 import {
-  Compass, Search, Star, Clock, MapPin, Sparkles, SlidersHorizontal, Flame, ChevronRight, Utensils
+  Compass, Search, Star, Clock, MapPin, Sparkles, SlidersHorizontal, Flame, ChevronRight, Utensils, Radio, Clapperboard, Bookmark, Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -501,6 +502,22 @@ export default function ExplorerPage() {
         </section>
 
       </main>
+
+      {/* 🛸 Interactive Glassmorphic macOS Dock */}
+      <Dock
+        items={[
+          { icon: <Compass className="w-5 h-5 text-[#f59e0b]" />, label: 'Explore', href: '/explorer' },
+          { icon: <MapPin className="w-5 h-5 text-emerald-400" />, label: 'Map View', href: '/explorer/map' },
+          { icon: <Radio className="w-5 h-5 text-purple-400" />, label: 'Live Radar', href: '/explorer/radar' },
+          { icon: <Clapperboard className="w-5 h-5 text-rose-400" />, label: 'Food Reels', href: '/explorer/reels' },
+          { icon: <Sparkles className="w-5 h-5 text-amber-300" />, label: 'Submit Gem', href: '/explorer/submit-gem' },
+          { icon: <Bookmark className="w-5 h-5 text-blue-400" />, label: 'Saved Vault', href: '/explorer/collections' },
+          { icon: <Settings className="w-5 h-5 text-gray-300" />, label: 'Settings', href: '/explorer/settings' },
+        ]}
+        panelHeight={80}
+        baseItemSize={54}
+        magnification={84}
+      />
     </div>
   );
 }

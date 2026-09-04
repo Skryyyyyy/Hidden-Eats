@@ -27,7 +27,9 @@ const ParallaxComponent = dynamic(
 );
 
 import InteractiveFeatures from '@/components/ui/InteractiveFeatures';
-
+import ParticleText from '@/components/ParticleText';
+import DepthCarousel from '@/components/DepthCarousel';
+import Dock from '@/components/Dock';
 
 export default function ResponsiveLandingPage() {
   const { theme } = useTheme();
@@ -678,6 +680,86 @@ export default function ResponsiveLandingPage() {
 
       {/* 
         =========================================================================
+        🌌 INTERACTIVE PARTICLE PHYSICS SHOWCASE
+        ========================================================================= 
+      */}
+      <div className="w-full py-20 px-6 bg-[#07080b] border-y border-white/10 flex flex-col items-center justify-center relative overflow-hidden z-20">
+        <div className="text-center mb-6 z-10">
+          <span className="text-[#f8b11c] font-black tracking-widest uppercase text-xs block mb-2">
+            Interactive AI Discovery Engine
+          </span>
+          <h3 className="font-display text-2xl sm:text-3xl uppercase tracking-tight text-white/90">
+            Uncover Hidden Flavors
+          </h3>
+        </div>
+        <div style={{ width: '100%', height: 340 }} className="relative z-10 flex items-center justify-center">
+          <ParticleText
+            text="HIDDEN EATS"
+            particleSize={2.4}
+            density={4}
+            color="#f8fafc"
+            highlightColor="#f8b11c"
+            scatter={190}
+            gatherDuration={1600}
+            stagger={420}
+            pointerRepel={45}
+            repelRadius={130}
+            idleDrift={0.8}
+            trigger="mount"
+            fontSize="clamp(3.5rem, 12vw, 8.5rem)"
+            fontWeight={900}
+            fontFamily="inherit"
+            glow
+          />
+        </div>
+        <p className="text-gray-400 text-xs mt-3 z-10 font-mono text-center tracking-wide">
+          Hover or tap anywhere to repel and reform the interactive particle grid
+        </p>
+      </div>
+
+      {/* 
+        =========================================================================
+        🍣 3D DEPTH CAROUSEL SECRET VAULT
+        ========================================================================= 
+      */}
+      <div className="w-full py-24 px-6 bg-[#090a10] border-b border-white/10 flex flex-col items-center justify-center relative overflow-hidden z-20">
+        <div className="text-center mb-12 relative z-10">
+          <span className="text-[#f8b11c] font-black tracking-widest uppercase text-xs mb-3 block">
+            Curated Off-Menu Vault
+          </span>
+          <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tight font-black text-white">
+            Explore Dishes in 3D
+          </h2>
+          <p className="text-gray-400 text-xs sm:text-sm mt-3 max-w-md mx-auto leading-relaxed">
+            Spin through signature off-menu creations and hidden gems available exclusively on Hidden Eats.
+          </p>
+        </div>
+
+        <div style={{ height: '500px', width: '100%', position: 'relative', maxWidth: '1200px' }}>
+          <DepthCarousel
+            items={[
+              { image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&auto=format&fit=crop&q=80', alt: 'Smoked Mutton Biryani', title: 'Smoked Mutton Dum Biryani', subtitle: 'Hole-in-the-Wall • Chennai' },
+              { image: 'https://images.unsplash.com/photo-1626776876729-ab5220c5d577?w=800&auto=format&fit=crop&q=80', alt: 'Black Garlic Wings', title: 'Black Garlic Smoked Wings', subtitle: 'Secret Night Kitchen' },
+              { image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?w=800&auto=format&fit=crop&q=80', alt: 'Truffle Butter Dosa', title: 'Truffle Butter Ghee Dosa', subtitle: 'Heritage Secret Spot' },
+              { image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?w=800&auto=format&fit=crop&q=80', alt: 'Chettinad Brain Fry', title: 'Chettinad Claypot Fry', subtitle: 'Chef Exclusive • 86 Available' },
+              { image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80', alt: 'Filter Coffee Panna Cotta', title: 'Filter Coffee Panna Cotta', subtitle: 'Artisan Dessert Lab' },
+            ]}
+            depth={220}
+            spread={90}
+            tilt={22}
+            tiltDirection="right"
+            perspective={1400}
+            visibleCards={4}
+            falloff={0.2}
+            blur={6}
+            autoplay
+            loop
+          />
+        </div>
+      </div>
+
+      {/* 
+        =========================================================================
         TESTIMONIALS & SOCIAL PROOF
         ========================================================================= 
       */}
@@ -1009,6 +1091,21 @@ export default function ResponsiveLandingPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 🛸 Animated macOS Glassmorphic Dock */}
+      <Dock 
+        items={[
+          { icon: <Compass className="w-5 h-5 text-[#f8b11c]" />, label: 'Explore Spots', href: '/explorer' },
+          { icon: <MapPin className="w-5 h-5 text-emerald-400" />, label: 'In-App Map', href: '/explorer/map' },
+          { icon: <Radio className="w-5 h-5 text-purple-400" />, label: 'Live Radar', href: '/explorer/radar' },
+          { icon: <Clapperboard className="w-5 h-5 text-rose-400" />, label: 'Food Reels', href: '/explorer/reels' },
+          { icon: <Briefcase className="w-5 h-5 text-blue-400" />, label: 'Partner Studio', href: '/dashboard' },
+          { icon: <Truck className="w-5 h-5 text-amber-300" />, label: 'Courier Hub', href: '/driver' },
+        ]}
+        panelHeight={80}
+        baseItemSize={54}
+        magnification={84}
+      />
 
     </div>
   );

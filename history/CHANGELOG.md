@@ -322,6 +322,15 @@
 - **Root License File (`LICENSE`)**: Added standard permissive MIT License (2026).
 - **Web License Page (`apps/web/src/app/license/page.tsx`)**: Built full license viewer with obsidian/gold luxury styling, visual permission cards (Permissions, Conditions, Limitations), and 1-tap copy button.
 - **Settings Integration (`apps/web/src/app/explorer/settings/page.tsx`)**: Linked `/license` in the Legal Compliance tab.
+## 📌 Step 24: Interactive Dock, ParticleText, and 3D DepthCarousel Components
+**Date:** 2026-09-04  
+**Objective:** Build and integrate animated macOS `Dock`, physics-driven `ParticleText`, and 3D perspective `DepthCarousel` across the web application.
+
+### Summary of Changes:
+- **macOS Glassmorphic Dock (`apps/web/src/components/Dock.tsx`)**: Built fluid spring-magnification navigation dock with tooltip animations and responsive scaling.
+- **Physics Canvas ParticleText (`apps/web/src/components/ParticleText.tsx` & `.css`)**: Integrated interactive particle text with pointer repulsion, ambient glow, and idle drift.
+- **3D DepthCarousel (`apps/web/src/components/DepthCarousel.tsx`)**: Built 3D perspective card carousel with Z-depth translations, tilting, depth blur, and autoplay.
+- **Landing Page & Explorer Integration (`apps/web/src/app/page.tsx` & `/explorer/page.tsx`)**: Embedded ParticleText banner, 3D DepthCarousel secret dish vault, and floating interactive Dock.
 - **Verification**: 0 TypeScript compilation errors and 25/25 passing unit tests.
 
 ---
